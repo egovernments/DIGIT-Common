@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.6.RELEASE</version>
+    <version>3.2.2</version>
     <relativePath></relativePath>
   </parent>
   <groupId>collection-services</groupId>
@@ -14,34 +14,32 @@
   <name>collection-services</name>
   <description>Spring Boot Project for Collection Services</description>
   <properties>
-    <log4j2.version>2.17.1</log4j2.version>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.8</java.version>
-    <joda-time-version>2.9.6</joda-time-version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <lombok.version>1.18.8</lombok.version>
-    <commons-lang-version>2.6</commons-lang-version>
+      <log4j2.version>2.17.1</log4j2.version>
+      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+      <java.version>17</java.version>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <lombok.version>1.18.22</lombok.version>
+      <joda-time-version>2.9.6</joda-time-version>
+      <commons-lang-version>2.6</commons-lang-version>
+      <maven.compiler.source>${java.version}</maven.compiler.source>
+      <maven.compiler.target>${java.version}</maven.compiler.target>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.egov.services</groupId>
-      <artifactId>tracer</artifactId>
-      <version>2.0.0-SNAPSHOT</version>
+        <groupId>org.egov.services</groupId>
+        <artifactId>tracer</artifactId>
+        <version>2.9.0-SNAPSHOT</version>
     </dependency>
-    <dependency>
-      <groupId>org.egov.services</groupId>
-      <artifactId>services-common</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
-    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-      <dependency>
+  <!--    <dependency>
           <groupId>org.springframework</groupId>
           <artifactId>spring-beans</artifactId>
           <version>5.2.20.RELEASE</version>
-      </dependency>
+      </dependency>-->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-to-slf4j</artifactId>
@@ -50,14 +48,16 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
+        <version>42.7.1</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+        <version>9.22.3</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.kafka</groupId>
@@ -71,7 +71,14 @@
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
+        <version>${joda-time-version}</version>
     </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.13.2</version>
+          <scope>test</scope>
+      </dependency>
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
       <artifactId>json-path</artifactId>
@@ -86,9 +93,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.egov</groupId>
-      <artifactId>mdms-client</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+        <groupId>org.egov</groupId>
+        <artifactId>mdms-client</artifactId>
+        <version>2.9.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -100,11 +107,11 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
+ <!--   <dependency>
           <groupId>org.hibernate</groupId>
           <artifactId>hibernate-validator</artifactId>
           <version>6.0.16.Final</version>
-    </dependency>
+    </dependency>-->
     <dependency>
           <groupId>org.jsoup</groupId>
           <artifactId>jsoup</artifactId>

@@ -40,10 +40,10 @@
 package org.egov.collection.web.contract;
 
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.egov.collection.model.enums.BankAccountType;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -76,18 +76,18 @@ public class BankAccountContract extends AuditableContract implements java.io.Se
 	private FundContract fund;
 
 	@NotNull
-	@Length(max = 25)
+	@Size(max = 25)
 	private String accountNumber;
 
 	// is this required ?
 	private String accountType;
-	@Length(max = 256)
+	@Size(max = 256)
 	private String description;
 
 	@NotNull
 	private Boolean active;
 
-	@Length(max = 100)
+	@Size(max = 100)
 	private String payTo;
 
 	@NotNull

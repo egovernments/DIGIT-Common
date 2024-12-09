@@ -12,6 +12,7 @@ import org.egov.collection.service.MDMSService;
 import org.egov.collection.web.contract.Bill;
 import org.egov.collection.web.contract.BillAccountDetail;
 import org.egov.collection.web.contract.BillDetail;
+import org.egov.common.contract.request.PlainAccessRequest;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.tracer.model.CustomException;
@@ -76,7 +77,7 @@ class PaymentEnricherTest {
 
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setRequestInfo(new RequestInfo("42", "USER_INFO_INVALID", 4L, "USER_INFO_INVALID",
-                "USER_INFO_INVALID", "USER_INFO_INVALID", "42", "ABC123", "42", new User()));
+                "USER_INFO_INVALID", "USER_INFO_INVALID", "42", "ABC123", "42", new PlainAccessRequest(),new User()));
         paymentRequest.setPayment(payment);
         assertThrows(CustomException.class, () -> this.paymentEnricher.enrichPaymentPreValidate(paymentRequest));
         verify(payment).getTenantId();
