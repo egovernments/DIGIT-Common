@@ -16,7 +16,7 @@ All notable changes to this module will be documented in this file.
 
 ## 1.2.2 - 2021-05-11
  - VUL-WEB-L008
- - Added @SafeHtml annotaion on string fields
+ - Added  annotaion on string fields
  - Updated POM to add safeHtml validator libraries
 
 ## 1.2.1 - 2021-02-26

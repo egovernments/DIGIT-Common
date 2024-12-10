@@ -13,6 +13,7 @@ import org.egov.collection.producer.CollectionProducer;
 import org.egov.collection.repository.PaymentRepository;
 import org.egov.collection.repository.ServiceRequestRepository;
 import org.egov.collection.service.PaymentWorkflowService;
+import org.egov.common.contract.request.PlainAccessRequest;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.egov.tracer.model.CustomException;
@@ -140,7 +141,7 @@ class PaymentValidatorTest {
         PaymentValidator paymentValidator = new PaymentValidator(paymentRepository, paymentWorkflowService,
                 new ApplicationProperties(), mock(ServiceRequestRepository.class));
         RequestInfo requestInfo = new RequestInfo("42", "INVALID_USER_INFO", 1L, "INVALID_USER_INFO", "INVALID_USER_INFO",
-                "INVALID_USER_INFO", "42", "ABC123", "42", new User());
+                "INVALID_USER_INFO", "42", "ABC123", "42", new PlainAccessRequest(), new User());
 
         HashMap<String, String> stringStringMap = new HashMap<>();
         paymentValidator.validateUserInfo(requestInfo, stringStringMap);
@@ -340,7 +341,7 @@ class PaymentValidatorTest {
         assertThrows(CustomException.class,
                 () -> paymentValidator.validateAndUpdateSearchRequestFromConfig(paymentSearchCriteria,
                         new RequestInfo("42", "INVALID_USER_INFO", 1L, "INVALID_USER_INFO", "INVALID_USER_INFO",
-                                "INVALID_USER_INFO", "42", "ABC123", "42", new User()),
+                                "INVALID_USER_INFO", "42", "ABC123", "42", new PlainAccessRequest(), new User()),
                         "Module Name"));
     }
 

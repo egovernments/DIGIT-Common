@@ -2,6 +2,7 @@ package org.egov.collection.util;
 
 import org.egov.collection.web.contract.Remittance;
 import org.egov.collection.web.contract.RemittanceRequest;
+import org.egov.common.contract.request.PlainAccessRequest;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.User;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ class emittanceEnricherTest {
         user.setId(123L);
         RemittanceRequest remittanceRequest = mock(RemittanceRequest.class);
         when(remittanceRequest.getRequestInfo())
-                .thenReturn(new RequestInfo("42", "-", 4L, "-", "-", "-", "42", "ABC123", "42", user));
+                .thenReturn(new RequestInfo("42", "-", 4L, "-", "-", "-", "42", "ABC123", "42", new PlainAccessRequest(),user));
         when(remittanceRequest.getRemittances()).thenReturn(remittanceList);
         this.remittanceEnricher.enrichRemittancePreValidate(remittanceRequest);
         verify(remittanceRequest).getRemittances();
@@ -76,7 +77,7 @@ class RemittanceEnricherTest {
         user.setId(123L);
         RemittanceRequest remittanceRequest = mock(RemittanceRequest.class);
         when(remittanceRequest.getRequestInfo())
-                .thenReturn(new RequestInfo("42", "-", 4L, "-", "-", "-", "42", "ABC123", "42", user));
+                .thenReturn(new RequestInfo("42", "-", 4L, "-", "-", "-", "42", "ABC123", "42", new PlainAccessRequest(),user));
         when(remittanceRequest.getRemittances()).thenReturn(remittanceList);
         this.remittanceEnricher.enrichRemittancePreValidate(remittanceRequest);
         verify(remittanceRequest).getRemittances();

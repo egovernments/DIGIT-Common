@@ -42,9 +42,9 @@ package org.egov.collection.web.contract;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -59,7 +59,7 @@ public class BankAccountServiceMapping {
     private String businessDetails;
 
     @NotNull
-    @Length(min = 8, max = 18)
+    @Size(min = 8, max = 18)
     private String bankAccount;
 
     private String bank;
