@@ -465,8 +465,8 @@ class PaymentControllerTest {
     @Test
     void testWorkflow() throws Exception {
         PaymentWorkflowRequest paymentWorkflowRequest = new PaymentWorkflowRequest();
-        paymentWorkflowRequest.setPaymentWorkflows(new ArrayList<>());
-        paymentWorkflowRequest.setRequestInfo(new RequestInfo());
+        paymentWorkflowRequest.setPaymentWorkflows(new ArrayList<>()); // Empty list, violates @Size(min = 1)
+        paymentWorkflowRequest.setRequestInfo(new RequestInfo()); // Valid or empty, as needed for your logic
         String content = (new ObjectMapper()).writeValueAsString(paymentWorkflowRequest);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post("/payments/{moduleName}/_workflow", "Module Name")

@@ -27,12 +27,11 @@ class UserRepositoryTest {
 
     @Test
     void testGetUsersById() throws RestClientException {
-        when(this.restTemplate.postForObject((String) any(), (Object) any(), (Class<UserResponse>) any(), (Object[]) any()))
+        when(this.restTemplate.postForObject((String) any(), (Object) any(), (Class<UserResponse>) any()))
                 .thenReturn(new UserResponse());
         ArrayList<Long> userIds = new ArrayList<>();
         assertTrue(this.userRepository.getUsersById(userIds, new RequestInfo(), "42").isEmpty());
-        verify(this.restTemplate).postForObject((String) any(), (Object) any(), (Class<UserResponse>) any(),
-                (Object[]) any());
+        verify(this.restTemplate).postForObject((String) any(), (Object) any(), (Class<UserResponse>) any());
     }
 }
 
