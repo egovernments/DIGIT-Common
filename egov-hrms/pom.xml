@@ -96,8 +96,13 @@
     <dependency>
       <groupId>org.egov.common</groupId>
       <artifactId>health-services-models</artifactId>
-      <version>1.0.6-SNAPSHOT</version>
+      <version>1.0.23-SNAPSHOT</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.minidev</groupId>
+      <artifactId>json-smart</artifactId>
+      <version>2.4.8</version> <!-- Use the latest stable version -->
     </dependency>
   </dependencies>
   <repositories>

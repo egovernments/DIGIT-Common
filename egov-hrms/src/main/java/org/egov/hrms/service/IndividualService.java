@@ -1,8 +1,8 @@
 package org.egov.hrms.service;
 
-import digit.models.coremodels.user.enums.UserType;
 import lombok.extern.slf4j.Slf4j;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.user.enums.UserType;
 import org.egov.common.models.core.Role;
 import org.egov.common.models.individual.Address;
 import org.egov.common.models.individual.AddressType;
@@ -84,10 +84,10 @@ public class IndividualService implements UserService {
         IndividualSearchRequest request = IndividualSearchRequest.builder()
                 .requestInfo(requestInfo)
                 .individual(IndividualSearch.builder()
-                        .mobileNumber((String) userSearchCriteria.get("mobileNumber"))
+                        .mobileNumber((List<String>) userSearchCriteria.get("mobileNumber"))
                         .id((List<String>) userSearchCriteria.get("uuid"))
                         .roleCodes((List<String>) userSearchCriteria.get("roleCodes"))
-                        .username((String) userSearchCriteria.get(HRMSConstants.HRMS_USER_SEARCH_CRITERA_USERNAME))
+                        .username((List<String>) userSearchCriteria.get(HRMSConstants.HRMS_USER_SEARCH_CRITERA_USERNAME))
                         // given name
                         .individualName((String) userSearchCriteria
                                 .get(HRMSConstants.HRMS_USER_SEARCH_CRITERA_NAME))
