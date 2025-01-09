@@ -84,7 +84,7 @@ public class IndividualService implements UserService {
         IndividualSearchRequest request = IndividualSearchRequest.builder()
                 .requestInfo(requestInfo)
                 .individual(IndividualSearch.builder()
-                        .mobileNumber((List<String>) userSearchCriteria.get("mobileNumber"))
+                        .mobileNumber(Collections.singletonList((String) userSearchCriteria.get("mobileNumber")))
                         .id((List<String>) userSearchCriteria.get("uuid"))
                         .roleCodes((List<String>) userSearchCriteria.get("roleCodes"))
                         .username((List<String>) userSearchCriteria.get(HRMSConstants.HRMS_USER_SEARCH_CRITERA_USERNAME))
