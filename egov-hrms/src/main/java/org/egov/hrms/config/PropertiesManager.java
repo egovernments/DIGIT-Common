@@ -85,10 +85,10 @@ public class PropertiesManager {
 	
 	
 	//Kafka Topics
-	@Value("${kafka.topics.save.service}")
+	@Value("${kafka.topics.hrms.save.service}")
 	public String saveEmployeeTopic;
 	
-	@Value("${kafka.topics.update.service}")
+	@Value("${kafka.topics.hrms.update.service}")
 	public String UpdateEmployeeTopic;
 	
 	@Value("${kafka.topics.notification.sms}")
