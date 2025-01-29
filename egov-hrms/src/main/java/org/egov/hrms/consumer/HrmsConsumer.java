@@ -36,7 +36,7 @@ public class HrmsConsumer {
     public void listenUpdateEmployeeData(final HashMap<String, Object> record,@Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         try {
             EmployeeRequest employeeRequest = mapper.convertValue(record, EmployeeRequest.class);
-            hrmsProducer.push(propertiesManager.getUpdateEmployeeTopic(), employeeRequest);
+            hrmsProducer.push("update-hrms-employee", employeeRequest);
             notificationService.sendReactivationNotification(employeeRequest);
         } catch (final Exception e) {
 
