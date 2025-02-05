@@ -19,6 +19,7 @@ module.exports = {
   DB_HOST: process.env.DB_HOST || "localhost",
   DB_NAME: process.env.DB_NAME || "postgres",
   DB_PORT: process.env.DB_PORT || 5432,
+  DB_SSL: process.env.DB_SSL || true,
   pdf: {
     epass_pdf_template: process.env.EPASS_TEMPLATE || "tlcertificate",
     tlcertificate_pdf_template: process.env.TL_CERTIFICATE || "tlcertificate",
