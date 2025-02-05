@@ -62,4 +62,9 @@ config:
         image-name: "egov-user-event"
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "core-services/egov-user-event/src/main/resources/db"
-        image-name: "egov-user-event-db" 
+        image-name: "egov-user-event-db"
+        
+  - name: "builds/digit-common/egov-pdf"
+    build:
+      - work-dir: "egov-pdf"
+        image-name: "egov-pdf"
