@@ -68,3 +68,12 @@ config:
     build:
       - work-dir: "egov-pdf"
         image-name: "egov-pdf"
+        
+  - name: "builds/digit-common/egov-document-uploader"
+    build:
+      - work-dir: "egov-document-uploader"
+        image-name: "egov-document-uploader"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "egov-document-uploader/src/main/resources/db"
+        image-name: "egov-document-uploader-db"
+      
