@@ -38,13 +38,13 @@ class EmployeeRepositoryTest {
         employeeResponse.setEmployees(employeeList);
         employeeResponse.setResponseInfo(new ResponseInfo());
         when(this.restTemplate.postForObject((String) any(), (Object) any(), (Class<EmployeeResponse>) any(),
-                (Object[]) any())).thenReturn(employeeResponse);
+                (Object[]) any(),any())).thenReturn(employeeResponse);
         List<Employee> actualPositionsForEmployee = this.employeeRepository.getPositionsForEmployee(new RequestInfo(), 123L,
                 "42");
         assertSame(employeeList, actualPositionsForEmployee);
         assertTrue(actualPositionsForEmployee.isEmpty());
         verify(this.restTemplate).postForObject((String) any(), (Object) any(), (Class<EmployeeResponse>) any(),
-                (Object[]) any());
+                (Object[]) any(),any());
     }
 }
 

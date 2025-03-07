@@ -1,5 +1,8 @@
 
 All notable changes to this module will be documented in this file.
+## 1.3.7-SNAPSHOT - 2025-02-19
+- 2.9 LTS migration
+
 ## 1.3.5 - 2023-02-01
 
 - Transition from 1.3.5-beta version to 1.3.5 version

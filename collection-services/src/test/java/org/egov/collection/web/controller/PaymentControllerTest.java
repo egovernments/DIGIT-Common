@@ -26,6 +26,7 @@ import org.egov.common.contract.request.RequestInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -38,6 +39,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @ContextConfiguration(classes = {PaymentController.class})
 @ExtendWith(SpringExtension.class)
+@AutoConfigureMockMvc
 class PaymentControllerTest {
     @MockBean
     private MigrationService migrationService;
@@ -463,8 +465,8 @@ class PaymentControllerTest {
     @Test
     void testWorkflow() throws Exception {
         PaymentWorkflowRequest paymentWorkflowRequest = new PaymentWorkflowRequest();
-        paymentWorkflowRequest.setPaymentWorkflows(new ArrayList<>());
-        paymentWorkflowRequest.setRequestInfo(new RequestInfo());
+        paymentWorkflowRequest.setPaymentWorkflows(new ArrayList<>()); // Empty list, violates @Size(min = 1)
+        paymentWorkflowRequest.setRequestInfo(new RequestInfo()); // Valid or empty, as needed for your logic
         String content = (new ObjectMapper()).writeValueAsString(paymentWorkflowRequest);
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post("/payments/{moduleName}/_workflow", "Module Name")

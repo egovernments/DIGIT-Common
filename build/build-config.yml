@@ -49,26 +49,20 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-hrms/src/main/resources/db"
         image-name: "egov-hrms-db"
-
-  - name: "builds/digit-common/municipal-services/inbox"
-    build:
-      - work-dir: "municipal-services/inbox"
-        image-name: "inbox"
-        dockerfile: "build/maven/Dockerfile"
   
   - name: "builds/digit-common/core-services/egov-user-event"
     build:
-      - work-dir: "core-services/egov-user-event"
+      - work-dir: "egov-user-event"
         image-name: "egov-user-event"
         dockerfile: "build/maven/Dockerfile"
-      - work-dir: "core-services/egov-user-event/src/main/resources/db"
+      - work-dir: "egov-user-event/src/main/resources/db"
         image-name: "egov-user-event-db"
         
   - name: "builds/digit-common/egov-pdf"
     build:
       - work-dir: "egov-pdf"
         image-name: "egov-pdf"
-        
+
   - name: "builds/digit-common/egov-document-uploader"
     build:
       - work-dir: "egov-document-uploader"
@@ -76,4 +70,3 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-document-uploader/src/main/resources/db"
         image-name: "egov-document-uploader-db"
-      

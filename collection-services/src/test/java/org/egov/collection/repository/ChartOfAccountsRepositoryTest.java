@@ -37,15 +37,13 @@ class ChartOfAccountsRepositoryTest {
         ArrayList<ChartOfAccount> chartOfAccountList = new ArrayList<>();
         chartOfAccountsResponse.setChartOfAccounts(chartOfAccountList);
         chartOfAccountsResponse.setResponseInfo(new ResponseInfo());
-        when(this.restTemplate.postForObject((String) any(), (Object) any(), (Class<ChartOfAccountsResponse>) any(),
-                (Object[]) any())).thenReturn(chartOfAccountsResponse);
+        when(this.restTemplate.postForObject((String) any(), (Object) any(), (Class<ChartOfAccountsResponse>) any(),(String) any(),(String []) any())).thenReturn(chartOfAccountsResponse);
         ArrayList<String> accountCodes = new ArrayList<>();
         List<ChartOfAccount> actualChartOfAccounts = this.chartOfAccountsRepository.getChartOfAccounts(accountCodes, "42",
                 new RequestInfo());
         assertSame(chartOfAccountList, actualChartOfAccounts);
         assertTrue(actualChartOfAccounts.isEmpty());
-        verify(this.restTemplate).postForObject((String) any(), (Object) any(), (Class<ChartOfAccountsResponse>) any(),
-                (Object[]) any());
+        verify(this.restTemplate).postForObject((String) any(), (Object) any(), (Class<ChartOfAccountsResponse>) any(),(String) any(),(String []) any());
     }
 }
 

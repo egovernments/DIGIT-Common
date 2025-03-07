@@ -99,8 +99,7 @@ class NotificationConsumerTest {
 
     @Test
     void testListen5() throws IllegalArgumentException, RestClientException {
-        when(this.restTemplate.postForObject((String) any(), (Object) any(), (Class<Map<Object, Object>>) any(),
-                (Object[]) any())).thenReturn(new HashMap<>());
+        when(this.restTemplate.postForObject((String) any(), (Object) any(), (Class<Map<Object, Object>>) any())).thenReturn(new HashMap<>());
 
         Payment payment = new Payment();
         payment.setTenantId("42");
@@ -108,8 +107,7 @@ class NotificationConsumerTest {
 
         when(this.objectMapper.convertValue((Object) any(), (Class<Object>) any())).thenReturn(paymentRequest);
         this.notificationConsumer.listen(new HashMap<>(), "Topic");
-        verify(this.restTemplate).postForObject((String) any(), (Object) any(), (Class<Map<Object, Object>>) any(),
-                (Object[]) any());
+        verify(this.restTemplate).postForObject((String) any(), (Object) any(), (Class<Map<Object, Object>>) any());
         verify(this.objectMapper).convertValue((Object) any(), (Class<Object>) any());
     }
 }
