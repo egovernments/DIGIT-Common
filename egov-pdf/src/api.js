@@ -765,6 +765,7 @@ async function create_bulk_pdf(kafkaData){
     }
     
   } catch (ex) {
+    logger.error("Detailed Error: ", ex);
     throw new Error("Failed to query bill for water and sewerage application");
   }
 
