@@ -12,19 +12,19 @@ public class AmendmentQueryBuilder {
 	@Value("${amendment.default.limit}")
 	private Integer defaultLimit;
 	
-	public static final String AMENDMENT_UPDATE_QUERY = "UPDATE egbs_amendment SET status=:status, amendeddemandid=:amendeddemandid,"
+	public static final String AMENDMENT_UPDATE_QUERY = "UPDATE {schema}.egbs_amendment SET status=:status, amendeddemandid=:amendeddemandid,"
 			+ " lastmodifiedby=:lastmodifiedby,lastmodifiedtime=:lastmodifiedtime, additionaldetails=:additionaldetails, "
 			+ " amendmentreason=:amendmentreason, reasondocumentnumber=:reasondocumentnumber, effectivefrom=:effectivefrom, "
 			+ " effectivetill=:effectivetill "
 			+ " WHERE tenantid=:tenantid AND amendmentid=:amendmentid;";
 	
-	public static final String AMENDMENT_INSERT_QUERY = "INSERT INTO egbs_amendment (id, tenantid, amendmentid, businessservice,"
+	public static final String AMENDMENT_INSERT_QUERY = "INSERT INTO {schema}.egbs_amendment (id, tenantid, amendmentid, businessservice,"
 			+ " consumercode, amendmentreason, reasondocumentnumber, status, effectivetill, effectivefrom,"
 			+ " amendeddemandid, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails) "
 			+ "	VALUES (:id, :tenantid, :amendmentid, :businessservice, :consumercode, :amendmentreason, :reasondocumentnumber, :status,"
 			+ " :effectivetill, :effectivefrom, :amendeddemandid, :createdby, :createdtime, :lastmodifiedby, :lastmodifiedtime, :additionaldetails);";
 
-	public static final String AMENDMENT_TAXDETAIL_INSERT_QUERY = "INSERT INTO egbs_amendment_taxdetail(id, amendmentid, taxheadcode, taxamount)"
+	public static final String AMENDMENT_TAXDETAIL_INSERT_QUERY = "INSERT INTO {schema}.egbs_amendment_taxdetail(id, amendmentid, taxheadcode, taxamount)"
 			+ " VALUES (:id, :amendmentid, :taxheadcode, :taxamount);";
 
 	public static final String DOCUMET_INSERT_QUERY = "INSERT INTO egbs_document(id, amendmentid, documenttype, filestoreid, documentuid, status)"
@@ -36,11 +36,11 @@ public class AmendmentQueryBuilder {
 			+ " effectivefrom, amendeddemandid, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails,"
 			+ " amdl.id as detailid, amdl.amendmentid as detailamendmentid, taxheadcode, taxamount, doc.id as docid,"
 			+ " doc.amendmentid as docamendmentid, documentType, fileStoreid, documentuid, doc.status as docstatus "
-			+ " FROM egbs_amendment amendment "
+			+ " FROM {schema}.egbs_amendment amendment "
 			+ " INNER JOIN "
 			+ " egbs_amendment_taxdetail amdl ON amendment.id = amdl.amendmentid " 
-			+ "	INNER JOIN egbs_document doc ON amendment.id = doc.amendmentid "
-			+ " INNER JOIN (SELECT id, tenantid FROM egbs_amendment amendment WHERE {$WHERE} {$PAGE}) pagedresult "
+			+ "	INNER JOIN {schema}.egbs_document doc ON amendment.id = doc.amendmentid "
+			+ " INNER JOIN (SELECT id, tenantid FROM {schema}.egbs_amendment amendment WHERE {$WHERE} {$PAGE}) pagedresult "
 			+ " ON amendment.id = pagedresult.id AND amendment.tenantid = pagedresult.tenantid ";
 	
 	public static final String AMENDMENT_SEARCH_QUERY_WHERE = "{$WHERE}";
