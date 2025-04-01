@@ -24,6 +24,8 @@ router.post(
                             certificateType : "BIRTH"
                           };
         Object.assign(birthCertificateObj ,tenantData );
+        var headers = JSON.parse(JSON.stringify(req.headers));
+        headers['tenantId']=headers.tenantid;
         
          
         if (requestinfo == undefined) {
@@ -56,7 +58,8 @@ router.post(
           let mdmsResp = await search_mdms(
             tenant,
             mdmsBody,
-            requestinfo
+            requestinfo,
+            headers
           );
         const moduleName = mdmsBody.MdmsCriteria.moduleDetails[0].moduleName;
         let documents = get(
@@ -75,7 +78,8 @@ router.post(
             tenantPrefix,
             pdfkey,
             requestinfo,
-            requestinfo
+            requestinfo,
+            headers
           );
         } catch (ex) {
           console.log(ex.stack);
@@ -104,6 +108,8 @@ router.post(
                             certificateType : "DEATH"
                           };
         Object.assign(deathCertificateObj ,tenantData );
+        var headers = JSON.parse(JSON.stringify(req.headers));
+        headers['tenantId']=headers.tenantid;
       
       if (requestinfo == undefined) {
         return renderError(res, "requestinfo can not be null", 400);
@@ -135,7 +141,8 @@ router.post(
         let mdmsResp = await search_mdms(
           tenant,
           mdmsBody,
-          requestinfo
+          requestinfo,
+          headers
         );
         const moduleName = mdmsBody.MdmsCriteria.moduleDetails[0].moduleName;
         let documents = get(
@@ -154,7 +161,8 @@ router.post(
           tenantPrefix,
           pdfkey,
           requestinfo,
-          requestinfo
+          requestinfo,
+          headers
         );
       } catch (ex) {
         return renderError(res, "Failed to generate PDF for payment", 500);
