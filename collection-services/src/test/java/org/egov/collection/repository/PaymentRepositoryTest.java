@@ -12,6 +12,7 @@ import org.egov.collection.model.enums.PaymentStatusEnum;
 import org.egov.collection.repository.querybuilder.PaymentQueryBuilder;
 import org.egov.collection.repository.rowmapper.BillRowMapper;
 import org.egov.collection.repository.rowmapper.PaymentRowMapper;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,8 @@ import static org.mockito.Mockito.*;
 class PaymentRepositoryTest {
     @MockBean
     private BillRowMapper billRowMapper;
+    @MockBean
+    private MultiStateInstanceUtil multiStateInstanceUtil;
 
     @MockBean
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -293,9 +296,18 @@ class PaymentRepositoryTest {
 
     @Test
     void testUpdateStatus() {
+        Payment mockPayment = mock(Payment.class);
+        when(mockPayment.getTenantId()).thenReturn("test-tenant");
+        when(mockPayment.getInstrumentStatus()).thenReturn(InstrumentStatusEnum.APPROVED);
+        when(mockPayment.getPaymentStatus()).thenReturn(PaymentStatusEnum.NEW);
+        when(mockPayment.getAuditDetails()).thenReturn(new AuditDetails());
+        when(mockPayment.getPaymentDetails()).thenReturn(new ArrayList<>());
+
+        List<Payment> payments = new ArrayList<>();
+        payments.add(mockPayment);
         when(this.namedParameterJdbcTemplate.batchUpdate((String) any(),
                 (org.springframework.jdbc.core.namedparam.SqlParameterSource[]) any())).thenReturn(new int[]{1, 1, 1, 1});
-        this.paymentRepository.updateStatus(new ArrayList<>());
+        this.paymentRepository.updateStatus(payments);
         verify(this.namedParameterJdbcTemplate, atLeast(1)).batchUpdate((String) any(),
                 (org.springframework.jdbc.core.namedparam.SqlParameterSource[]) any());
     }
@@ -312,11 +324,20 @@ class PaymentRepositoryTest {
 
     @Test
     void testUpdateStatus3() {
+        Payment mockPayment = mock(Payment.class);
+        when(mockPayment.getTenantId()).thenReturn("test-tenant");
+        when(mockPayment.getAuditDetails()).thenReturn(new AuditDetails());
+        when(mockPayment.getPaymentDetails()).thenReturn(new ArrayList<>());
+        when(mockPayment.getInstrumentStatus()).thenReturn(InstrumentStatusEnum.APPROVED);
+        when(mockPayment.getPaymentStatus()).thenReturn(PaymentStatusEnum.NEW);
+
+        List<Payment> payments = new ArrayList<>();
+        payments.add(mockPayment);
         when(this.namedParameterJdbcTemplate.batchUpdate((String) any(),
                 (org.springframework.jdbc.core.namedparam.SqlParameterSource[]) any()))
                 .thenThrow(new CustomException("INSERT INTO egcl_payment_audit SELECT * FROM egcl_payment WHERE id = :id;",
                         "An error occurred"));
-        assertThrows(CustomException.class, () -> this.paymentRepository.updateStatus(new ArrayList<>()));
+        assertThrows(CustomException.class, () -> this.paymentRepository.updateStatus(payments));
         verify(this.namedParameterJdbcTemplate).batchUpdate((String) any(),
                 (org.springframework.jdbc.core.namedparam.SqlParameterSource[]) any());
     }
@@ -398,9 +419,17 @@ class PaymentRepositoryTest {
 
     @Test
     void testUpdatePayment() {
+
+        Payment mockPayment = mock(Payment.class);
+        when(mockPayment.getTenantId()).thenReturn("test-tenant");
+        when(mockPayment.getAuditDetails()).thenReturn(new AuditDetails());
+        when(mockPayment.getPaymentDetails()).thenReturn(new ArrayList<>());
+
+        List<Payment> payments = new ArrayList<>();
+        payments.add(mockPayment);
         when(this.namedParameterJdbcTemplate.batchUpdate((String) any(),
                 (org.springframework.jdbc.core.namedparam.SqlParameterSource[]) any())).thenReturn(new int[]{1, 1, 1, 1});
-        this.paymentRepository.updatePayment(new ArrayList<>());
+        this.paymentRepository.updatePayment(payments);
         verify(this.namedParameterJdbcTemplate, atLeast(1)).batchUpdate((String) any(),
                 (org.springframework.jdbc.core.namedparam.SqlParameterSource[]) any());
     }
@@ -417,6 +446,15 @@ class PaymentRepositoryTest {
 
     @Test
     void testUpdatePayment3() {
+        Payment mockPayment = mock(Payment.class);
+        when(mockPayment.getTenantId()).thenReturn("test-tenant");
+        when(mockPayment.getAuditDetails()).thenReturn(new AuditDetails());
+        when(mockPayment.getPaymentDetails()).thenReturn(new ArrayList<>());
+        when(mockPayment.getInstrumentStatus()).thenReturn(InstrumentStatusEnum.APPROVED);
+        when(mockPayment.getPaymentStatus()).thenReturn(PaymentStatusEnum.NEW);
+
+        List<Payment> payments = new ArrayList<>();
+        payments.add(mockPayment);
         when(this.namedParameterJdbcTemplate.batchUpdate((String) any(),
                 (org.springframework.jdbc.core.namedparam.SqlParameterSource[]) any())).thenThrow(new CustomException(
                 "UPDATE egcl_payment SET additionaldetails=:additionaldetails, paidby=:paidby, payername=:payername,"
@@ -424,7 +462,7 @@ class PaymentRepositoryTest {
                         + " createdby=:createdby, createdtime=:createdtime, lastmodifiedby=:lastmodifiedby, lastmodifiedtime="
                         + ":lastmodifiedtime WHERE id=:id ",
                 "An error occurred"));
-        assertThrows(CustomException.class, () -> this.paymentRepository.updatePayment(new ArrayList<>()));
+        assertThrows(CustomException.class, () -> this.paymentRepository.updatePayment(payments));
         verify(this.namedParameterJdbcTemplate).batchUpdate((String) any(),
                 (org.springframework.jdbc.core.namedparam.SqlParameterSource[]) any());
     }

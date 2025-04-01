@@ -16,6 +16,7 @@ import org.egov.collection.model.PaymentRequest;
 
 import org.egov.collection.producer.CollectionProducer;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ class NotificationConsumerTest {
 
     @MockBean
     private RestTemplate restTemplate;
+
+    @MockBean
+    private MultiStateInstanceUtil centralUtil;
 
     @Test
     void testListen() throws IllegalArgumentException {

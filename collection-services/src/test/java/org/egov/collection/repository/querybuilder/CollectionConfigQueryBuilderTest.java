@@ -27,7 +27,7 @@ class CollectionConfigQueryBuilderTest {
         CollectionConfigGetRequest collectionConfigGetRequest = new CollectionConfigGetRequest();
         ArrayList<Object> objectList = new ArrayList<>();
         assertEquals(
-                "SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+                "SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                         + " ON c.id = cv.keyid ORDER BY keyname ASC LIMIT ? OFFSET ?",
                 this.collectionConfigQueryBuilder.getQuery(collectionConfigGetRequest, objectList));
         assertEquals(2, objectList.size());
@@ -38,17 +38,17 @@ class CollectionConfigQueryBuilderTest {
         ArrayList<Long> id = new ArrayList<>();
         LocalDateTime atStartOfDayResult = LocalDate.of(1970, 1, 1).atStartOfDay();
         CollectionConfigGetRequest collectionConfigGetRequest = new CollectionConfigGetRequest(id,
-                "SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+                "SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                         + " ON c.id = cv.keyid",
                 Date.from(atStartOfDayResult.atZone(ZoneId.of("UTC")).toInstant()),
-                "SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+                "SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                         + " ON c.id = cv.keyid",
                 "asc", "42", (short) 500, (short) 500);
 
         ArrayList<Object> objectList = new ArrayList<>();
-        assertEquals("SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+        assertEquals("SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                         + " ON c.id = cv.keyid WHERE cv.tenantId = ? AND c.id IN () AND c.keyname = ? AND cv.effectiveFrom = ?"
-                        + " ORDER BY SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues"
+                        + " ORDER BY SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues"
                         + " cv ON c.id = cv.keyid asc LIMIT ? OFFSET ?",
                 this.collectionConfigQueryBuilder.getQuery(collectionConfigGetRequest, objectList));
         assertEquals(5, objectList.size());
@@ -69,7 +69,7 @@ class CollectionConfigQueryBuilderTest {
         when(collectionConfigGetRequest.getId()).thenReturn(new ArrayList<>());
         ArrayList<Object> objectList = new ArrayList<>();
         assertEquals(
-                "SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+                "SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                         + " ON c.id = cv.keyid WHERE cv.tenantId = ? AND c.id IN () AND c.keyname = ? AND cv.effectiveFrom = ?"
                         + " ORDER BY Sort By asc LIMIT ? OFFSET ?",
                 this.collectionConfigQueryBuilder.getQuery(collectionConfigGetRequest, objectList));
@@ -98,7 +98,7 @@ class CollectionConfigQueryBuilderTest {
                 .thenReturn(Date.from(atStartOfDayResult.atZone(ZoneId.of("UTC")).toInstant()));
         when(collectionConfigGetRequest.getId()).thenReturn(new ArrayList<>());
         ArrayList<Object> objectList = new ArrayList<>();
-        assertEquals("SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+        assertEquals("SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                 + " ON c.id = cv.keyid WHERE cv.tenantId = ? AND c.id IN () AND cv.effectiveFrom = ? ORDER BY Sort By asc"
                 + " LIMIT ? OFFSET ?", this.collectionConfigQueryBuilder.getQuery(collectionConfigGetRequest, objectList));
         verify(collectionConfigGetRequest, atLeast(1)).getPageNumber();
@@ -126,7 +126,7 @@ class CollectionConfigQueryBuilderTest {
                 .thenReturn(Date.from(atStartOfDayResult.atZone(ZoneId.of("UTC")).toInstant()));
         when(collectionConfigGetRequest.getId()).thenReturn(new ArrayList<>());
         ArrayList<Object> objectList = new ArrayList<>();
-        assertEquals("SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+        assertEquals("SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                 + " ON c.id = cv.keyid WHERE c.id IN () AND c.keyname = ? AND cv.effectiveFrom = ? ORDER BY Sort By asc"
                 + " LIMIT ? OFFSET ?", this.collectionConfigQueryBuilder.getQuery(collectionConfigGetRequest, objectList));
         verify(collectionConfigGetRequest, atLeast(1)).getPageNumber();
@@ -152,7 +152,7 @@ class CollectionConfigQueryBuilderTest {
         when(collectionConfigGetRequest.getEffectiveFrom()).thenReturn(null);
         when(collectionConfigGetRequest.getId()).thenReturn(new ArrayList<>());
         ArrayList<Object> objectList = new ArrayList<>();
-        assertEquals("SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+        assertEquals("SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                 + " ON c.id = cv.keyid WHERE cv.tenantId = ? AND c.id IN () AND c.keyname = ? ORDER BY Sort By asc LIMIT"
                 + " ? OFFSET ?", this.collectionConfigQueryBuilder.getQuery(collectionConfigGetRequest, objectList));
         verify(collectionConfigGetRequest, atLeast(1)).getPageNumber();
@@ -183,7 +183,7 @@ class CollectionConfigQueryBuilderTest {
         when(collectionConfigGetRequest.getId()).thenReturn(resultLongList);
         ArrayList<Object> objectList = new ArrayList<>();
         assertEquals(
-                "SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+                "SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                         + " ON c.id = cv.keyid WHERE cv.tenantId = ? AND c.id IN (4) AND c.keyname = ? AND cv.effectiveFrom = ?"
                         + " ORDER BY Sort By asc LIMIT ? OFFSET ?",
                 this.collectionConfigQueryBuilder.getQuery(collectionConfigGetRequest, objectList));
@@ -216,7 +216,7 @@ class CollectionConfigQueryBuilderTest {
         when(collectionConfigGetRequest.getId()).thenReturn(resultLongList);
         ArrayList<Object> objectList = new ArrayList<>();
         assertEquals(
-                "SELECT c.keyname as key, cv.value as value FROM egcl_configuration c JOIN egcl_configurationvalues cv"
+                "SELECT c.keyname as key, cv.value as value FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv"
                         + " ON c.id = cv.keyid WHERE cv.tenantId = ? AND c.id IN (4, 4) AND c.keyname = ? AND cv.effectiveFrom ="
                         + " ? ORDER BY Sort By asc LIMIT ? OFFSET ?",
                 this.collectionConfigQueryBuilder.getQuery(collectionConfigGetRequest, objectList));

@@ -1001,7 +1001,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.id IN (:id)   ORDER BY py.transactiondate DESC ",
                 paymentQueryBuilder.getPaymentSearchQuery(ids, stringObjectMap));
         assertEquals(1, stringObjectMap.size());
@@ -1021,7 +1021,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  AND py.id IN (:id)   ORDER BY py.transactiondate DESC ",
                 paymentQueryBuilder.getPaymentSearchQuery(ids, stringObjectMap));
         assertEquals(2, stringObjectMap.size());
@@ -1036,7 +1036,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  ORDER BY py.transactiondate DESC ",
                 PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(searchCriteria, new HashMap<>()));
     }
@@ -1063,7 +1063,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
                         + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate ORDER BY"
                         + " py.transactiondate DESC ",
@@ -1097,7 +1097,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
                         + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate ORDER BY"
                         + " py.transactiondate DESC ",
@@ -1145,7 +1145,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
                         + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate ORDER BY"
                         + " py.transactiondate DESC ",
@@ -1193,7 +1193,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.transactionNumber = :transactionNumber AND"
                         + " py.transactionDate >= :fromDate AND py.transactionDate <= :toDate ORDER BY py.transactiondate DESC ",
                 PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
@@ -1240,7 +1240,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId =:tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber ="
                         + " :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate ORDER BY"
                         + " py.transactiondate DESC ",
@@ -1290,7 +1290,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
                         + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate AND"
                         + " py.payerid IN (:payerid)   ORDER BY py.transactiondate DESC ",
@@ -1340,10 +1340,10 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
                         + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate AND id in"
-                        + " (select pyd.paymentid from egcl_paymentdetail as pyd  WHERE  pyd.billid in (:billid))  ORDER BY"
+                        + " (select pyd.paymentid from {schema}.egcl_paymentdetail as pyd  WHERE  pyd.billid in (:billid))  ORDER BY"
                         + " py.transactiondate DESC ",
                 PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
         verify(paymentSearchCriteria, atLeast(1)).getFromDate();
@@ -1391,10 +1391,10 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
                         + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate AND id in"
-                        + " (select pyd.paymentid from egcl_paymentdetail as pyd  WHERE  pyd.businessService IN (:businessService)"
+                        + " (select pyd.paymentid from {schema}.egcl_paymentdetail as pyd  WHERE  pyd.businessService IN (:businessService)"
                         + "  )  ORDER BY py.transactiondate DESC ",
                 PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
         verify(paymentSearchCriteria, atLeast(1)).getFromDate();
@@ -1442,10 +1442,10 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
                         + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate AND id in"
-                        + " (select paymentid from egcl_paymentdetail as pyd where pyd.billid in ( select id from egcl_bill as"
+                        + " (select paymentid from {schema}.egcl_paymentdetail as pyd where pyd.billid in ( select id from {schema}.egcl_bill as"
                         + " bill where bill.consumercode in (:consumerCodes)) ) ORDER BY py.transactiondate DESC ",
                 PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
         verify(paymentSearchCriteria, atLeast(1)).getFromDate();
@@ -1493,7 +1493,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.id IN (:id)   AND py.mobileNumber = :mobileNumber AND"
                         + " py.transactionNumber = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate"
                         + " <= :toDate ORDER BY py.transactiondate DESC ",
@@ -1543,7 +1543,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND UPPER(py.instrumentStatus) in (:instrumentStatus) AND"
                         + " py.mobileNumber = :mobileNumber AND py.transactionNumber = :transactionNumber AND py.transactionDate"
                         + " >= :fromDate AND py.transactionDate <= :toDate ORDER BY py.transactiondate DESC ",
@@ -1593,7 +1593,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND UPPER(py.paymentMode) in (:paymentMode) AND py.mobileNumber"
                         + " = :mobileNumber AND py.transactionNumber = :transactionNumber AND py.transactionDate >= :fromDate AND"
                         + " py.transactionDate <= :toDate ORDER BY py.transactiondate DESC ",
@@ -1643,10 +1643,10 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND py.mobileNumber = :mobileNumber AND py.transactionNumber"
                         + " = :transactionNumber AND py.transactionDate >= :fromDate AND py.transactionDate <= :toDate AND id in"
-                        + " (select pyd.paymentid from egcl_paymentdetail as pyd  WHERE  pyd.receiptNumber IN (:receiptnumber) "
+                        + " (select pyd.paymentid from {schema}.egcl_paymentdetail as pyd  WHERE  pyd.receiptNumber IN (:receiptnumber) "
                         + " )  ORDER BY py.transactiondate DESC ",
                 PaymentQueryBuilder.getPaymentSearchQueryForPlainSearch(paymentSearchCriteria, stringObjectMap));
         verify(paymentSearchCriteria, atLeast(1)).getFromDate();
@@ -1694,7 +1694,7 @@ class PaymentQueryBuilderTest {
                         + " pyd_id, pyd.tenantId as pyd_tenantId, pyd.manualreceiptnumber as manualreceiptnumber,pyd.manualreceiptdate"
                         + " as manualreceiptdate, pyd.createdBy as pyd_createdBy,pyd.createdtime as pyd_createdtime,pyd.lastModifiedBy"
                         + " as pyd_lastModifiedBy,pyd.lastmodifiedtime as pyd_lastmodifiedtime,pyd.additionalDetails as"
-                        + " pyd_additionalDetails FROM egcl_payment py   INNER JOIN egcl_paymentdetail pyd ON pyd.paymentid ="
+                        + " pyd_additionalDetails FROM {schema}.egcl_payment py   INNER JOIN {schema}.egcl_paymentdetail pyd ON pyd.paymentid ="
                         + " py.id  WHERE  py.tenantId LIKE :tenantId AND UPPER(py.paymentstatus) in (:status) AND py.mobileNumber"
                         + " = :mobileNumber AND py.transactionNumber = :transactionNumber AND py.transactionDate >= :fromDate AND"
                         + " py.transactionDate <= :toDate ORDER BY py.transactiondate DESC ",

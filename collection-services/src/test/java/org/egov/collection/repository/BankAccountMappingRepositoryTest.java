@@ -3,6 +3,7 @@ package org.egov.collection.repository;
 import org.egov.collection.model.BankAccountServiceMapping;
 import org.egov.collection.model.BankAccountServiceMappingSearchCriteria;
 import org.egov.collection.repository.querybuilder.BankAccountServiceQueryBuilder;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ class BankAccountMappingRepositoryTest {
 
     @MockBean
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @MockBean
+    private MultiStateInstanceUtil centralUtil;
 
     @Test
     void testPersistBankAccountServiceMapping() {
