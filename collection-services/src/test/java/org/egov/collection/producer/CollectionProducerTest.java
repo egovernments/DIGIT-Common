@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.kafka.CustomKafkaTemplate;
 import org.egov.tracer.model.CustomException;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,9 @@ class CollectionProducerTest {
 
     @MockBean(name = "customKafkaTemplate")
     private CustomKafkaTemplate<String, Object> customKafkaTemplate;
+
+    @MockBean
+    private MultiStateInstanceUtil centralInstanceUtil;
 
     @Test
     void testProducer() {

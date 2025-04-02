@@ -22,7 +22,7 @@ class BankAccountServiceQueryBuilderTest {
     @Test
     void testInsertBankAccountServiceDetailsQuery() {
         assertEquals(
-                "INSERT INTO egcl_bankaccountservicemapping (id, businessdetails, bankaccount, bank, bankbranch, active,"
+                "INSERT INTO {schema}.egcl_bankaccountservicemapping (id, businessdetails, bankaccount, bank, bankbranch, active,"
                         + " createdby, lastmodifiedby, createddate, lastmodifieddate, tenantid) values(nextval('seq_egcl"
                         + "_bankaccountservicemapping'), :businessdetails, :bankaccount, :bank, :bankbranch, :active, :createdby,"
                         + " :lastmodifiedby, :createddate, :lastmodifieddate, :tenantid)",
@@ -33,7 +33,7 @@ class BankAccountServiceQueryBuilderTest {
     void testBankAccountServiceMappingSearchQuery() {
         BankAccountServiceMappingSearchCriteria searchCriteria = new BankAccountServiceMappingSearchCriteria();
         HashMap<String, Object> stringObjectMap = new HashMap<>();
-        assertEquals("select * from egcl_bankaccountservicemapping where tenantid =:tenantId order by businessdetails",
+        assertEquals("select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId order by businessdetails",
                 this.bankAccountServiceQueryBuilder.BankAccountServiceMappingSearchQuery(searchCriteria, stringObjectMap));
         assertEquals(1, stringObjectMap.size());
     }
@@ -41,12 +41,12 @@ class BankAccountServiceQueryBuilderTest {
     @Test
     void testBankAccountServiceMappingSearchQuery3() {
         BankAccountServiceMappingSearchCriteria searchCriteria = new BankAccountServiceMappingSearchCriteria("42",
-                new ArrayList<>(), "3", "select * from egcl_bankaccountservicemapping where tenantid =:tenantId",
+                new ArrayList<>(), "3", "select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId",
                 "janedoe/featurebranch");
 
         HashMap<String, Object> stringObjectMap = new HashMap<>();
         assertEquals(
-                "select * from egcl_bankaccountservicemapping where tenantid =:tenantId and bankaccount =:bankaccount"
+                "select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId and bankaccount =:bankaccount"
                         + " and bank =:bank and bankBranch =:bankBranch order by businessdetails",
                 this.bankAccountServiceQueryBuilder.BankAccountServiceMappingSearchQuery(searchCriteria, stringObjectMap));
         assertEquals(4, stringObjectMap.size());
@@ -63,7 +63,7 @@ class BankAccountServiceQueryBuilderTest {
         when(bankAccountServiceMappingSearchCriteria.getBusinessDetails()).thenReturn(new ArrayList<>());
         HashMap<String, Object> stringObjectMap = new HashMap<>();
         assertEquals(
-                "select * from egcl_bankaccountservicemapping where tenantid =:tenantId and bankaccount =:bankaccount"
+                "select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId and bankaccount =:bankaccount"
                         + " and bank =:bank and bankBranch =:bankBranch order by businessdetails",
                 this.bankAccountServiceQueryBuilder
                         .BankAccountServiceMappingSearchQuery(bankAccountServiceMappingSearchCriteria, stringObjectMap));
@@ -78,7 +78,7 @@ class BankAccountServiceQueryBuilderTest {
     @Test
     void testBankAccountServiceMappingSearchQuery5() {
         ArrayList<String> stringList = new ArrayList<>();
-        stringList.add("select * from egcl_bankaccountservicemapping where tenantid =:tenantId");
+        stringList.add("select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId");
         BankAccountServiceMappingSearchCriteria bankAccountServiceMappingSearchCriteria = mock(
                 BankAccountServiceMappingSearchCriteria.class);
         when(bankAccountServiceMappingSearchCriteria.getBank()).thenReturn("Bank");
@@ -88,8 +88,8 @@ class BankAccountServiceQueryBuilderTest {
         when(bankAccountServiceMappingSearchCriteria.getBusinessDetails()).thenReturn(stringList);
         HashMap<String, Object> stringObjectMap = new HashMap<>();
         assertEquals(
-                "select * from egcl_bankaccountservicemapping where tenantid =:tenantId and businessdetails ilike any"
-                        + "  (array ['%select * from egcl_bankaccountservicemapping where tenantid =:tenantId%']) and bankaccount"
+                "select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId and businessdetails ilike any"
+                        + "  (array ['%select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId%']) and bankaccount"
                         + " =:bankaccount and bank =:bank and bankBranch =:bankBranch order by businessdetails",
                 this.bankAccountServiceQueryBuilder
                         .BankAccountServiceMappingSearchQuery(bankAccountServiceMappingSearchCriteria, stringObjectMap));
@@ -104,8 +104,8 @@ class BankAccountServiceQueryBuilderTest {
     @Test
     void testBankAccountServiceMappingSearchQuery6() {
         ArrayList<String> stringList = new ArrayList<>();
-        stringList.add("select * from egcl_bankaccountservicemapping where tenantid =:tenantId");
-        stringList.add("select * from egcl_bankaccountservicemapping where tenantid =:tenantId");
+        stringList.add("select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId");
+        stringList.add("select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId");
         BankAccountServiceMappingSearchCriteria bankAccountServiceMappingSearchCriteria = mock(
                 BankAccountServiceMappingSearchCriteria.class);
         when(bankAccountServiceMappingSearchCriteria.getBank()).thenReturn("Bank");
@@ -115,9 +115,9 @@ class BankAccountServiceQueryBuilderTest {
         when(bankAccountServiceMappingSearchCriteria.getBusinessDetails()).thenReturn(stringList);
         HashMap<String, Object> stringObjectMap = new HashMap<>();
         assertEquals(
-                "select * from egcl_bankaccountservicemapping where tenantid =:tenantId and businessdetails ilike any"
-                        + "  (array ['%select * from egcl_bankaccountservicemapping where tenantid =:tenantId%', '%select * from"
-                        + " egcl_bankaccountservicemapping where tenantid =:tenantId%']) and bankaccount =:bankaccount and bank"
+                "select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId and businessdetails ilike any"
+                        + "  (array ['%select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId%', '%select * from"
+                        + " {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId%']) and bankaccount =:bankaccount and bank"
                         + " =:bank and bankBranch =:bankBranch order by businessdetails",
                 this.bankAccountServiceQueryBuilder
                         .BankAccountServiceMappingSearchQuery(bankAccountServiceMappingSearchCriteria, stringObjectMap));
@@ -132,7 +132,7 @@ class BankAccountServiceQueryBuilderTest {
     @Test
     void testConstructor() {
         assertEquals(
-                "select distinct(bankaccount) bankAccount from egcl_bankaccountservicemapping where" + " tenantId=:tenantId",
+                "select distinct(bankaccount) bankAccount from {schema}.egcl_bankaccountservicemapping where" + " tenantId=:tenantId",
                 (new BankAccountServiceQueryBuilder()).getAllBankAccountsForServiceQuery());
     }
 }

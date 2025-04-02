@@ -50,6 +50,9 @@ router.post(
       var applicationNumber = req.query.applicationNumber;
       var bussinessService = req.query.bussinessService;
       var requestinfo = req.body;
+      var headers = JSON.parse(JSON.stringify(req.headers));
+      headers['tenantId']=headers.tenantid;
+
       var restWns;
       if (requestinfo == undefined) {
         return renderError(res, "requestinfo can not be null");
@@ -68,7 +71,8 @@ router.post(
                     applicationNumber,
                     tenantId,
                     {RequestInfo:requestinfo.RequestInfo},
-                    true
+                    true,
+                    headers
                   );
             }
             else{
@@ -76,7 +80,8 @@ router.post(
                     applicationNumber,
                     tenantId,
                     {RequestInfo:requestinfo.RequestInfo},
-                    true
+                    true,
+                    headers
                   );
             }
           
@@ -104,7 +109,8 @@ router.post(
               tenantId,
               consumerCode,
               bussinessService,
-              {RequestInfo:requestinfo.RequestInfo}
+              {RequestInfo:requestinfo.RequestInfo},
+               headers
             );
           } catch (ex) {
             if (ex.response && ex.response.data) console.log(ex.response.data);
@@ -126,7 +132,8 @@ router.post(
                 tenantId,
                 pdfkey,
                 billArray,
-                {RequestInfo:requestinfo.RequestInfo}
+                {RequestInfo:requestinfo.RequestInfo},
+                 headers
               );
             } catch (ex) {
               let errorMessage;
@@ -168,7 +175,8 @@ router.post(
               tenantId,
               consumerCode,
               bussinessService,
-              {RequestInfo:requestinfo.RequestInfo}
+              {RequestInfo:requestinfo.RequestInfo},
+               headers
             );
           } catch (ex) {
             if (ex.response && ex.response.data) console.log(ex.response.data);
@@ -190,7 +198,8 @@ router.post(
                 tenantId,
                 pdfkey,
                 billArray,
-                {RequestInfo:requestinfo.RequestInfo}
+                {RequestInfo:requestinfo.RequestInfo},
+                 headers
               );
             } catch (ex) {
               let errorMessage;
@@ -234,6 +243,9 @@ router.post(
       var applicationNumber = req.query.applicationNumber;
       var bussinessService = req.query.bussinessService;
       var requestinfo = req.body;
+      var headers = JSON.parse(JSON.stringify(req.headers));
+      headers['tenantId']=headers.tenantid;
+
       var restWns;
       if (requestinfo == undefined) {
         return renderError(res, "requestinfo can not be null");
@@ -252,7 +264,8 @@ router.post(
                     applicationNumber,
                     tenantId,
                     {RequestInfo:requestinfo.RequestInfo},
-                    false
+                    false,
+                    headers
                   );
             }
             else{
@@ -260,7 +273,8 @@ router.post(
                     applicationNumber,
                     tenantId,
                     {RequestInfo:requestinfo.RequestInfo},
-                    false
+                    false,
+                    headers
                   );
             }
           
@@ -282,7 +296,8 @@ router.post(
                 consumerCode,
                 tenantId,
                 {RequestInfo:requestinfo.RequestInfo},
-                bussinessService
+                bussinessService,
+                headers
               );
           } catch (ex) {
             if (ex.response && ex.response.data) console.log(ex.response.data);
@@ -298,7 +313,8 @@ router.post(
                 tenantId,
                 pdfkey,
                 payments,
-                {RequestInfo:requestinfo.RequestInfo}
+                {RequestInfo:requestinfo.RequestInfo},
+                headers
               );
             } catch (ex) {
               let errorMessage;
@@ -335,7 +351,8 @@ router.post(
                 consumerCode,
                 tenantId,
                 {RequestInfo:requestinfo.RequestInfo},
-                bussinessService
+                bussinessService,
+                headers
               );
           } catch (ex) {
             if (ex.response && ex.response.data) console.log(ex.response.data);
@@ -351,7 +368,8 @@ router.post(
                 tenantId,
                 pdfkey,
                 payments,
-                {RequestInfo:requestinfo.RequestInfo}
+                {RequestInfo:requestinfo.RequestInfo},
+                headers 
               );
             } catch (ex) {
               let errorMessage;
@@ -396,6 +414,8 @@ router.post(
       var bussinessService = req.query.bussinessService;
       var isConsolidated = (req.query.isConsolidated != undefined && req.query.isConsolidated.toLowerCase() === 'true' ? true : false)
       var consumerCode = null;
+      var headers = JSON.parse(JSON.stringify(req.headers));
+      headers['tenantId']=headers.tenantid;
       if(req.query.consumerCode)
         consumerCode = req.query.consumerCode;
       var requestinfo = req.body;
@@ -420,7 +440,8 @@ router.post(
         bussinessService: bussinessService,
         isConsolidated: isConsolidated,
         consumerCode: consumerCode,
-        jobid: jobid
+        jobid: jobid,
+        headers:headers
       };
 
       try {

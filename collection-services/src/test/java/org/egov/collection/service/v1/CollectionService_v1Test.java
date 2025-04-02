@@ -1,5 +1,6 @@
 package org.egov.collection.service.v1;
 
+import org.egov.collection.config.ApplicationProperties;
 import org.egov.collection.model.v1.ReceiptSearchCriteria_v1;
 import org.egov.collection.model.v1.Receipt_v1;
 import org.egov.collection.repository.querybuilder.v1.CollectionResultSetExtractor_v1;
@@ -29,6 +30,7 @@ class CollectionService_v1Test {
 
     @MockBean
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
 
     @Test
     void testGetReceipts() {
@@ -84,6 +86,8 @@ class CollectionService_v1Test {
         when(this.namedParameterJdbcTemplate.query((String) any(), (java.util.Map<String, ?>) any(),
                 (org.springframework.jdbc.core.ResultSetExtractor<Object>) any())).thenReturn(objectList);
         ReceiptSearchCriteria_v1 receiptSearchCriteria_v1 = mock(ReceiptSearchCriteria_v1.class);
+
+       ApplicationProperties configs = mock(ApplicationProperties.class);
         when(receiptSearchCriteria_v1.getOffset()).thenReturn(2);
         when(receiptSearchCriteria_v1.getLimit()).thenReturn(1);
         when(receiptSearchCriteria_v1.getFromDate()).thenReturn(1L);
@@ -105,6 +109,8 @@ class CollectionService_v1Test {
         when(receiptSearchCriteria_v1.getReceiptNumbers()).thenReturn(new HashSet<>());
         when(receiptSearchCriteria_v1.getStatus()).thenReturn(new HashSet<>());
         doNothing().when(receiptSearchCriteria_v1).setToDate((Long) any());
+
+        when(configs.getStateLevelTenantIdLength()).thenReturn(1);
         List<Receipt_v1> actualFetchReceiptsResult = this.collectionService_v1.fetchReceipts(receiptSearchCriteria_v1);
         assertSame(objectList, actualFetchReceiptsResult);
         assertTrue(actualFetchReceiptsResult.isEmpty());

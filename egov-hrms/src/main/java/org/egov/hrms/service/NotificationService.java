@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.hrms.model.Employee;
 import org.egov.hrms.model.SMSRequest;
 import org.egov.hrms.producer.HRMSProducer;
@@ -34,6 +35,9 @@ public class NotificationService {
 
 	@Autowired
 	private RestTemplate restTemplate;
+
+	@Autowired
+	private MultiStateInstanceUtil centralInstanceUtil;
 
 	@Value("${kafka.topics.notification.sms}")
     private String smsTopic;
@@ -66,6 +70,8 @@ public class NotificationService {
 	 */
 	public void sendNotification(EmployeeRequest request, Map<String, String> pwdMap) {
 		String message = getMessage(request,HRMSConstants.HRMS_EMP_CREATE_LOCLZN_CODE);
+		String tenantId = request.getEmployees().get(0).getTenantId(); 
+				
 		if(StringUtils.isEmpty(message)) {
 			log.info("SMS content has not been configured for this case");
 			return;
@@ -73,12 +79,13 @@ public class NotificationService {
 		for(Employee employee: request.getEmployees()) {
 			message = buildMessage(employee, message, pwdMap);
 			SMSRequest smsRequest = SMSRequest.builder().mobileNumber(employee.getUser().getMobileNumber()).message(message).build();
-			producer.push(smsTopic, smsRequest);
+			producer.push(tenantId, smsTopic, smsRequest);
 		}
 	}
 
 	public void sendReactivationNotification(EmployeeRequest request){
 		String message = getMessage(request,HRMSConstants.HRMS_EMP_REACTIVATE_LOCLZN_CODE);
+		String tenantId = request.getEmployees().get(0).getTenantId(); 
 		if(StringUtils.isEmpty(message)) {
 			log.info("SMS content has not been configured for this case");
 			return;
@@ -94,8 +101,8 @@ public class NotificationService {
 				message = message.replace("{password}",OTP).replace("{link}",link);
 
 				SMSRequest smsRequest = SMSRequest.builder().mobileNumber(employee.getUser().getMobileNumber()).message(message).build();
-				log.info(message );
-				producer.push(smsTopic, smsRequest);
+				log.info(message);
+				producer.push(tenantId, smsTopic, smsRequest);
 			}
 
 		}
@@ -170,7 +177,7 @@ public class NotificationService {
 		StringBuilder uri = new StringBuilder();
 		RequestInfoWrapper requestInfoWrapper = new RequestInfoWrapper();
 		requestInfoWrapper.setRequestInfo(requestInfo);
-		tenantId = tenantId.split("\\.")[0];
+		tenantId = centralInstanceUtil.getStateLevelTenant(tenantId);
 		uri.append(localizationHost).append(localizationSearchEndpoint).append("?tenantId=" + tenantId)
 				.append("&module=" + module).append("&locale=" + locale);
 		List<String> codes = null;
