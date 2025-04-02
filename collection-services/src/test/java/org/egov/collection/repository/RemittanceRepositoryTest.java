@@ -4,6 +4,7 @@ import org.egov.collection.model.AuditDetails;
 import org.egov.collection.repository.rowmapper.RemittanceResultSetExtractor;
 import org.egov.collection.web.contract.Remittance;
 import org.egov.collection.web.contract.RemittanceSearchRequest;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.tracer.model.CustomException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,9 @@ class RemittanceRepositoryTest {
 
     @Autowired
     private RemittanceRepository remittanceRepository;
+
+    @MockBean
+    private MultiStateInstanceUtil multiStateInstanceUtil;
 
     @MockBean
     private RemittanceResultSetExtractor remittanceResultSetExtractor;

@@ -321,7 +321,7 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = mock(PaymentRepository.class);
         doNothing().when(paymentRepository).savePayment((Payment) any());
         CollectionProducer collectionProducer = mock(CollectionProducer.class);
-        doNothing().when(collectionProducer).producer((String) any(), (Object) any());
+        doNothing().when(collectionProducer).push((String) any(), (String) any(), (Object) any());
         ApplicationProperties applicationProperties = new ApplicationProperties();
         PaymentService paymentService = new PaymentService(apportionerService, paymentEnricher, applicationProperties,
                 new UserService(), paymentValidator, paymentRepository, collectionProducer);
@@ -350,7 +350,7 @@ class PaymentServiceTest {
         verify(paymentEnricher).enrichPaymentPreValidate((PaymentRequest) any());
         verify(paymentValidator).validatePaymentForCreate((PaymentRequest) any());
         verify(paymentRepository).savePayment((Payment) any());
-        verify(collectionProducer).producer((String) any(), (Object) any());
+        verify(collectionProducer).push((String) any(), (String) any(), (Object) any());
     }
 
     @Test
@@ -367,7 +367,7 @@ class PaymentServiceTest {
         PaymentRepository paymentRepository = mock(PaymentRepository.class);
         doNothing().when(paymentRepository).savePayment((Payment) any());
         CollectionProducer collectionProducer = mock(CollectionProducer.class);
-        doNothing().when(collectionProducer).producer((String) any(), (Object) any());
+        doNothing().when(collectionProducer).push((String) any(), (String) any(), (Object) any());
         ApplicationProperties applicationProperties = new ApplicationProperties();
         PaymentService paymentService = new PaymentService(apportionerService, paymentEnricher, applicationProperties,
                 new UserService(), paymentValidator, paymentRepository, collectionProducer);
@@ -393,7 +393,7 @@ class PaymentServiceTest {
         verify(paymentEnricher).enrichPaymentPreValidate((PaymentRequest) any());
         verify(paymentValidator).validatePaymentForCreate((PaymentRequest) any());
         verify(paymentRepository).savePayment((Payment) any());
-        verify(collectionProducer).producer((String) any(), (Object) any());
+        verify(collectionProducer).push((String) any(), (String) any(), (Object) any());
     }
 
     @Test
@@ -519,25 +519,34 @@ class PaymentServiceTest {
     void testUpdatePayment5() {
 
         PaymentValidator paymentValidator = mock(PaymentValidator.class);
+
+
         ArrayList<Payment> paymentList = new ArrayList<>();
         when(paymentValidator.validateAndEnrichPaymentsForUpdate((List<Payment>) any(),
                 (RequestInfo) any())).thenReturn(paymentList);
+        Payment mockPayment = mock(Payment.class);
         PaymentRepository paymentRepository = mock(PaymentRepository.class);
         doNothing().when(paymentRepository).updatePayment((List<Payment>) any());
         CollectionProducer collectionProducer = mock(CollectionProducer.class);
-        doNothing().when(collectionProducer).producer((String) any(), (Object) any());
+        doNothing().when(collectionProducer).push((String)any(),(String) any(), (Object) any());
         ApportionerService apportionerService = new ApportionerService();
         PaymentEnricher paymentEnricher = new PaymentEnricher();
         ApplicationProperties applicationProperties = new ApplicationProperties();
         PaymentService paymentService = new PaymentService(apportionerService, paymentEnricher, applicationProperties,
                 new UserService(), paymentValidator, paymentRepository, collectionProducer);
-        List<Payment> actualUpdatePaymentResult = paymentService.updatePayment(new PaymentRequest());
+
+        // Properly set up the PaymentRequest object
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setPayment(mockPayment);
+        when(mockPayment.getTenantId()).thenReturn("test-tenant");
+
+        List<Payment> actualUpdatePaymentResult = paymentService.updatePayment(paymentRequest);
         assertSame(paymentList, actualUpdatePaymentResult);
         assertTrue(actualUpdatePaymentResult.isEmpty());
         verify(paymentValidator).validateAndEnrichPaymentsForUpdate((List<Payment>) any(),
                 (RequestInfo) any());
         verify(paymentRepository).updatePayment((List<Payment>) any());
-        verify(collectionProducer).producer((String) any(), (Object) any());
+        verify(collectionProducer).push((String)any(),(String) any(), (Object) any());
     }
 
     @Test

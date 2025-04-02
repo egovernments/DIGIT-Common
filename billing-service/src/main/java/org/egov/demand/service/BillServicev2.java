@@ -166,8 +166,7 @@ public class BillServicev2 {
 	 * 
 	 * Only ACTIVE bills will be cancelled as of now
 	 * 
-	 * @param cancelBillCriteria
-	 * @param requestInfoWrapper
+	 * @param updateBillRequest
 	 */
 	public Integer cancelBill(UpdateBillRequest updateBillRequest) {
 		
@@ -186,7 +185,7 @@ public class BillServicev2 {
 		}
 	}
 
-	private void sendNotificationForBillCancellation(RequestInfo requestInfo, UpdateBillCriteria cancelBillCriteria) {
+		private void sendNotificationForBillCancellation(RequestInfo requestInfo, UpdateBillCriteria cancelBillCriteria) {
 		Set<String> consumerCodes = cancelBillCriteria.getConsumerCodes();
 		if(CollectionUtils.isEmpty(consumerCodes))
 			return;
@@ -201,7 +200,7 @@ public class BillServicev2 {
 			return;
 
 		BillRequestV2 req = BillRequestV2.builder().bills(bills).requestInfo(requestInfo).build();
-		producer.push(billCancelTopic, req);
+		producer.push(cancelBillCriteria.getTenantId(),billCancelTopic, req);
 
 	}
 
@@ -214,9 +213,9 @@ public class BillServicev2 {
 	 * 	return the bill if valid
 	 * else update the demands belonging to the bill then generate a new bill
 	 * 
-	 * @param moduleCode
-	 * @param consumerCodes
-	 * @return
+	 * @param billCriteria
+	 * @param requestInfoWrapper
+	 * @return BillResponseV2
 	 */
 	public BillResponseV2 fetchBill(GenerateBillCriteria billCriteria, RequestInfoWrapper requestInfoWrapper) {
 
@@ -306,7 +305,8 @@ public class BillServicev2 {
 	 * To make calls to respective service which updates the demands belonging to
 	 * the arguments passed
 	 * 
-	 * @param serviceAndConsumerCodeListMap
+	 * @param businessService
+	 * @param consumerCodesTobeUpdated
 	 * @param tenantId
 	 */
 	private void updateDemandsForexpiredBillDetails(String businessService, Set<String> consumerCodesTobeUpdated, String tenantId, RequestInfoWrapper requestInfoWrapper) {
@@ -535,8 +535,8 @@ public class BillServicev2 {
 	 *  
 	 * @param demand
 	 * @param taxHeadMap
-	 * @param businessDetailMap
-	 * @return
+	 *
+	 * @return BillDetailV2
 	 */
 	private BillDetailV2 getBillDetailForDemand(Demand demand, Map<String, TaxHeadMaster> taxHeadMap, String billDetailId) {
 		
@@ -603,14 +603,11 @@ public class BillServicev2 {
 	/**
 	 * creates/ updates bill-account details based on the tax-head code in
 	 * taxCodeAccDetailMap
-	 * 
-	 * @param startPeriod
-	 * @param endPeriod
-	 * @param tenantId
+	 *
 	 * @param taxCodeAccDetailMap
 	 * @param demandDetail
 	 * @param taxHead
-	 * @param amountForAccDeatil
+	 * @param billDetailId
 	 */
 	private void addOrUpdateBillAccDetailInTaxCodeAccDetailMap(Map<String, BillAccountDetailV2> taxCodeAccDetailMap,
 			DemandDetail demandDetail, TaxHeadMaster taxHead, String billDetailId) {
@@ -652,8 +649,7 @@ public class BillServicev2 {
 
 	/**
 	 * Fetches the tax-head master data for the given tax-head codes
-	 * 
-	 * @param demands  list of demands for which tax-heads needs to searched
+	 *
 	 * @param tenantId tenant-id of the request
 	 * @param info     RequestInfo object
 	 * @return returns a map of tax-head code as key and tax-head object as value

@@ -16,6 +16,7 @@ import org.egov.collection.web.contract.BillDetail;
 //import org.egov.collection.web.contract.Receipt;
 //import org.egov.collection.web.contract.ReceiptReq;
 import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.mdms.model.MasterDetail;
 import org.egov.mdms.model.MdmsCriteria;
 import org.egov.mdms.model.MdmsCriteriaReq;
@@ -49,6 +50,9 @@ import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
  *
  */
 public class NotificationConsumer {
+	
+	@Autowired
+	private MultiStateInstanceUtil multiStateInstanceUtil;
 
 	@Value("${coll.notification.ui.host}")
 	private String uiHost;
@@ -137,7 +141,7 @@ public class NotificationConsumer {
 						request.put("mobileNumber", phNo);
 						request.put("message", message);
 
-						producer.producer(smsTopic, request);
+						producer.push(receipt.getTenantId(), smsTopic, request);
 					} else {
 						log.error("No message configured! Notification will not be sent.");
 					}
@@ -203,7 +207,9 @@ public class NotificationConsumer {
 			locale = fallBackLocale;
 		StringBuilder uri = new StringBuilder();
 		uri.append(localizationHost).append(localizationEndpoint);
-		uri.append("?tenantId=").append(tenantId.split("\\.")[0]).append("&locale=").append(locale).append("&module=").append(module);
+		uri.append("?tenantId=").append(multiStateInstanceUtil.getStateLevelTenant(tenantId))
+		.append("&locale=").append(locale).append("&module=").append(module);
+		
 		Map<String, Object> request = new HashMap<>();
 		request.put("RequestInfo", requestInfo);
 		try {
@@ -234,7 +240,7 @@ public class NotificationConsumer {
 		uri.append(mdmsHost).append(mdmsUrl);
 		if(StringUtils.isEmpty(tenantId))
 			return masterData;
-		MdmsCriteriaReq request = getRequestForEvents(requestInfo, tenantId.split("\\.")[0]);
+		MdmsCriteriaReq request = getRequestForEvents(requestInfo, multiStateInstanceUtil.getStateLevelTenant(tenantId));
 		try {
 			Object response = restTemplate.postForObject(uri.toString(), request, Map.class);
 			masterData = JsonPath.read(response, BUSINESSSERVICE_CODES_JSONPATH);
