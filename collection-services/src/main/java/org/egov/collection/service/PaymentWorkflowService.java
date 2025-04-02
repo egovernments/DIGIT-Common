@@ -161,7 +161,7 @@ public class PaymentWorkflowService {
         paymentRepository.updateStatus(validatedPayments);
 
         validatedPayments.forEach(payment -> {
-            collectionProducer.producer(applicationProperties.getCancelPaymentTopicName(), new PaymentRequest(requestInfo, payment));
+            collectionProducer.push(tenantId, applicationProperties.getCancelPaymentTopicName(), new PaymentRequest(requestInfo, payment));
         });
 
 
@@ -215,7 +215,7 @@ public class PaymentWorkflowService {
         paymentRepository.updateStatus(validatedPayments);
 
         validatedPayments.forEach(payment -> {
-            collectionProducer.producer(applicationProperties.getCancelPaymentTopicName(), new PaymentRequest(requestInfo, payment));
+            collectionProducer.push(tenantId, applicationProperties.getCancelPaymentTopicName(), new PaymentRequest(requestInfo, payment));
         });
 
         return validatedPayments;
@@ -249,10 +249,10 @@ public class PaymentWorkflowService {
             JsonNode additionalDetails = workflowRequestByPaymentId.get(payment.getId())
                     .getAdditionalDetails();
 
-            payment.getPaymentDetails().forEach(paymentDetail -> {
-                paymentDetail.getBill().setAdditionalDetails(jsonMerge(paymentDetail.getBill().getAdditionalDetails(),
-                    workflowRequestByPaymentId.get(payment.getId()).getAdditionalDetails()));
-            });
+			payment.getPaymentDetails().forEach(paymentDetail -> {
+				paymentDetail.getBill().setAdditionalDetails(
+						jsonMerge(paymentDetail.getBill().getAdditionalDetails(), additionalDetails));
+			});
 
 
             updateAuditDetails(payment, requestInfo);
@@ -264,7 +264,7 @@ public class PaymentWorkflowService {
         paymentRepository.updateStatus(validatedPayments);
 
         validatedPayments.forEach(payment -> {
-            collectionProducer.producer(applicationProperties.getCancelPaymentTopicName(), new PaymentRequest(requestInfo, payment));
+            collectionProducer.push(tenantId, applicationProperties.getCancelPaymentTopicName(), new PaymentRequest(requestInfo, payment));
         });
         return validatedPayments;
     }

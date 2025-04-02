@@ -33,11 +33,12 @@ async function search_user(uuid, tenantId, requestinfo) {
   });
 }
 
-async function search_epass(uuid, tenantId, requestinfo) {
+async function search_epass(uuid, tenantId, requestinfo, headers) {
   return await axios({
     method: "post",
     url: url.resolve(config.host.epass, config.paths.epass_search),
     data: requestinfo,
+    headers: headers,
     params: {
       tenantId: tenantId,
       ids: uuid,
@@ -49,7 +50,8 @@ async function search_property(
   uuid,
   tenantId,
   requestinfo,
-  allowCitizenTOSearchOthersRecords
+  allowCitizenTOSearchOthersRecords,
+  headers
 ) {
   // currently single property pdfs supported
   if (uuid.split(",").length > 1) {
@@ -71,6 +73,7 @@ async function search_property(
     method: "post",
     url: url.resolve(config.host.pt, config.paths.pt_search),
     data: requestinfo,
+    headers: headers,
     params,
   });
 }
@@ -79,7 +82,8 @@ async function search_property_by_id(
   propertyId,
   tenantId,
   requestinfo,
-  allowCitizenTOSearchOthersRecords
+  allowCitizenTOSearchOthersRecords,
+  headers
 ){
   var params = {
     tenantId: tenantId,
@@ -97,11 +101,12 @@ async function search_property_by_id(
     method: "post",
     url: url.resolve(config.host.pt, config.paths.pt_search),
     data: requestinfo,
+    headers: headers,
     params,
   });
 }
 
-async function search_workflow(applicationNumber, tenantId, requestinfo) {
+async function search_workflow(applicationNumber, tenantId, requestinfo, headers) {
   var params = {
     tenantId: tenantId,
     businessIds: applicationNumber,
@@ -110,11 +115,12 @@ async function search_workflow(applicationNumber, tenantId, requestinfo) {
     method: "post",
     url: url.resolve(config.host.workflow, config.paths.workflow_search),
     data: requestinfo,
+    headers: headers,
     params,
   });
 }
 
-async function search_payment(consumerCodes, tenantId, requestinfo, bussinessService, receiptNumbers) {
+async function search_payment(consumerCodes, tenantId, requestinfo, bussinessService, receiptNumbers, headers) {
   var params = {
     tenantId: tenantId,
     consumerCodes: consumerCodes,
@@ -138,15 +144,17 @@ async function search_payment(consumerCodes, tenantId, requestinfo, bussinessSer
     method: "post",
     url: url.resolve(config.host.payments, searchEndpoint),
     data: requestinfo,
+    headers: headers,
     params,
   });
 }
 
-async function search_bill(consumerCode, tenantId, requestinfo) {
+async function search_bill(consumerCode, tenantId, requestinfo, headers) {
   return await axios({
     method: "post",
     url: url.resolve(config.host.bill, config.paths.bill_search),
     data: requestinfo,
+    headers: headers,
     params: {
       tenantId: tenantId,
       consumerCode: consumerCode,
@@ -154,7 +162,7 @@ async function search_bill(consumerCode, tenantId, requestinfo) {
   });
 }
 
-async function search_tllicense(applicationNumber, tenantId, requestinfo, allowCitizenTOSearchOthersRecords) {
+async function search_tllicense(applicationNumber, tenantId, requestinfo, allowCitizenTOSearchOthersRecords, headers) {
   var params = {
     tenantId: tenantId,
     applicationNumber: applicationNumber,
@@ -168,11 +176,12 @@ async function search_tllicense(applicationNumber, tenantId, requestinfo, allowC
     method: "post",
     url: url.resolve(config.host.tl, config.paths.tl_search),
     data: requestinfo,
+    headers: headers,
     params,
   });
 }
 
-async function search_water(applicationNumber, tenantId, requestinfo, allowCitizenTOSearchOthersRecords) {
+async function search_water(applicationNumber, tenantId, requestinfo, allowCitizenTOSearchOthersRecords, headers) {
   var params = {
     tenantId: tenantId,
     applicationNumber: applicationNumber,
@@ -186,11 +195,12 @@ async function search_water(applicationNumber, tenantId, requestinfo, allowCitiz
     method: "post",
     url: url.resolve(config.host.wns, config.paths.water_search),
     data: requestinfo,
+    headers: headers,
     params,
   });
 }
 
-async function search_sewerage(applicationNumber, tenantId, requestinfo, allowCitizenTOSearchOthersRecords) {
+async function search_sewerage(applicationNumber, tenantId, requestinfo, allowCitizenTOSearchOthersRecords, headers) {
   var params = {
     tenantId: tenantId,
     applicationNumber: applicationNumber,
@@ -204,6 +214,7 @@ async function search_sewerage(applicationNumber, tenantId, requestinfo, allowCi
     method: "post",
     url: url.resolve(config.host.wns, config.paths.sewerage_search),
     data: requestinfo,
+    headers: headers,
     params,
   });
 }
@@ -220,11 +231,12 @@ async function search_mdms(tenantId, module, master, requestinfo) {
   });
 }
 
-async function search_echallan(tenantId, challanNo,requestinfo) {
+async function search_echallan(tenantId, challanNo, requestinfo, headers) {
   return await axios({
     method: "post",
     url: url.resolve(config.host.challan, config.paths.mcollect_challan_search),
     data: requestinfo,
+    headers: headers,
     params: {
       tenantId: tenantId,
       challanNo: challanNo,
@@ -233,54 +245,60 @@ async function search_echallan(tenantId, challanNo,requestinfo) {
 }
 
 
-async function search_bill_genie(data,requestinfo) {
+async function search_bill_genie(data, requestinfo, headers) {
    return await axios({
     method: "post",
     url: url.resolve(config.host.bill, config.paths.bill_genie_getBill),
     data: Object.assign(requestinfo, data),
+    headers: headers,
   });
 }
 
 
-async function search_waterOpenSearch(data,requestinfo) {
+async function search_waterOpenSearch(data, requestinfo, headers) {
   
   return await axios({
     method: "post",
     url: url.resolve(config.host.bill, config.paths.searcher_water_open_search),
     data: Object.assign(requestinfo, data),
+    headers: headers,
   });
 }
 
-async function search_sewerageOpenSearch(data,requestinfo) {
+async function search_sewerageOpenSearch(data,requestinfo, headers) {
   return await axios({
     method: "post",
     url: url.resolve(config.host.bill, config.paths.searcher_sewerage_open_search),
     data: Object.assign(requestinfo, data),
+    headers: headers,
   });
 }
 
-async function search_bill_genie_water_bills(data,requestinfo) {
+async function search_bill_genie_water_bills(data, requestinfo, headers) {
   return await axios({
     method: "post",
     url: url.resolve(config.host.bill, config.paths.bill_genie_waterBills),
     data: Object.assign(requestinfo, data),
+    headers: headers,
   });
 }
 
-async function search_bill_genie_sewerage_bills(data,requestinfo) {
+async function search_bill_genie_sewerage_bills(data,requestinfo, headers) {
   return await axios({
     method: "post",
     url: url.resolve(config.host.bill, config.paths.bill_genie_sewerageBills),
     data: Object.assign(requestinfo, data),
+    headers: headers,
   });
 }
 
-async function search_billV2(tenantId, consumerCode, serviceId, requestinfo) {
+async function search_billV2(tenantId, consumerCode, serviceId, requestinfo, headers) {
   //console.log("search_billV2 consumerCode--",consumerCode,"tenantId",tenantId,"serviceId",serviceId);
   return await axios({
     method: "post",
     url: url.resolve(config.host.mcollectBilling, config.paths.mcollect_bill),
     data: requestinfo,
+    headers: headers,
     params: {
       tenantId: tenantId,
       consumerCode: consumerCode,
@@ -289,12 +307,13 @@ async function search_billV2(tenantId, consumerCode, serviceId, requestinfo) {
   });
 }
 
-async function fetch_bill(tenantId, consumerCode, serviceId, requestinfo) {
+async function fetch_bill(tenantId, consumerCode, serviceId, requestinfo, headers) {
   //console.log("search_billV2 consumerCode--",consumerCode,"tenantId",tenantId,"serviceId",serviceId);
   return await axios({
     method: "post",
     url: url.resolve(config.host.mcollectBilling, config.paths.fetch_bill),
     data: requestinfo,
+    headers: headers,
     params: {
       tenantId: tenantId,
       consumerCode: consumerCode,
@@ -303,12 +322,13 @@ async function fetch_bill(tenantId, consumerCode, serviceId, requestinfo) {
   });
 }
 
-async function search_amendment(tenantId, amendmentId, serviceId, requestinfo) {
+async function search_amendment(tenantId, amendmentId, serviceId, requestinfo, headers) {
   //console.log("search_billV2 consumerCode--",amendmentId,"tenantId",tenantId,"serviceId",serviceId);
   return await axios({
     method: "post",
     url: url.resolve(config.host.mcollectBilling, config.paths.bill_ammendment_search),
     data: requestinfo,
+    headers: headers,
     params: {
       tenantId: tenantId,
       amendmentId: amendmentId,
@@ -383,12 +403,13 @@ async function getPropertyDeatils(requestinfo,tenantId,propertyIds,connectionnoT
 }
 
 
-async function create_pdf(tenantId, key, data, requestinfo) {
-  let headers = {
+async function create_pdf(tenantId, key, data, requestinfo,headers) {
+  let requestHeaders = {
     // Add your desired headers here
     "content-type": "application/json;charset=UTF-8",
     accept: "application/json, text/plain, */*",
-    "TENANTID":tenantId
+    "TENANTID":tenantId,
+    ...headers,
   };
 
   return await axios({
@@ -400,7 +421,7 @@ async function create_pdf(tenantId, key, data, requestinfo) {
       tenantId: tenantId,
       key: key,
     },
-    headers: headers, // Include the headers in the request
+    headers: requestHeaders, // Include the headers in the request
   });
 }
 
@@ -439,6 +460,8 @@ async function create_bulk_pdf(kafkaData){
   var consumerCode = kafkaData.consumerCode;
   var requestinfo = kafkaData.requestinfo;
   var jobid = kafkaData.jobid;
+  var headers = JSON.parse(JSON.stringify(kafkaData.headers));
+  headers['tenantId']=headers.tenantid;
 
   try {
     if(isConsolidated){
@@ -448,7 +471,8 @@ async function create_bulk_pdf(kafkaData){
 
         restWater = await search_waterOpenSearch(
           searchCriteria,
-          {RequestInfo:requestinfo.RequestInfo}
+          {RequestInfo:requestinfo.RequestInfo},
+          headers
         );
 
         restWater = restWater.data.WaterConnection;
@@ -469,7 +493,8 @@ async function create_bulk_pdf(kafkaData){
 
         restSewerage = await search_sewerageOpenSearch(
           searchCriteria,
-          {RequestInfo:requestinfo.RequestInfo}
+          {RequestInfo:requestinfo.RequestInfo},
+          headers
         );
 
         restSewerage = restSewerage.data.SewerageConnections;
@@ -498,13 +523,15 @@ async function create_bulk_pdf(kafkaData){
 
         waterBills = await search_bill_genie_water_bills(
           inputData,
-          {RequestInfo:requestinfo.RequestInfo}
+          {RequestInfo:requestinfo.RequestInfo},
+          headers
         );
         waterBills = waterBills.data.Bills;
 
         sewerageBills = await search_bill_genie_sewerage_bills(
           inputData,
-          {RequestInfo:requestinfo.RequestInfo}
+          {RequestInfo:requestinfo.RequestInfo},
+          headers
         );
         sewerageBills = sewerageBills.data.Bills;
 
@@ -513,7 +540,7 @@ async function create_bulk_pdf(kafkaData){
             if(waterBill.status ==='EXPIRED'){
               var billresponse = await fetch_bill(
               tenantId, waterBill.consumerCode,
-              waterBill.businessService, {RequestInfo:requestinfo.RequestInfo});
+              waterBill.businessService, {RequestInfo:requestinfo.RequestInfo},headers);
               consolidatedResult.Bill.push(billresponse.data.Bill[0]);
             }
             else{
@@ -528,7 +555,7 @@ async function create_bulk_pdf(kafkaData){
             if(sewerageBill.status ==='EXPIRED'){
               var billresponse = await fetch_bill(
               tenantId, sewerageBill.consumerCode,
-              sewerageBill.businessService, {RequestInfo:requestinfo.RequestInfo});
+              sewerageBill.businessService, {RequestInfo:requestinfo.RequestInfo},headers);
               consolidatedResult.Bill.push(billresponse.data.Bill[0]);
             }
             else{
@@ -555,7 +582,8 @@ async function create_bulk_pdf(kafkaData){
 
         restWater = await search_waterOpenSearch(
           searchCriteria,
-          {RequestInfo:requestinfo.RequestInfo}
+          {RequestInfo:requestinfo.RequestInfo},
+          headers
         );
 
         restWater = restWater.data.WaterConnection;
@@ -585,7 +613,8 @@ async function create_bulk_pdf(kafkaData){
         var inputData = {searchCriteria :{locality: locality, tenantId: tenantId, propertyId: propertyIdSet}};
         waterBills = await search_bill_genie_water_bills(
           inputData,
-          {RequestInfo:requestinfo.RequestInfo}
+          {RequestInfo:requestinfo.RequestInfo},
+          headers
         );
 
         waterBills = waterBills.data.Bills;
@@ -594,7 +623,7 @@ async function create_bulk_pdf(kafkaData){
             if(waterBill.status ==='EXPIRED'){
               var billresponse = await fetch_bill(
               tenantId, waterBill.consumerCode,
-              waterBill.businessService, {RequestInfo:requestinfo.RequestInfo});
+              waterBill.businessService, {RequestInfo:requestinfo.RequestInfo},headers);
             
               consolidatedResult.Bill.push(billresponse.data.Bill[0]);
             }
@@ -619,7 +648,8 @@ async function create_bulk_pdf(kafkaData){
 
         restSewerage = await search_sewerageOpenSearch(
           searchCriteria,
-          {RequestInfo:requestinfo.RequestInfo}
+          {RequestInfo:requestinfo.RequestInfo},
+          headers
         );
 
         restSewerage = restSewerage.data.SewerageConnections;
@@ -648,7 +678,8 @@ async function create_bulk_pdf(kafkaData){
 
         sewerageBills = await search_bill_genie_sewerage_bills(
           inputData,
-          {RequestInfo:requestinfo.RequestInfo}
+          {RequestInfo:requestinfo.RequestInfo},
+          headers
         );
         sewerageBills = sewerageBills.data.Bills;
 
@@ -657,7 +688,7 @@ async function create_bulk_pdf(kafkaData){
             if(sewerageBill.status ==='EXPIRED'){
               var billresponse = await fetch_bill(
               tenantId, sewerageBill.consumerCode,
-              sewerageBill.businessService, {RequestInfo:requestinfo.RequestInfo});
+              sewerageBill.businessService, {RequestInfo:requestinfo.RequestInfo},headers);
             
               consolidatedResult.Bill.push(billresponse.data.Bill[0]);
             }
@@ -680,7 +711,7 @@ async function create_bulk_pdf(kafkaData){
       throw new Error("There is no billfound for the criteria");
     }
 
-    var propertyDetails = await getPropertyDeatils({RequestInfo:requestinfo.RequestInfo}, tenantId, propertyIdSet, connectionnoToPropertyMap);
+    var propertyDetails = await getPropertyDeatils({RequestInfo:requestinfo.RequestInfo}, tenantId, propertyIdSet, connectionnoToPropertyMap,headers);
     if (consolidatedResult && consolidatedResult.Bill && consolidatedResult.Bill.length > 0) {
       var pdfResponse;
       var pdfkey = config.pdf.wns_bill;
@@ -778,6 +809,8 @@ async function create_bulk_pdf(kafkaData){
 async function create_bulk_pdf_pt(kafkaData){
   var propertyBills;
   var consolidatedResult = {Bill:[]};
+  var headers = JSON.parse(JSON.stringify(req.headers));
+  headers['tenantId']=headers.tenantid;
   
   let { 
     tenantId, 
@@ -799,7 +832,8 @@ async function create_bulk_pdf_pt(kafkaData){
         {
           RequestInfo:requestinfo.RequestInfo,
           searchCriteria
-        }
+        },
+        headers
       );
 
       propertyBills = propertyBills.data.Bills;
@@ -808,7 +842,7 @@ async function create_bulk_pdf_pt(kafkaData){
         for(let propertyBill of propertyBills){
           if(propertyBill.status ==='EXPIRED'){
             var billresponse = await fetch_bill(
-              tenantId, propertyBill.consumerCode, propertyBill.businessService, {RequestInfo:requestinfo.RequestInfo}
+              tenantId, propertyBill.consumerCode, propertyBill.businessService, {RequestInfo:requestinfo.RequestInfo},headers
             );
             if (billresponse?.data?.Bill?.[0]) consolidatedResult.Bill.push(billresponse.data.Bill[0]);
           }
