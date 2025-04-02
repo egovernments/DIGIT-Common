@@ -460,7 +460,7 @@ async function create_bulk_pdf(kafkaData){
   var consumerCode = kafkaData.consumerCode;
   var requestinfo = kafkaData.requestinfo;
   var jobid = kafkaData.jobid;
-  var headers = JSON.parse(JSON.stringify(req.headers));
+  var headers = JSON.parse(JSON.stringify(kafkaData.headers));
   headers['tenantId']=headers.tenantid;
 
   try {

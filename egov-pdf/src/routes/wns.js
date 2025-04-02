@@ -414,6 +414,8 @@ router.post(
       var bussinessService = req.query.bussinessService;
       var isConsolidated = (req.query.isConsolidated != undefined && req.query.isConsolidated.toLowerCase() === 'true' ? true : false)
       var consumerCode = null;
+      var headers = JSON.parse(JSON.stringify(req.headers));
+      headers['tenantId']=headers.tenantid;
       if(req.query.consumerCode)
         consumerCode = req.query.consumerCode;
       var requestinfo = req.body;
@@ -438,7 +440,8 @@ router.post(
         bussinessService: bussinessService,
         isConsolidated: isConsolidated,
         consumerCode: consumerCode,
-        jobid: jobid
+        jobid: jobid,
+        headers:headers
       };
 
       try {
