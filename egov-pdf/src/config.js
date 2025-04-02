@@ -48,12 +48,12 @@ module.exports = {
     birth_certificate:
             process.env.BIRTH_CERTIFICATE || "birth-certificate",
     death_certificate:
-        process.env.DEATH_CERTIFICATE || "death-certificate"      
+        process.env.DEATH_CERTIFICATE || "death-certificate",      
         
     STATE_LEVEL_TENANTID_LENGTH: 
-    process.env.STATE_LEVEL_TENANTID_LENGTH || 2,
+            process.env.STATE_LEVEL_TENANTID_LENGTH || 2,
     IS_ENVVIRONMENT_CENTRAL_INSTANCE: 
-    process.env.IS_ENVVIRONMENT_CENTRAL_INSTANCE || true,        
+            process.env.IS_ENVVIRONMENT_CENTRAL_INSTANCE || true,        
   },
   app: {
     port: parseInt(process.env.APP_PORT) || 8080,
