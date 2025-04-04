@@ -26,6 +26,7 @@ var {
       var requestinfo = req.body;
       var headers = JSON.parse(JSON.stringify(req.headers));
       headers['tenantId']=headers.tenantid;
+      headers['Accept'] = 'application/json';
 
       if (requestinfo == undefined) {
         return renderError(res, "requestinfo can not be null", 400);
