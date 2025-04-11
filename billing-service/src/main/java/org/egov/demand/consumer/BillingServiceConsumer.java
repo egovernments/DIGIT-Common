@@ -70,8 +70,7 @@ public class BillingServiceConsumer {
 
 	@KafkaListener(topics = { "${kafka.topics.receipt.update.collecteReceipt}", "${kafka.topics.save.bill}",
 			"${kafka.topics.save.demand}", "${kafka.topics.update.demand}", "${kafka.topics.receipt.update.demand}",
-			"${kafka.topics.receipt.cancel.name}", "${kafka.topics.receipt.update.demand.v2}",
-			"${kafka.topics.receipt.cancel.name.v2}" })
+			"${kafka.topics.receipt.cancel.name}",})
 	public void processMessage(Map<String, Object> consumerRecord, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
 
 		log.debug("key:" + topic + ":" + "value:" + consumerRecord);
@@ -119,24 +118,50 @@ public class BillingServiceConsumer {
 					StatusEnum.CANCELLED, true);
 		}
 
-		/*
-		 * update demand from receipt
-		 */
+		/* * update demand from receipt
+
 		else if (applicationProperties.getUpdateDemandFromReceiptV2().equals(topic)) {
 
 			Boolean isReceiptCancellation = false;
 			updateDemandsFromPayment(consumerRecord, isReceiptCancellation);
 		}
 
-		/*
+
 		 * update demand for receipt cancellation
-		 */
+
 		else if (applicationProperties.getReceiptCancellationTopicV2().equals(topic)) {
 
 			Boolean isReceiptCancellation = true;
 			updateDemandsFromPayment(consumerRecord, isReceiptCancellation);
-		}
+		}*/
 	}
+
+	@KafkaListener(topicPattern = "${kafka.topics.receipt.topic.pattern}")
+	public void processPayment(Map<String, Object> consumerRecord, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+
+		/*
+		 * update demand from receipt
+		 */
+
+		Boolean isReceiptCancellation = false;
+		updateDemandsFromPayment(consumerRecord, isReceiptCancellation);
+
+
+	}
+
+	@KafkaListener(topicPattern = "${kafka.topics.receipt.cancel.topic.pattern}")
+	public void processPaymentCancel(Map<String, Object> consumerRecord, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+
+		/*
+		 * update demand from receipt
+		 */
+
+		Boolean isReceiptCancellation = true;
+		updateDemandsFromPayment(consumerRecord, isReceiptCancellation);
+
+
+	}
+
 
 
 	private void updateDemandsFromPayment(Map<String, Object> consumerRecord, Boolean isReceiptCancellation) {
