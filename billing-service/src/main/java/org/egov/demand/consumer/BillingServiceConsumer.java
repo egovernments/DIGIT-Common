@@ -138,7 +138,7 @@ public class BillingServiceConsumer {
 
 	@KafkaListener(topicPattern = "${kafka.topics.receipt.topic.pattern}")
 	public void processPayment(Map<String, Object> consumerRecord, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-
+		log.debug("processPaymentkey:" + topic + ":" + "value:" + consumerRecord);
 		/*
 		 * update demand from receipt
 		 */
@@ -151,6 +151,7 @@ public class BillingServiceConsumer {
 
 	@KafkaListener(topicPattern = "${kafka.topics.receipt.cancel.topic.pattern}")
 	public void processPaymentCancel(Map<String, Object> consumerRecord, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+		log.debug("processPaymentCancelkey:" + topic + ":" + "value:" + consumerRecord);
 
 		/*
 		 * update demand from receipt
@@ -248,6 +249,8 @@ public class BillingServiceConsumer {
 	 * @param paymentId
 	 */
 	private void validatePaymentForDuplicateUpdates(String tenantId, boolean isReceiptCancelled, String paymentId) {
+
+		log.info("Inside validatePaymentForDuplicateUpdates::BillingServiceConsumer");
 
 		PaymentBackUpdateAudit backUpdateAuditCriteria = PaymentBackUpdateAudit.builder()
 				.isReceiptCancellation(isReceiptCancelled)

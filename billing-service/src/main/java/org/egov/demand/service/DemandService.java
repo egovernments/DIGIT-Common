@@ -167,7 +167,7 @@ public class DemandService {
 
 		save(new DemandRequest(requestInfo,demandsToBeCreated));
 		if (!CollectionUtils.isEmpty(amendmentUpdates))
-			amendmentRepository.updateAmendment(amendmentUpdates);
+			amendmentRepository.updateAmendment(amendmentUpdates, demandRequest.getDemands().get(0).getTenantId());
 
 		if(!CollectionUtils.isEmpty(demandToBeUpdated))
 			update(new DemandRequest(requestInfo,demandToBeUpdated), null);
