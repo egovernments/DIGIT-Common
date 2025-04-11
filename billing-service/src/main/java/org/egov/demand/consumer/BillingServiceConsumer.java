@@ -70,7 +70,7 @@ public class BillingServiceConsumer {
 
 	@KafkaListener(topics = { "${kafka.topics.receipt.update.collecteReceipt}", "${kafka.topics.save.bill}",
 			"${kafka.topics.save.demand}", "${kafka.topics.update.demand}", "${kafka.topics.receipt.update.demand}",
-			"${kafka.topics.receipt.cancel.name}",})
+			"${kafka.topics.receipt.cancel.name}"})
 	public void processMessage(Map<String, Object> consumerRecord, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
 
 		log.debug("key:" + topic + ":" + "value:" + consumerRecord);
@@ -269,8 +269,7 @@ public class BillingServiceConsumer {
 	 * Update payment-back-update object based on whether error occurred in validation or not
 	 * 
 	 * 
-	 * @param execptionDuringUpdateValidation
-	 * @param paymentBackUpdateAudit
+	 *
 	 * @throws Exception 
 	 */
 	private void updatePaymentBackUpdateForFailure (String tenantId, String errorMsg, String paymentId, Boolean isReceiptCancellation) {
