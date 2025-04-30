@@ -27,7 +27,7 @@ public class AmendmentQueryBuilder {
 	public static final String AMENDMENT_TAXDETAIL_INSERT_QUERY = "INSERT INTO {schema}.egbs_amendment_taxdetail(id, amendmentid, taxheadcode, taxamount)"
 			+ " VALUES (:id, :amendmentid, :taxheadcode, :taxamount);";
 
-	public static final String DOCUMET_INSERT_QUERY = "INSERT INTO egbs_document(id, amendmentid, documenttype, filestoreid, documentuid, status)"
+	public static final String DOCUMET_INSERT_QUERY = "INSERT INTO {schema}.egbs_document(id, amendmentid, documenttype, filestoreid, documentuid, status)"
 			+ " VALUES (:id, :amendmentid, :documenttype, :filestoreid, :documentuid, :status);";
 	
 	public static final String AMENDMENT_SEARCH_QUERY = "SELECT amendment.id as amendmentuuid, amendment.tenantid, "
@@ -38,7 +38,7 @@ public class AmendmentQueryBuilder {
 			+ " doc.amendmentid as docamendmentid, documentType, fileStoreid, documentuid, doc.status as docstatus "
 			+ " FROM {schema}.egbs_amendment amendment "
 			+ " INNER JOIN "
-			+ " egbs_amendment_taxdetail amdl ON amendment.id = amdl.amendmentid " 
+			+ " {schema}.egbs_amendment_taxdetail amdl ON amendment.id = amdl.amendmentid " 
 			+ "	INNER JOIN {schema}.egbs_document doc ON amendment.id = doc.amendmentid "
 			+ " INNER JOIN (SELECT id, tenantid FROM {schema}.egbs_amendment amendment WHERE {$WHERE} {$PAGE}) pagedresult "
 			+ " ON amendment.id = pagedresult.id AND amendment.tenantid = pagedresult.tenantid ";
