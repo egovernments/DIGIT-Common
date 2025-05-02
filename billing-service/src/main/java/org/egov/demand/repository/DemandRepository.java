@@ -194,7 +194,7 @@ public class DemandRepository {
 		
 		String sqlDemand;
 		try {
-		 sqlDemand = centralInstanceUtil.replaceSchemaPlaceholder(DemandQueryBuilder.DEMAND_INSERT_QUERY, newDemandDetails.get(0).getTenantId());
+		 sqlDemand = centralInstanceUtil.replaceSchemaPlaceholder(DemandQueryBuilder.DEMAND_INSERT_QUERY, newDemands.get(0).getTenantId());
 		} catch (InvalidTenantIdException e) {
 		throw new CustomException("EG_BS_TENANTID_ERROR",
 				"TenantId length is not sufficient to replace query schema in a multi state instance");
@@ -234,7 +234,7 @@ public class DemandRepository {
 		
 		String sqlDemandDetail;
 		try {
-		 sqlDemandDetail = centralInstanceUtil.replaceSchemaPlaceholder(DemandQueryBuilder.DEMAND_DETAIL_INSERT_QUERY, newDemandDetails.get(0).getTenantId());
+		 sqlDemandDetail = centralInstanceUtil.replaceSchemaPlaceholder(DemandQueryBuilder.DEMAND_DETAIL_INSERT_QUERY, newDemands.get(0).getTenantId());
 	} catch (InvalidTenantIdException e) {
 		throw new CustomException("EG_BS_TENANTID_ERROR",
 				"TenantId length is not sufficient to replace query schema in a multi state instance");
@@ -353,7 +353,7 @@ public class DemandRepository {
 		String sqlDemandAudit;
 		try {
 			sqlDemandAudit = centralInstanceUtil.replaceSchemaPlaceholder(DemandQueryBuilder.DEMAND_AUDIT_INSERT_QUERY,
-					demandDetails.get(0).getTenantId());
+					demands.get(0).getTenantId());
 		} catch (InvalidTenantIdException e) {
 			throw new CustomException("EG_BS_TENANTID_ERROR",
 					"TenantId length is not sufficient to replace query schema in a multi state instance");
@@ -394,7 +394,7 @@ public class DemandRepository {
 		String sqlDemandDetailAudit;
 		try {
 			sqlDemandDetailAudit = centralInstanceUtil.replaceSchemaPlaceholder(
-					DemandQueryBuilder.DEMAND_DETAIL_AUDIT_INSERT_QUERY, demandDetails.get(0).getTenantId());
+					DemandQueryBuilder.DEMAND_DETAIL_AUDIT_INSERT_QUERY, demands.get(0).getTenantId());
 		} catch (InvalidTenantIdException e) {
 			throw new CustomException("EG_BS_TENANTID_ERROR",
 					"TenantId length is not sufficient to replace query schema in a multi state instance");
