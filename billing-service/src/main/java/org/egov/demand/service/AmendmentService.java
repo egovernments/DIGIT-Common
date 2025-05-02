@@ -115,7 +115,7 @@ public class AmendmentService {
 	 * update method for amendment, used only with workflow. if workflow is not available then method is not called
 	 * 
 	 * @param amendmentUpdateRequest
-	 * @param isRequestForWorkflowUpdate
+
 	 */
 	public Amendment updateAmendment(AmendmentUpdateRequest amendmentUpdateRequest) {
 		
@@ -135,7 +135,7 @@ public class AmendmentService {
 		/*
 		 * amendment update 
 		 */
-		amendmentRepository.updateAmendment(Arrays.asList(amendmentUpdate));
+		amendmentRepository.updateAmendment(Arrays.asList(amendmentUpdate), amendmentUpdate.getTenantId());
 		
 		if (amendmentUpdate.getStatus().equals(AmendmentStatus.ACTIVE)) {
 			updateDemandWithAmendmentTax(requestInfo, amendmentFromSearch);
@@ -192,7 +192,7 @@ public class AmendmentService {
 					.effectiveTill(amendment.getEffectiveTill())
 					.build();
 			
-			amendmentRepository.updateAmendment(Arrays.asList(amendmentUpdate));
+			amendmentRepository.updateAmendment(Arrays.asList(amendmentUpdate), amendment.getTenantId());
 			
 			Set<String> consumerCodes = demands.stream().map(Demand::getConsumerCode).collect(Collectors.toSet());
 			String businessService = demands.get(0).getBusinessService();
