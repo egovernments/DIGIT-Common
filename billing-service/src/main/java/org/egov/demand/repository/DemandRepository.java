@@ -270,7 +270,7 @@ public class DemandRepository {
 		String sqlDemandUpdate;
 		try {
 			sqlDemandUpdate = centralInstanceUtil.replaceSchemaPlaceholder(DemandQueryBuilder.DEMAND_UPDATE_QUERY,
-					oldDemandDetails.get(0).getTenantId());
+					oldDemands.get(0).getTenantId());
 		} catch (InvalidTenantIdException e) {
 			throw new CustomException("EG_BS_TENANTID_ERROR",
 					"TenantId length is not sufficient to replace query schema in a multi state instance");
@@ -312,7 +312,7 @@ public class DemandRepository {
 		String sqlDemandDetailUpdate;
 		try {
 			sqlDemandDetailUpdate = centralInstanceUtil.replaceSchemaPlaceholder(
-					DemandQueryBuilder.DEMAND_DETAIL_UPDATE_QUERY, oldDemandDetails.get(0).getTenantId());
+					DemandQueryBuilder.DEMAND_DETAIL_UPDATE_QUERY, oldDemands.get(0).getTenantId());
 		} catch (InvalidTenantIdException e) {
 			throw new CustomException("EG_BS_TENANTID_ERROR",
 					"TenantId length is not sufficient to replace query schema in a multi state instance");
