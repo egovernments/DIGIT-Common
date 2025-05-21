@@ -25,7 +25,9 @@ var {
       var challanNo = req.query.challanNo;
       var requestinfo = req.body;
       var headers = JSON.parse(JSON.stringify(req.headers));
-      headers['tenantId']=headers.tenantid;
+      headers['tenantId'] = headers.tenantid || req.query.tenantId;
+      headers['accept'] = 'application/json';
+      console.log('Final headers to search_echallan:', headers);
 
       if (requestinfo == undefined) {
         return renderError(res, "requestinfo can not be null", 400);
