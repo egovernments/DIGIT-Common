@@ -91,21 +91,24 @@ public class EmployeeService {
 
 	@Autowired
 	private HRMSProducer hrmsProducer;
-	
+
 	@Autowired
 	private EmployeeRepository repository;
-	
+
 	@Autowired
 	private HRMSUtils hrmsUtils;
-	
+
 	@Autowired
 	private NotificationService notificationService;
-	
+
 	@Autowired
 	private ObjectMapper objectMapper;
-	
+
 	@Autowired
 	private MultiStateInstanceUtil centralInstanceUtil;
+
+	@Autowired
+	private IndividualService individualService;
 
 	/**
 	 * Service method for create employee. Does following:
@@ -228,8 +231,8 @@ public class EmployeeService {
 	
 	
 	/**
-	 * Creates user by making call to egov-user.
-	 * 
+	 * Creates user by making call to egov-user or individual service.
+	 *
 	 * @param employee
 	 * @param requestInfo
 	 */
@@ -237,7 +240,15 @@ public class EmployeeService {
 		enrichUser(employee);
 		UserRequest request = UserRequest.builder().requestInfo(requestInfo).user(employee.getUser()).build();
 		try {
-			UserResponse response = userService.createUser(request);
+			UserResponse response;
+			if(userService instanceof IndividualService) {
+				String localityCode = (employee.getJurisdictions()!=null && !employee.getJurisdictions().isEmpty())?
+						employee.getJurisdictions().get(0).getBoundary() : null;
+				response = individualService.createUserByLocality(request, localityCode);
+			}
+			else{
+				response = userService.createUser(request);
+			}
 			User user = response.getUser().get(0);
 			employee.setId(UUID.fromString(user.getUuid()).getMostSignificantBits());
 			employee.setUuid(user.getUuid());
@@ -368,15 +379,22 @@ public class EmployeeService {
 	}
 	
 	/**
-	 * Updates the user by making call to the user service.
-	 * 
+	 * Updates the user by making call to the user service or individual service.
+	 *
 	 * @param employee
 	 * @param requestInfo
 	 */
 	private void updateUser(Employee employee, RequestInfo requestInfo) {
 		UserRequest request = UserRequest.builder().requestInfo(requestInfo).user(employee.getUser()).build();
 		try {
-			userService.updateUser(request);
+			if(userService instanceof IndividualService) {
+				String localityCode = (employee.getJurisdictions()!=null && !employee.getJurisdictions().isEmpty())?
+						employee.getJurisdictions().get(0).getBoundary() : null;
+				individualService.updateUserByLocality(request, localityCode);
+			}
+			else{
+				userService.updateUser(request);
+			}
 		}catch(Exception e) {
 			log.error("Exception while updating user: ",e);
 			log.error("request: "+request);
