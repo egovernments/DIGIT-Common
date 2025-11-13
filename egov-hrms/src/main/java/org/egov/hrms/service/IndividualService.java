@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import static org.egov.hrms.utils.HRMSConstants.SYSTEM_GENERATED;
 
 @Slf4j
+@org.springframework.stereotype.Service
 public class IndividualService implements UserService {
 
     private final PropertiesManager propertiesManager;
