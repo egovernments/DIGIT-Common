@@ -70,3 +70,13 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-document-uploader/src/main/resources/db"
         image-name: "egov-document-uploader-db"
+
+
+  - name: "builds/digit-common/xstate-chatbot"
+    build:
+      - work-dir: "xstate-chatbot/nodejs"
+        image-name: "xstate-chatbot"
+        dockerfile: "xstate-chatbot/nodejs/Dockerfile"
+      - work-dir: "xstate-chatbot/nodejs/db"
+        image-name: "xstate-chatbot-db"
+        dockerfile: "xstate-chatbot/nodejs/db/Dockerfile"      
