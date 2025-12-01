@@ -41,7 +41,7 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-apportion-service/src/main/resources/db"
         image-name: "egov-apportion-service-db"
-        
+
   - name: "builds/digit-common/egov-hrms"
     build:
       - work-dir: "egov-hrms"
@@ -49,7 +49,7 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-hrms/src/main/resources/db"
         image-name: "egov-hrms-db"
-  
+
   - name: "builds/digit-common/core-services/egov-user-event"
     build:
       - work-dir: "egov-user-event"
@@ -57,7 +57,7 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-user-event/src/main/resources/db"
         image-name: "egov-user-event-db"
-        
+
   - name: "builds/digit-common/egov-pdf"
     build:
       - work-dir: "egov-pdf"
