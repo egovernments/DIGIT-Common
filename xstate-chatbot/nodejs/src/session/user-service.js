@@ -31,20 +31,9 @@ class UserService {
         if (!createResult) {
           throw new Error(`Failed to create user for ${mobileNumber}`);
         }
-
-        // Check if createResult contains access_token (when CITIZEN_REGISTRATION_WITHLOGIN_ENABLED=true)
-        if (createResult.access_token) {
-          console.log('User created with login enabled, using token from creation response');
-          user = {
-            authToken: createResult.access_token,
-            refreshToken: createResult.refresh_token,
-            userInfo: createResult.UserRequest
-          };
-        } else {
-          // Add a small delay before retry login to allow for database consistency
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          user = await this.loginUser(mobileNumber, tenantId);
-        }
+        // Add a small delay before retry login to allow for database consistency
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        user = await this.loginUser(mobileNumber, tenantId);
       }
       if (!user) {
         throw new Error(`Unable to login after user creation for ${mobileNumber}`);
