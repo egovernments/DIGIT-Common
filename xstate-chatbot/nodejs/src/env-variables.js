@@ -34,7 +34,8 @@ const envVariables = {
         dbPort: process.env.DB_PORT || '5432',
         dbName: process.env.DB_NAME || 'chat',
         dbUsername: process.env.DB_USER || 'postgres',
-        dbPassword: process.env.DB_PASSWORD || 'postgres'
+        dbPassword: process.env.DB_PASSWORD || 'postgres',
+        dbSSL: process.env.DB_SSL === 'true'
     },
 
     kafka: {
