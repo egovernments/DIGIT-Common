@@ -130,9 +130,12 @@ class UserService {
       },
       User: {
         otpReference: config.userService.userServiceHardCodedPassword,
-        permamnentCity: tenantId,
+        permanentCity: tenantId,
         tenantId: tenantId,
         username: mobileNumber,
+        mobileNumber: mobileNumber,
+        name: "Citizen",
+        type: "CITIZEN"
       }
     };
 

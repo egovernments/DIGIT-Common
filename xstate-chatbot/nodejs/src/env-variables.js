@@ -16,7 +16,7 @@ const envVariables = {
 
     whatsAppBusinessNumber : process.env.WHATSAPP_BUSINESS_NUMBER || '918750975975',
 
-    rootTenantId: process.env.ROOT_TENANTID || 'pb',
+    rootTenantId: process.env.ROOT_TENANTID || 'pg',
 
     supportedLocales: process.env.SUPPORTED_LOCALES || 'en_IN',
 
@@ -75,19 +75,16 @@ const envVariables = {
     },
 
     egovServices: {
-        egovServicesHost: process.env.EGOV_SERVICES_HOST || 'https://mseva.lgpunjab.gov.in/',
-        externalHost: process.env.EXTERNAL_HOST || 'https://mseva.lgpunjab.gov.in/',
-        //searcherHost: process.env.EGOV_SEARCHER_HOST || "https://mseva.lgpunjab.gov.in/",
-        searcherHost: process.env.EGOV_SEARCHER_HOST || "http://egov-searcher.egov:8080/",
-
-        //userServiceHost: process.env.USER_SERVICE_HOST || 'http://egov-user:8080/',
-        userServiceHost: process.env.USER_SERVICE_HOST || 'https://mseva.lgpunjab.gov.in/',
+        egovServicesHost: process.env.EGOV_SERVICES_HOST || 'https://unified-demo.digit.org/',
+        externalHost: process.env.EXTERNAL_HOST || 'https://unified-demo.digit.org/',
+        searcherHost: process.env.EGOV_SEARCHER_HOST || "https://unified-demo.digit.org/",
+        userServiceHost: process.env.USER_SERVICE_HOST || 'https://unified-demo.digit.org/',
         userServiceOAuthPath: process.env.USER_SERVICE_OAUTH_PATH || 'user/oauth/token',
         userServiceCreateCitizenPath: process.env.USER_SERVICE_CREATE_CITIZEN_PATH || 'user/citizen/_create',
         userServiceUpdateProfilePath: process.env.USER_SERVICE_UPDATE_PROFILE_PATH || 'user/profile/_update',
         userServiceCitizenDetailsPath: process.env.USER_SERVICE_CITIZEN_DETAILS_PATH || 'user/_details',
 
-        egovlocalizationhost : process.env.LOCALISATION_SERVICE_HOST || "http://egov-localization:8080/",
+        egovlocalizationhost : process.env.LOCALISATION_SERVICE_HOST || "https://unified-demo.digit.org/",
         mdmsSearchPath: process.env.MDMS_SEARCH_PATH || 'egov-mdms-service/v1/_search',
         localisationServiceSearchPath: process.env.LOCALISATION_SERVICE_SEARCH_PATH || 'localization/messages/v1/_search',
         billServiceSearchPath: process.env.BILL_SERVICE_SEARCH_PATH || 'billing-service/bill/v2/_fetchbill',
@@ -116,7 +113,7 @@ const envVariables = {
     },
 
     userService: {
-        userServiceHardCodedPassword: process.env.USER_SERVICE_HARDCODED_PASSWORD || '768696',
+        userServiceHardCodedPassword: process.env.USER_SERVICE_HARDCODED_PASSWORD || '123456',
         userLoginAuthorizationHeader: process.env.USER_LOGIN_AUTHORIZATION_HEADER || 'Basic ZWdvdi11c2VyLWNsaWVudDplZ292LXVzZXItc2VjcmV0',
     },
 
