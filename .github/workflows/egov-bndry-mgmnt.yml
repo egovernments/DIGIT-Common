@@ -1,10 +1,14 @@
-name: Auto Trigger for egov-bndry-mgmnt Multi-Arch Build
+name: egov-bndry-mgmnt Multi-Arch Build
 
 on:
-  push:
-    branches:
-      - master
-
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Name of the service to build and deploy'
+        required: true
+        type: choice
+        options:
+          - "egov-bndry-mgmnt"
 env:
   DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
