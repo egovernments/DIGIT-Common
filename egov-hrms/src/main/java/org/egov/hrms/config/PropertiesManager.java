@@ -146,4 +146,7 @@ public class PropertiesManager {
 
 	@Value("${egov.boundary.search.url}")
 	private String boundarySearchUrl;
+
+	@Value("${egov.hrms.location.integration.enabled}")
+	private boolean locationIntegrationEnabled;
 }

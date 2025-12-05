@@ -100,7 +100,6 @@ public class EmployeeValidator {
 
 	public Map<String, List<String>> getBoundaryList(RequestInfo requestInfo,Employee employee){
 		List<String> boundarytList = new ArrayList<>();
-		Map<String, List<String>> eachMasterMap = new HashMap<>();
 		Map<String, List<String>> masterData = new HashMap<>();
 		if(!CollectionUtils.isEmpty(employee.getJurisdictions())){
 			for(Jurisdiction jurisdiction: employee.getJurisdictions()){
@@ -111,42 +110,50 @@ public class EmployeeValidator {
 				boundarytList.add(employee.getTenantId());
 		}
 
-		List<MdmsResponse> boundaryResponseList = new ArrayList<>();
-//		for(String boundary: boundarytList){
-//			MdmsResponse responseLoc = mdmsService.fetchMDMSDataLoc(requestInfo, boundary);
-//			BoundaryResponse boundarySearchResponse = serviceRequestClient.fetchResult(
-//					new StringBuilder(propertiesManager.getBoundaryServiceHost()
-//							+ propertiesManager.getBoundarySearchUrl()
-//							+"?limit=" + boundaries.size()
-//							+ "&offset=0&tenantId=" + tenantId
-//							+ "&codes=" + String.join(",", boundaries)),
-//					request.getRequestInfo(),
-//					BoundaryResponse.class
-//			);
-//			if(!CollectionUtils.isEmpty(responseLoc.getMdmsRes()))
-//				boundaryResponseList.add(responseLoc);
-//		}
-
 		if(!CollectionUtils.isEmpty(boundarytList)) {
-			try {
-				BoundaryResponse boundarySearchResponse = restCallRepository.fetchResult(
-						new StringBuilder(propertiesManager.getBoundaryServiceHost()
-								+ propertiesManager.getBoundarySearchUrl()
-								+"?limit=" + boundarytList.size()
-								+ "&offset=0&tenantId=" + employee.getTenantId()
-								+ "&codes=" + String.join(",", boundarytList)),
-						requestInfo,
-						BoundaryResponse.class
-				);
-				masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, boundarySearchResponse.getBoundary().stream()
-						.map(boundary -> boundary.getCode())
-						.collect(Collectors.toList())
-				);
-				log.info("successfully fetch boundary");
-			} catch (Exception e) {
-				log.error("error while fetching boundary");
-				log.error("Error while fetching boundaries from Boundary Service", e);
-				throw new CustomException("BOUNDARY_SERVICE_SEARCH_ERROR","Error while fetching boundaries from Boundary Service : " + e.getMessage());
+			if(propertiesManager.isLocationIntegrationEnabled()) {
+				// Use MDMS location service (original flow)
+				List<MdmsResponse> boundaryResponseList = new ArrayList<>();
+				for(String boundary: boundarytList){
+					MdmsResponse responseLoc = mdmsService.fetchMDMSDataLoc(requestInfo, boundary);
+					if(responseLoc != null && !CollectionUtils.isEmpty(responseLoc.getMdmsRes()))
+						boundaryResponseList.add(responseLoc);
+				}
+				if(!CollectionUtils.isEmpty(boundaryResponseList)){
+					List<String> tenantBoundaryData = new ArrayList<>();
+					for(MdmsResponse responseLoc : boundaryResponseList){
+						if(!CollectionUtils.isEmpty(responseLoc.getMdmsRes().keySet())) {
+							if(null != responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE)) {
+								Map<String, List<String>> eachMasterMap = (Map) responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE);
+								tenantBoundaryData.addAll(eachMasterMap.get(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE));
+							}
+						}
+					}
+					if(!CollectionUtils.isEmpty(tenantBoundaryData))
+						masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE,tenantBoundaryData);
+				}
+			} else {
+				// Use boundary service (new flow)
+				try {
+					BoundaryResponse boundarySearchResponse = restCallRepository.fetchResult(
+							new StringBuilder(propertiesManager.getBoundaryServiceHost()
+									+ propertiesManager.getBoundarySearchUrl()
+									+"?limit=" + boundarytList.size()
+									+ "&offset=0&tenantId=" + employee.getTenantId()
+									+ "&codes=" + String.join(",", boundarytList)),
+							requestInfo,
+							BoundaryResponse.class
+					);
+					masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, boundarySearchResponse.getBoundary().stream()
+							.map(boundary -> boundary.getCode())
+							.collect(Collectors.toList())
+					);
+					log.info("successfully fetch boundary");
+				} catch (Exception e) {
+					log.error("error while fetching boundary");
+					log.error("Error while fetching boundaries from Boundary Service", e);
+					throw new CustomException("BOUNDARY_SERVICE_SEARCH_ERROR","Error while fetching boundaries from Boundary Service : " + e.getMessage());
+				}
 			}
 		}
 
@@ -288,7 +295,9 @@ public class EmployeeValidator {
 		validateEmployee(employee, errorMap, mdmsData);
 		validateAssignments(employee, errorMap, mdmsData);
 		validateServiceHistory(employee, errorMap, mdmsData);
-		//validateJurisdicton(employee, errorMap, mdmsData, boundaryMap);
+		if(propertiesManager.isLocationIntegrationEnabled()) {
+			validateJurisdicton(employee, errorMap, mdmsData, boundaryMap);
+		}
 		validateEducationalDetails(employee, errorMap, mdmsData);
 		validateDepartmentalTest(employee, errorMap, mdmsData);
 	}
