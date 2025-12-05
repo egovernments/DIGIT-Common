@@ -2,10 +2,10 @@
 const createAndSearch: any = {
     "boundaryManagement": {
         parseArrayConfig: {
-            sheetName: "HCM_ADMIN_CONSOLE_BOUNDARY_DATA",
+            sheetName: "CRS_BOUNDARY_DATA",
         },
         boundaryValidation: {
-            column: "HCM_ADMIN_CONSOLE_BOUNDARY_CODE"
+            column: "CRS_BOUNDARY_CODE"
         }
     }
 }

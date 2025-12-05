@@ -18,11 +18,11 @@ const config = {
   excludeBoundaryNameAtLastFromBoundaryCodes: (process.env.EXCLUDE_BOUNDARY_NAME_AT_LAST_FROM_BOUNDARY_CODES === "true") || false,
   isEnvironmentCentralInstance: process.env.IS_ENVIRONMENT_CENTRAL_INSTANCE === "true",
   boundary: {
-    boundaryCode: process.env.BOUNDARY_CODE_HEADER_NAME || "HCM_ADMIN_CONSOLE_BOUNDARY_CODE",
-    boundaryCodeMandatory: 'HCM_ADMIN_CONSOLE_BOUNDARY_CODE_MANDATORY',
-    boundaryCodeMandatoryForMicroplanFacility: process.env.BOUNDARY_CODE_HEADER_NAME_FACILITY_MICROPLAN || "HCM_ADMIN_CONSOLE_RESIDING_BOUNDARY_CODE_MICROPLAN",
-    boundaryCodeOld: "HCM_ADMIN_CONSOLE_BOUNDARY_CODE_OLD",
-    boundaryTab: process.env.BOUNDARY_TAB_NAME || "HCM_ADMIN_CONSOLE_BOUNDARY_DATA",
+    boundaryCode: process.env.BOUNDARY_CODE_HEADER_NAME || "CRS_BOUNDARY_CODE",
+    boundaryCodeMandatory: 'CRS_BOUNDARY_CODE_MANDATORY',
+    boundaryCodeMandatoryForMicroplanFacility: process.env.BOUNDARY_CODE_HEADER_NAME_FACILITY_MICROPLAN || "CRS_RESIDING_BOUNDARY_CODE_MICROPLAN",
+    boundaryCodeOld: "CRS_BOUNDARY_CODE_OLD",
+    boundaryTab: process.env.BOUNDARY_TAB_NAME || "CRS_BOUNDARY_DATA",
     // default configurable number of data of boundary type on which generate different tabs
     numberOfBoundaryDataOnWhichWeSplit: process.env.SPLIT_BOUNDARIES_ON_LENGTH || "2"
   },
@@ -55,7 +55,7 @@ const config = {
   },
   // Application configuration
   app: {
-    port: parseInt(process.env.APP_PORT || "8080") || 8080,
+    port:  parseInt(process.env.APP_PORT || "8080") || 8080,
     host: HOST,
     contextPath: process.env.CONTEXT_PATH || "/boundary-management",
     logLevel: process.env.APP_LOG_LEVEL || "debug",
@@ -67,8 +67,8 @@ const config = {
   },
   localisation: {
     defaultLocale: process.env.LOCALE || "en_MZ",
-    boundaryPrefix: "hcm-boundary",
-    localizationModule: process.env.LOCALIZATION_MODULE || "hcm-admin-schemas",
+    boundaryPrefix: "crs-boundary",
+    localizationModule: process.env.LOCALIZATION_MODULE || "crs-admin-schemas",
     localizationWaitTimeInBoundaryCreation: parseInt(process.env.LOCALIZATION_WAIT_TIME_IN_BOUNDARY_CREATION || "30000"),
     localizationChunkSizeForBoundaryCreation: parseInt(process.env.LOCALIZATION_CHUNK_SIZE_FOR_BOUNDARY_CREATION || "2000"),
   },
@@ -82,19 +82,21 @@ const config = {
     // Kafka broker host
     KAFKA_BROKER_HOST: process.env.KAFKA_BROKER_HOST || "kafka-v2.kafka-cluster:9092",
     redisHost: process.env.REDIS_HOST || "localhost",
+    //https://unified-dev.digit.org/
     mdms: process.env.EGOV_MDMS_HOST || "https://unified-dev.digit.org/",
     mdmsV2: process.env.EGOV_MDMS_V2_HOST || "https://unified-dev.digit.org/",
     filestore: process.env.EGOV_FILESTORE_SERVICE_HOST || "https://unified-dev.digit.org/",
     boundaryHost: process.env.EGOV_BOUNDARY_HOST || "https://unified-dev.digit.org/",
     localizationHost: process.env.EGOV_LOCALIZATION_HOST || "https://unified-dev.digit.org/",
+
   },
   // Paths for different services
   paths: {
     filestore: process.env.FILE_STORE_SERVICE_END_POINT || "filestore/v1/files",
     filestorefetch: "filestore/v1/files/url",
-    mdms_v2_search: process.env.EGOV_MDMS_V2_SEARCH_ENDPOINT || "egov-mdms-service/v2/_search",
-    mdms_v1_search: process.env.EGOV_MDMS_V1_SEARCH_ENDPOINT || "egov-mdms-service/v1/_search",
-    mdmsSchema: process.env.EGOV_MDMS_SCHEMA_PATH || "egov-mdms-service/schema/v1/_search",
+    mdms_v2_search: process.env.EGOV_MDMS_V2_SEARCH_ENDPOINT || "mdms-v2/v2/_search",
+    mdms_v1_search: process.env.EGOV_MDMS_V1_SEARCH_ENDPOINT || "mdms-v2/v1/_search",
+    mdmsSchema: process.env.EGOV_MDMS_SCHEMA_PATH || "mdms-v2/schema/v1/_search",
     boundaryRelationship: process.env.EGOV_BOUNDARY_RELATIONSHIP_SEARCHPATH || "boundary-service/boundary-relationships/_search",
     boundaryServiceSearch: process.env.EGOV_BOUNDARY_SERVICE_SEARCHPATH || "boundary-service/boundary/_search",
     boundaryHierarchy: process.env.EGOV_BOUNDARY_HIERARCHY_SEARCHPATH || "boundary-service/boundary-hierarchy-definition/_search",

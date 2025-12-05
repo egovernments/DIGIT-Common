@@ -304,14 +304,14 @@ function finalizeSheet(request: any, sheet: any, frozeCells: boolean, frozeWhole
   let columnsToBeFreezed: any[] = [];
   let columnsToHide: any[] = [];
   if (fileUrl) {
-    columnsToHide = ["HCM_ADMIN_CONSOLE_BOUNDARY_CODE_OLD", ...schema?.columnsToHide];
+    columnsToHide = ["CRS_BOUNDARY_CODE_OLD", ...schema?.columnsToHide];
     columnsToHide.forEach((column: any) => {
       const localizedColumn = getLocalizedName(column, localizationMap);
       const columnIndex = getColumnIndexByHeader(sheet, localizedColumn);
       columnIndexesToBeHidden.push(columnIndex);
     });
 
-    columnsToBeFreezed = ["HCM_ADMIN_CONSOLE_BOUNDARY_CODE_OLD", ...schema?.columnsToBeFreezed]
+    columnsToBeFreezed = ["CRS_BOUNDARY_CODE_OLD", ...schema?.columnsToBeFreezed]
     columnsToBeFreezed.forEach((column: any) => {
       const localizedColumn = getLocalizedName(column, localizationMap);
       const columnIndex = getColumnIndexByHeader(sheet, localizedColumn);

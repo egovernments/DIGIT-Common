@@ -3,7 +3,7 @@ import config from "../config";
 import { httpRequest } from "./request";
 import { logger } from "./logger";
 import { throwError,getLocalizedHeaders,createHeaderToHierarchyMap,
-  modifyBoundaryDataHeadersWithMap,modifyBoundaryData,findMapValue,extractFrenchOrPortugeseLocalizationMap,replicateRequest,callGenerate}
+  modifyBoundaryDataHeadersWithMap,modifyBoundaryData,findMapValue,replicateRequest,callGenerate}
  from "../utils/genericUtils";
 import { searchBoundaryRelationshipDefinition  } from "../api/coreApis";
 import { BoundaryModels } from "../models";
@@ -244,10 +244,7 @@ const autoGenerateBoundaryCodes = async (
   logger.info(
     "Initiated the localisation message creation for the uploaded boundary"
   );
-  const frenchLocalizationMap = extractFrenchOrPortugeseLocalizationMap(boundaryDataForSheet, true, false, localizationMap);
-  const portugeseLocalizationMap = extractFrenchOrPortugeseLocalizationMap(boundaryDataForSheet, false, true, localizationMap);
-  await transformAndCreateLocalisation(frenchLocalizationMap, request, true, false);
-  await transformAndCreateLocalisation(portugeseLocalizationMap, request, false, true);
+  // Only create default localization for boundary codes
   await transformAndCreateLocalisation(boundaryMap, request, false, false);
   const modifiedHierarchy = hierarchy.map((ele) =>
     `${hierarchyType}_${ele}`.toUpperCase()
@@ -262,10 +259,8 @@ const autoGenerateBoundaryCodes = async (
   if (type === "boundaryManagement") {
     headers = [
       ...headers,
-      getLocalizedName("HCM_ADMIN_CONSOLE_FRENCH_LOCALIZATION_MESSAGE", localizationMap),
-      getLocalizedName("HCM_ADMIN_CONSOLE_FRENCH_LOCALIZATION_MESSAGE", localizationMap),
-      getLocalizedName("HCM_ADMIN_CONSOLE_LAT", localizationMap),
-      getLocalizedName("HCM_ADMIN_CONSOLE_LONG", localizationMap)
+      getLocalizedName("CRS_LAT", localizationMap),
+      getLocalizedName("CRS_LONG", localizationMap)
     ];
     data.forEach((row: any[], index: string | number) => {
       if (latLongData.length > index) {
@@ -437,8 +432,8 @@ function updateBoundaryDataForBoundaryManagement(
   localizationMap: any
 ): { updatedData: any[]; latLongData: [number, number][] } {
   const latLongData: [number, number][] = [];
-  const latKey = getLocalizedName("HCM_ADMIN_CONSOLE_LAT", localizationMap);
-  const longKey = getLocalizedName("HCM_ADMIN_CONSOLE_LONG", localizationMap);
+  const latKey = getLocalizedName("CRS_LAT", localizationMap);
+  const longKey = getLocalizedName("CRS_LONG", localizationMap);
 
   boundaryData.forEach((row) => {
     // Check if the row contains both latitude and longitude keys

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { logger } from "./logger";
-import { getLocaleFromRequest , getLocaleFromRequestInfo ,getLocalisationModuleName} from "./localisationUtils";
+import { getLocaleFromRequest, getLocaleFromRequestInfo } from "./localisationUtils";
 import Localisation from "../controllers/localisationController/localisation.controller";
 import config from "../config/index";
 import { getErrorCodes ,generatedResourceStatuses} from "../config/constants";
@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { resourceDataStatuses } from "../config/constants";
 import { produceModifiedMessages } from "../kafka/Producer";
 import {generateHierarchyList} from "../api/boundaryApis";
-import {getLocalizedName,getHierarchy , getLocalizedNameOnlyIfMessagePresent,getLatLongMapForBoundaryCodes} from "../utils/boundaryUtils";
+import {getLocalizedName,getHierarchy,getLatLongMapForBoundaryCodes} from "../utils/boundaryUtils";
 import { generatedResourceTransformer } from "./transforms/searchResponseConstructor";
 import {getBoundaryDataService} from "../services/boundaryManagementService";
 import {getConfigurableColumnHeadersBasedOnCampaignTypeForBoundaryManagement , createExcelSheet} from "../api/genericApis";
@@ -305,37 +305,7 @@ function findMapValue(map: Map<any, any>, key: any): any | null {
   return foundValue;
 }
 
-function extractFrenchOrPortugeseLocalizationMap(
-  boundaryData: any[][],
-  isFrench: boolean,
-  isPortugese: boolean,
-  localizationMap: any
-): Map<{ key: string; value: string }, string> {
-  const resultMap = new Map<{ key: string; value: string }, string>();
-
-  boundaryData.forEach(row => {
-    const boundaryCodeObj = row.find(obj => obj.key === getLocalizedName(config?.boundary?.boundaryCode, localizationMap));
-    const boundaryCode = boundaryCodeObj?.value;
-
-    if (!boundaryCode) return;
-
-    if (isFrench) {
-      const frenchMessageObj = row.find(obj => obj.key === getLocalizedName("HCM_ADMIN_CONSOLE_FRENCH_LOCALIZATION_MESSAGE", localizationMap));
-      resultMap.set({
-        key: "french",
-        value: frenchMessageObj?.value || ""
-      }, boundaryCode);
-    } else if (isPortugese) {
-      const portugeseMessageObj = row.find(obj => obj.key === getLocalizedName("HCM_ADMIN_CONSOLE_PORTUGESE_LOCALIZATION_MESSAGE", localizationMap));
-      resultMap.set({
-        key: "portugese",
-        value: portugeseMessageObj?.value || ""
-      }, boundaryCode);
-    }
-  });
-
-  return resultMap;
-}
+// Removed: extractFrenchOrPortugeseLocalizationMap function - French/Portuguese localization no longer needed
 
 /**
  * Process generate request
@@ -570,10 +540,7 @@ async function searchGeneratedResources(searchQuery: any, locale: any) {
 async function getDataSheetReady(boundaryData: any, request: any, localizationMap?: { [key: string]: string }) {
   const boundaryType = boundaryData?.[0].boundaryType;
   const boundaryList = generateHierarchyList(boundaryData)
-  const locale = getLocaleFromRequest(request);
-  const region = locale.split('_')[1];
-  const frenchMessagesMap: any = await getLocalizedMessagesHandler(request, request?.query?.tenantId, getLocalisationModuleName(request?.query?.hierarchyType), true, `fr_${region}`);
-  const portugeseMessagesMap: any = await getLocalizedMessagesHandler(request, request?.query?.tenantId, getLocalisationModuleName(request?.query?.hierarchyType), true, `pt_${region}`);
+
   if (!Array.isArray(boundaryList) || boundaryList.length === 0) {
     throwError("COMMON", 400, "VALIDATION_ERROR", "Boundary list is empty or not an array.");
   }
@@ -603,10 +570,6 @@ async function getDataSheetReady(boundaryData: any, request: any, localizationMa
     );
     const boundaryCodeIndex = reducedHierarchy.length;
     mappedRowData[boundaryCodeIndex] = boundaryCode;
-      const frenchTranslation = getLocalizedNameOnlyIfMessagePresent(boundaryCode, frenchMessagesMap) || '';
-      const portugeseTranslation = getLocalizedNameOnlyIfMessagePresent(boundaryCode, portugeseMessagesMap) || '';
-      mappedRowData.push(frenchTranslation);
-      mappedRowData.push(portugeseTranslation);
     return mappedRowData;
   });
     logger.info("Processing data for boundaryManagement type")
@@ -689,6 +652,6 @@ async function searchGeneratedBoundaryResources(searchQuery : any, locale : any)
 export {  appCache,errorLogger,invalidPathHandler
   ,sendResponse,getLocalizedMessagesHandler,throwErrorViaRequest,throwError
   ,getLocalizedHeaders ,enrichResourceDetails,shutdownGracefully,createHeaderToHierarchyMap
-  ,modifyBoundaryDataHeadersWithMap,modifyBoundaryData,findMapValue,extractFrenchOrPortugeseLocalizationMap
+  ,modifyBoundaryDataHeadersWithMap,modifyBoundaryData,findMapValue
   ,processGenerate ,getDataSheetReady , replicateRequest ,searchGeneratedBoundaryResources
 };
