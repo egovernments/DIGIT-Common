@@ -85,7 +85,7 @@ config:
     build:
       - work-dir: "egov-bndry-mgmnt"
         image-name: "egov-bndry-mgmnt"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "egov-bndry-mgmnt/Dockerfile"
       - work-dir: "egov-bndry-mgmnt/migration"
         image-name: "egov-bndry-mgmnt-db"
         dockerfile: "egov-bndry-mgmnt/migration/Dockerfile"
