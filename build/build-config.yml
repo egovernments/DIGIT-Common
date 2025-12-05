@@ -79,4 +79,13 @@ config:
         dockerfile: "xstate-chatbot/nodejs/Dockerfile"
       - work-dir: "xstate-chatbot/nodejs/db"
         image-name: "xstate-chatbot-db"
-        dockerfile: "xstate-chatbot/nodejs/db/Dockerfile"      
+        dockerfile: "xstate-chatbot/nodejs/db/Dockerfile"  
+        
+  - name: "builds/digit-common/egov-bndry-mgmnt"
+    build:
+      - work-dir: "egov-bndry-mgmnt"
+        image-name: "egov-bndry-mgmnt"
+        dockerfile: "build/maven/Dockerfile"
+      - work-dir: "egov-bndry-mgmnt/migration"
+        image-name: "egov-bndry-mgmnt-db"
+        dockerfile: "egov-bndry-mgmnt/migration/Dockerfile"
