@@ -258,12 +258,14 @@ public class EmployeeService {
 	 * @param employee
 	 */
 	private void enrichUser(Employee employee) {
-		List<String> pwdParams = new ArrayList<>();
-		pwdParams.add(employee.getCode());
-		pwdParams.add(employee.getUser().getMobileNumber());
-		pwdParams.add(employee.getTenantId());
-		pwdParams.add(employee.getUser().getName().toUpperCase());
-		if (propertiesManager.isAutoGeneratePassword()) {
+		if (propertiesManager.isDevMode()) {
+			employee.getUser().setPassword(propertiesManager.getDefaultPassword());
+		} else if (propertiesManager.isAutoGeneratePassword()) {
+			List<String> pwdParams = new ArrayList<>();
+			pwdParams.add(employee.getCode());
+			pwdParams.add(employee.getUser().getMobileNumber());
+			pwdParams.add(employee.getTenantId());
+			pwdParams.add(employee.getUser().getName().toUpperCase());
 			employee.getUser().setPassword(hrmsUtils.generatePassword(pwdParams));
 		}
 		employee.getUser().setUserName(employee.getCode());
