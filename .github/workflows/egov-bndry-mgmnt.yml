@@ -99,18 +99,18 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           platforms: linux/amd64,linux/arm64
-          context: health-services/egov-bndry-mgmnt
+          context: egov-bndry-mgmnt
           file: ${{ env.DOCKERFILE_PATH }}
           push: true
           tags: |
             egovio/egov-bndry-mgmnt:${{ steps.tag.outputs.tag }}
           build-args: |
-            WORK_DIR=health-services/egov-bndry-mgmnt
+            WORK_DIR=egov-bndry-mgmnt
 
       - name: Check if DB folder exists
         id: check-db-folder
         run: |
-          FOLDER_PATH="health-services/egov-bndry-mgmnt/migration"
+          FOLDER_PATH="egov-bndry-mgmnt/migration"
           if [ -d "$FOLDER_PATH" ]; then
             echo "folder_exists=true" >> "$GITHUB_OUTPUT"
           else
@@ -123,8 +123,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           platforms: linux/amd64,linux/arm64
-          context: health-services/egov-bndry-mgmnt/migration
-          file: health-services/egov-bndry-mgmnt/migration/Dockerfile
+          context: egov-bndry-mgmnt/migration
+          file: egov-bndry-mgmnt/migration/Dockerfile
           push: true
           tags: |
             egovio/egov-bndry-mgmnt-db:${{ steps.tag.outputs.tag }}
