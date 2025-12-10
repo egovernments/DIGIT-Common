@@ -68,7 +68,7 @@ public class User {
     private String gender;
 
     @NotNull
-    @Pattern(regexp = "^[0-9]{10}$", message = "MobileNumber should be 10 digit number")
+    // Mobile number pattern validation is handled by user-service
     @JsonProperty("mobileNumber")
     private String mobileNumber;
 
