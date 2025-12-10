@@ -145,12 +145,7 @@ public class DefaultUserService implements UserService {
 		StringBuilder uri = new StringBuilder();
 		uri.append(propertiesManager.getUserHost()).append(propertiesManager.getUserCreateEndpoint());
 		UserResponse userResponse = null;
-		try {
-			userResponse = userCall(userRequest,uri);
-		}catch(Exception e) {
-			log.error("User created failed: ",e);
-		}
-
+		userResponse = userCall(userRequest,uri);
 		return userResponse;
 	}
 	
