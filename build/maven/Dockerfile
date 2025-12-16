@@ -18,6 +18,8 @@ WORKDIR /opt/egov
 # Copy artifacts from the build stage
 COPY --from=build /app/target/*.jar /app/start.sh /opt/egov/
 
+RUN apk add --no-cache dos2unix
+
 # Ensure the start script has correct line endings and is executable
 RUN dos2unix /opt/egov/start.sh && chmod +x /opt/egov/start.sh
 
