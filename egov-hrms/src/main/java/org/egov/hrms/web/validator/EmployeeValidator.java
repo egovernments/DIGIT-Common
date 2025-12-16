@@ -127,25 +127,37 @@ public class EmployeeValidator {
 			} else {
 				// Use boundary service (new flow)
 				try {
-					BoundaryResponse boundarySearchResponse = restCallRepository.fetchResult(
-							new StringBuilder(propertiesManager.getBoundaryServiceHost()
-									+ propertiesManager.getBoundarySearchUrl()
-									+"?limit=" + boundarytList.size()
-									+ "&offset=0&tenantId=" + employee.getTenantId()
-									+ "&codes=" + String.join(",", boundarytList)),
-							requestInfo,
-							BoundaryResponse.class
-					);
-					masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, boundarySearchResponse.getBoundary().stream()
-							.map(boundary -> boundary.getCode())
-							.collect(Collectors.toList())
-					);
-					log.info("successfully fetch boundary");
-				} catch (Exception e) {
-					log.error("error while fetching boundary");
-					log.error("Error while fetching boundaries from Boundary Service", e);
-					throw new CustomException("BOUNDARY_SERVICE_SEARCH_ERROR","Error while fetching boundaries from Boundary Service : " + e.getMessage());
-				}
+					BoundaryResponse boundarySearchResponse = null;
+					try {
+						String url = propertiesManager.getBoundaryServiceHost()
+								 propertiesManager.getBoundarySearchUrl()
+								 "?limit=" + boundarytList.size()
+								 "&offset=0&tenantId=" + employee.getTenantId()
+								 "&codes=" + String.join(",", boundarytList);
+						boundarySearchResponse = restCallRepository.fetchResult(
+								new StringBuilder(url),
+								requestInfo,
+								BoundaryResponse.class
+						);
+					} catch (CustomException e) {
+						throw e; // Re-throw CustomException from downstream
+					} catch (RuntimeException e) {
+						log.error("Error while fetching boundaries from Boundary Service", e);
+						throw new CustomException("BOUNDARY_SERVICE_SEARCH_ERROR",
+								"Error while fetching boundaries from Boundary Service: " + e.getMessage());
+					}
+
+					if (boundarySearchResponse == null || CollectionUtils.isEmpty(boundarySearchResponse.getBoundary())) {
+						log.warn("Empty boundary response for tenant: {}", employee.getTenantId());
+						masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, new ArrayList<>());
+					} else {
+						masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, 
+								boundarySearchResponse.getBoundary().stream()
+										.map(boundary -> boundary.getCode())
+										.collect(Collectors.toList())
+						);
+						log.info("Successfully fetched {} boundaries", boundarySearchResponse.getBoundary().size());
+					}
 			}
 		}
 
