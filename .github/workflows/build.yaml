@@ -191,3 +191,4 @@ jobs:
             echo "- \`egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-amd64\`" >> $GITHUB_STEP_SUMMARY
             echo "- \`egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}-arm64\`" >> $GITHUB_STEP_SUMMARY
             echo "- **multi‑arch** \`egovio/${{ github.event.inputs.service }}-db:${{ needs.resolve-config.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          fi
