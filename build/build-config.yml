@@ -70,3 +70,22 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-document-uploader/src/main/resources/db"
         image-name: "egov-document-uploader-db"
+
+
+  - name: "builds/digit-common/xstate-chatbot"
+    build:
+      - work-dir: "xstate-chatbot/nodejs"
+        image-name: "xstate-chatbot"
+        dockerfile: "xstate-chatbot/nodejs/Dockerfile"
+      - work-dir: "xstate-chatbot/nodejs/db"
+        image-name: "xstate-chatbot-db"
+        dockerfile: "xstate-chatbot/nodejs/db/Dockerfile"  
+        
+  - name: "builds/digit-common/egov-bndry-mgmnt"
+    build:
+      - work-dir: "egov-bndry-mgmnt"
+        image-name: "egov-bndry-mgmnt"
+        dockerfile: "egov-bndry-mgmnt/Dockerfile"
+      - work-dir: "egov-bndry-mgmnt/migration"
+        image-name: "egov-bndry-mgmnt-db"
+        dockerfile: "egov-bndry-mgmnt/migration/Dockerfile"
