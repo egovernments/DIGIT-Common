@@ -337,7 +337,7 @@ async function callMdmsTypeSchema(
       uniqueIdentifiers: [
         `${type}.${campaignType}`
       ],
-      schemaCode: "HCM-ADMIN-CONSOLE.adminSchema"
+      schemaCode: "CRS-ADMIN-CONSOLE.adminSchema"
     }
   };
   const url = config.host.mdmsV2 + config.paths.mdms_v2_search;
