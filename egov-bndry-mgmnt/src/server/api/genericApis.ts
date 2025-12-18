@@ -266,12 +266,14 @@ async function getBoundarySheetData(
 
 async function getConfigurableColumnHeadersBasedOnCampaignTypeForBoundaryManagement(request: any, localizationMap?: { [key: string]: string }) {
   try {
+    logger.info(`Fetching configurable column headers for boundary management`);
     const mdmsResponse = await callMdmsTypeSchema(
       request?.query?.tenantId || request?.body?.ResourceDetails?.tenantId,
       false,
-      "boundaryManagement",
+      "CRS_BOUNDARY_DATA",
       "all"
     );
+    logger.info(`MDMS Response received with ${mdmsResponse?.columns?.length || 0} columns`);
     if (!mdmsResponse || mdmsResponse?.columns.length === 0) {
       logger.error(
         `Campaign Type all has not any columns configured in schema`
@@ -291,30 +293,26 @@ async function getConfigurableColumnHeadersBasedOnCampaignTypeForBoundaryManagem
       columnsForGivenCampaignId,
       localizationMap
     );
+    logger.info(`Generated ${headerColumnsAfterHierarchy.length} localized headers: ${JSON.stringify(headerColumnsAfterHierarchy)}`);
+    const expectedBoundaryCode = getLocalizedName(config.boundary.boundaryCode, localizationMap);
+    logger.info(`Checking for expected boundary code column: "${expectedBoundaryCode}"`);
     if (
-      !headerColumnsAfterHierarchy.includes(
-        getLocalizedName(config.boundary.boundaryCode, localizationMap)
-      )
+      !headerColumnsAfterHierarchy.includes(expectedBoundaryCode)
     ) {
       logger.error(
-        `Column Headers of generated Boundary Template does not have ${getLocalizedName(
-          config.boundary.boundaryCode,
-          localizationMap
-        )} column`
+        `Column Headers of generated Boundary Template does not have ${expectedBoundaryCode} column. Available columns: ${JSON.stringify(headerColumnsAfterHierarchy)}`
       );
       throwError(
         "COMMON",
         400,
         "VALIDATION_ERROR",
-        `Column Headers of generated Boundary Template does not have ${getLocalizedName(
-          config.boundary.boundaryCode,
-          localizationMap
-        )} column`
+        `Column Headers of generated Boundary Template does not have ${expectedBoundaryCode} column`
       );
     }
+    logger.info(`Boundary code column "${expectedBoundaryCode}" found successfully`);
     return headerColumnsAfterHierarchy;
   } catch (error: any) {
-    console.log(error);
+    logger.error(`[getConfigurableColumnHeadersBasedOnCampaignTypeForBoundaryManagement] Error: ${error.message}`, error);
     throwError(
       "FILE",
       400,
@@ -335,20 +333,24 @@ async function callMdmsTypeSchema(
     MdmsCriteria: {
       tenantId: tenantId,
       uniqueIdentifiers: [
-        `${type}.${campaignType}`
+        type
       ],
       schemaCode: "CRS-ADMIN-CONSOLE.adminSchema"
     }
   };
+  logger.info(`[callMdmsTypeSchema] Searching MDMS with uniqueIdentifier: "${type}", schemaCode: "CRS-ADMIN-CONSOLE.adminSchema", tenantId: "${tenantId}"`);
   const url = config.host.mdmsV2 + config.paths.mdms_v2_search;
   const header = {
     ...defaultheader,
     cachekey: `mdmsv2Seacrh${requestBody?.MdmsCriteria?.tenantId}${campaignType}${type}.${campaignType}${requestBody?.MdmsCriteria?.schemaCode}`
   }
   const response = await httpRequest(url, requestBody, undefined, undefined, undefined, header);
+  logger.info(`[callMdmsTypeSchema] MDMS returned ${response?.mdms?.length || 0} schema(s)`);
   if (!response?.mdms?.[0]?.data) {
+    logger.error(`[callMdmsTypeSchema] MDMS returned no data. Response: ${JSON.stringify(response)}`);
     throwError("COMMON", 500, "INTERNAL_SERVER_ERROR", "Error occured during schema search");
   }
+  logger.info(`[callMdmsTypeSchema] Schema data found with properties: ${JSON.stringify(Object.keys(response?.mdms?.[0]?.data?.properties || {}))}`);
   return convertIntoSchema(response?.mdms?.[0]?.data, isUpdate);
 }
 
