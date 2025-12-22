@@ -18,6 +18,8 @@ on:
           - "egov-document-uploader"
           - "egov-hrms"
           - "egov-bndry-mgmnt"
+          - "billing-service"
+          - "collection-services"
         default: "egov-hrms"
 
 env:
