@@ -12,6 +12,9 @@ if(config.whatsAppProvider == 'GupShup') {
 } else if(config.whatsAppProvider == 'Kaleyra') {
     console.log('Using Kaleyra as the channel');
     module.exports = require('./kaleyra');
+} else if(config.whatsAppProvider == 'Twilio') {
+    console.log('Using Twilio as the channel');
+    module.exports = require('./twilio');
 } else {
     console.log('Using console as the output channel');
     module.exports = consoleProvider;

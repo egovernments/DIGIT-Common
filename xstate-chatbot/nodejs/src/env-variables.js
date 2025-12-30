@@ -8,7 +8,7 @@ const envVariables = {
     contextPath : process.env.CONTEXT_PATH || '/xstate-chatbot',
 
    //whatsAppProvider: process.env.WHATSAPP_PROVIDER || 'ValueFirst',
-   whatsAppProvider: process.env.WHATSAPP_PROVIDER || 'console',
+   whatsAppProvider: process.env.WHATSAPP_PROVIDER || 'Twilio',
 
     serviceProvider: process.env.SERVICE_PROVIDER || 'eGov',
 
@@ -50,6 +50,12 @@ const envVariables = {
         sendMessageUrl: process.env.KALEYRA_SEND_MESSAGE_URL || 'https://api.kaleyra.io/v1/{{sid}}/messages',
         sid: process.env.KALEYRA_SID || '',
         apikey: process.env.KALEYRA_API_KEY || '',
+    },
+
+    twilio: {
+        accountSid: process.env.TWILIO_ACCOUNT_SID || '',
+        authToken: process.env.TWILIO_AUTH_TOKEN || '',
+        whatsappNumber: process.env.TWILIO_WHATSAPP_NUMBER || '',
     },
    
     valueFirstWhatsAppProvider: {
