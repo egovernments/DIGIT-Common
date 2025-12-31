@@ -60,6 +60,7 @@ import org.egov.hrms.utils.ResponseInfoFactory;
 import org.egov.hrms.web.contract.*;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.egov.tracer.model.CustomException;
+import org.egov.tracer.model.ServiceCallException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -244,6 +245,14 @@ public class EmployeeService {
 			employee.getUser().setId(user.getId());
 			employee.getUser().setUuid(user.getUuid());
 			employee.getUser().setUserServiceUuid(user.getUserServiceUuid());
+		}catch(CustomException e) {
+			log.error("Exception while creating user: ",e);
+			log.error("request: "+request);
+			throw e;
+		}catch(ServiceCallException e) {
+			log.error("Exception while creating user: ",e);
+			log.error("request: "+request);
+			throw e;
 		}catch(Exception e) {
 			log.error("Exception while creating user: ",e);
 			log.error("request: "+request);
@@ -258,12 +267,14 @@ public class EmployeeService {
 	 * @param employee
 	 */
 	private void enrichUser(Employee employee) {
-		List<String> pwdParams = new ArrayList<>();
-		pwdParams.add(employee.getCode());
-		pwdParams.add(employee.getUser().getMobileNumber());
-		pwdParams.add(employee.getTenantId());
-		pwdParams.add(employee.getUser().getName().toUpperCase());
-		if (propertiesManager.isAutoGeneratePassword()) {
+		if (propertiesManager.isDevMode()) {
+			employee.getUser().setPassword(propertiesManager.getDefaultPassword());
+		} else if (propertiesManager.isAutoGeneratePassword()) {
+			List<String> pwdParams = new ArrayList<>();
+			pwdParams.add(employee.getCode());
+			pwdParams.add(employee.getUser().getMobileNumber());
+			pwdParams.add(employee.getTenantId());
+			pwdParams.add(employee.getUser().getName().toUpperCase());
 			employee.getUser().setPassword(hrmsUtils.generatePassword(pwdParams));
 		}
 		employee.getUser().setUserName(employee.getCode());

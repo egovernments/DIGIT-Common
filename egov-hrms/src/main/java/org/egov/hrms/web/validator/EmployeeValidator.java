@@ -1,17 +1,32 @@
 package org.egov.hrms.web.validator;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import static org.egov.hrms.utils.ErrorConstants.CITIZEN_TYPE_CODE;
+
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.hrms.config.PropertiesManager;
-import org.egov.hrms.model.*;
+import org.egov.hrms.model.Assignment;
+import org.egov.hrms.model.DeactivationDetails;
+import org.egov.hrms.model.DepartmentalTest;
+import org.egov.hrms.model.EducationalQualification;
+import org.egov.hrms.model.Employee;
+import org.egov.hrms.model.Jurisdiction;
+import org.egov.hrms.model.ReactivationDetails;
+import org.egov.hrms.model.ServiceHistory;
+import org.egov.hrms.repository.RestCallRepository;
 import org.egov.hrms.service.EmployeeService;
 import org.egov.hrms.service.MDMSService;
 import org.egov.hrms.service.UserService;
@@ -21,15 +36,16 @@ import org.egov.hrms.web.contract.EmployeeRequest;
 import org.egov.hrms.web.contract.EmployeeResponse;
 import org.egov.hrms.web.contract.EmployeeSearchCriteria;
 import org.egov.hrms.web.contract.UserResponse;
+import org.egov.hrms.web.models.boundary.BoundaryResponse;
 import org.egov.mdms.model.MdmsResponse;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import com.jayway.jsonpath.JsonPath;
 
-import static org.egov.hrms.utils.ErrorConstants.CITIZEN_TYPE_CODE;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -46,6 +62,9 @@ public class EmployeeValidator {
 	
 	@Autowired
 	private PropertiesManager propertiesManager;
+	
+	@Autowired
+	private RestCallRepository restCallRepository;
 
 	/**
 	 * Validates employee request for create. Validations include:
@@ -79,7 +98,7 @@ public class EmployeeValidator {
 		}
 	}
 
-	public Map<String, List<String>> getBoundaryList(RequestInfo requestInfo,Employee employee){
+	public Map<String, List<String>> getBoundaryList(RequestInfo requestInfo, Employee employee){
 		List<String> boundarytList = new ArrayList<>();
 		Map<String, List<String>> eachMasterMap = new HashMap<>();
 		Map<String, List<String>> masterData = new HashMap<>();
@@ -92,26 +111,64 @@ public class EmployeeValidator {
 				boundarytList.add(employee.getTenantId());
 		}
 
-		List<MdmsResponse> boundaryResponseList = new ArrayList<>();
-		for(String boundary: boundarytList){
-			MdmsResponse responseLoc = mdmsService.fetchMDMSDataLoc(requestInfo, boundary);
-			if(!CollectionUtils.isEmpty(responseLoc.getMdmsRes()))
-				boundaryResponseList.add(responseLoc);
-		}
+		if(!CollectionUtils.isEmpty(boundarytList)) {
+			if(propertiesManager.isLocationIntegrationEnabled()) {
+				// Use MDMS location service (same as master branch logic)
+				List<MdmsResponse> boundaryResponseList = new ArrayList<>();
+				for(String boundary: boundarytList){
+					MdmsResponse responseLoc = mdmsService.fetchMDMSDataLoc(requestInfo, boundary);
+					if(responseLoc != null && !CollectionUtils.isEmpty(responseLoc.getMdmsRes()))
+						boundaryResponseList.add(responseLoc);
+				}
 
-		if(!CollectionUtils.isEmpty(boundaryResponseList)){
-			List<String> tenantBoundaryData = new ArrayList<>();
-			for(MdmsResponse responseLoc : boundaryResponseList){
-				if(!CollectionUtils.isEmpty(responseLoc.getMdmsRes().keySet())) {
-					if(null != responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE)) {
-						eachMasterMap = (Map) responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE);
-						tenantBoundaryData.addAll(eachMasterMap.get(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE));
+				if(!CollectionUtils.isEmpty(boundaryResponseList)){
+					List<String> tenantBoundaryData = new ArrayList<>();
+					for(MdmsResponse responseLoc : boundaryResponseList){
+						if(!CollectionUtils.isEmpty(responseLoc.getMdmsRes().keySet())) {
+							if(null != responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE)) {
+								eachMasterMap = (Map) responseLoc.getMdmsRes().get(HRMSConstants.HRMS_MDMS_EGOV_LOCATION_MASTERS_CODE);
+								tenantBoundaryData.addAll(eachMasterMap.get(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE));
+							}
+						}
 					}
+					if(!CollectionUtils.isEmpty(tenantBoundaryData))
+						masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, tenantBoundaryData);
+				}
+			} else {
+				// Use boundary service (new flow)
+				try {
+					String url = propertiesManager.getBoundaryServiceHost()
+							+ propertiesManager.getBoundarySearchUrl()
+							+ "?limit=" + boundarytList.size()
+							+ "&offset=0&tenantId=" + employee.getTenantId()
+							+ "&codes=" + String.join(",", boundarytList);
+					BoundaryResponse boundarySearchResponse = restCallRepository.fetchResult(
+							new StringBuilder(url),
+							requestInfo,
+							BoundaryResponse.class
+					);
+
+					if (boundarySearchResponse == null || CollectionUtils.isEmpty(boundarySearchResponse.getBoundary())) {
+						log.warn("Empty boundary response for tenant: {}", employee.getTenantId());
+						masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE, new ArrayList<>());
+					} else {
+						masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE,
+								boundarySearchResponse.getBoundary().stream()
+										.map(boundary -> boundary.getCode())
+										.collect(Collectors.toList())
+						);
+						log.info("Successfully fetched {} boundaries", boundarySearchResponse.getBoundary().size());
+					}
+				} catch (CustomException e) {
+					throw e;
+				} catch (RuntimeException e) {
+					log.error("Error while fetching boundaries from Boundary Service", e);
+					throw new CustomException("BOUNDARY_SERVICE_SEARCH_ERROR",
+							"Error while fetching boundaries from Boundary Service: " + e.getMessage());
 				}
 			}
-			if(!CollectionUtils.isEmpty(tenantBoundaryData))
-				masterData.put(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE,tenantBoundaryData);
 		}
+
 		return masterData;
 	}
 	
@@ -250,7 +307,9 @@ public class EmployeeValidator {
 		validateEmployee(employee, errorMap, mdmsData);
 		validateAssignments(employee, errorMap, mdmsData);
 		validateServiceHistory(employee, errorMap, mdmsData);
-		validateJurisdicton(employee, errorMap, mdmsData, boundaryMap);
+		if(propertiesManager.isLocationIntegrationEnabled()) {
+			validateJurisdicton(employee, errorMap, mdmsData, boundaryMap);
+		}
 		validateEducationalDetails(employee, errorMap, mdmsData);
 		validateDepartmentalTest(employee, errorMap, mdmsData);
 	}
@@ -319,8 +378,9 @@ public class EmployeeValidator {
 	 */
 	private void validateEmployee(Employee employee, Map<String, String> errorMap, Map<String, List<String>> mdmsData) {
 
-		if(employee.getUser().getMobileNumber().length() != 10)
-			errorMap.put(ErrorConstants.HRMS_INVALID_MOB_NO_CODE, ErrorConstants.HRMS_INVALID_MOB_NO_MSG);
+		// Mobile number pattern validation is handled by user-service
+		// if(employee.getUser().getMobileNumber().length() != 10)
+		//	errorMap.put(ErrorConstants.HRMS_INVALID_MOB_NO_CODE, ErrorConstants.HRMS_INVALID_MOB_NO_MSG);
 		
 		if(CollectionUtils.isEmpty(employee.getUser().getRoles()))
 			errorMap.put(ErrorConstants.HRMS_MISSING_ROLES_CODE, ErrorConstants.HRMS_INVALID_ROLES_MSG);
@@ -473,7 +533,7 @@ public class EmployeeValidator {
 	 * @param errorMap
 	 * @param mdmsData
 	 */
-	private void validateJurisdicton(Employee employee, Map<String, String> errorMap, Map<String, List<String>> mdmsData,Map<String, List<String>> boundaryMap) {
+	private void validateJurisdicton(Employee employee, Map<String, String> errorMap, Map<String, List<String>> mdmsData, Map<String, List<String>> boundaryMap) {
 		if(CollectionUtils.isEmpty(employee.getJurisdictions().stream().filter(jurisdiction -> null == jurisdiction.getIsActive() || jurisdiction.getIsActive() &&  jurisdiction.getIsActive() ).collect(Collectors.toList()))){
 			errorMap.put(ErrorConstants.HRMS_INVALID_JURISDICTION_ACTIIEV_NULL_CODE,ErrorConstants.HRMS_INVALID_JURISDICTION_ACTIIEV_NULL_MSG);
 		}
