@@ -604,7 +604,7 @@ async function createBoundaryEntities(request: any, boundaryMap: Map<any, any>) 
       logger.info("Boundary Entities are already in the system")
     }
   } catch (error) {
-    throwError("COMMMON", 500, "INTERNAL_SERVER_ERROR", "Error while Boundary Entity Creation")
+    throwError("COMMON", 500, "INTERNAL_SERVER_ERROR", "Error while Boundary Entity Creation")
   }
 }
 
