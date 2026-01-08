@@ -426,11 +426,9 @@ const swach = {
                   );
                 } else {
                   // Handle case where event.message is undefined
-                  console.error("Invalid event structure for attendance city search:", event);
                   return Promise.resolve(null);
                 }
               } catch (error) {
-                console.error("Error in attendance city search:", error);
                 return Promise.resolve(null);
               }
             },
@@ -813,7 +811,7 @@ const swach = {
       initial: "type",
       states: {
         type: {
-          id: "type",
+          id: "swachType",
           initial: "swachComplaintType2Step",
           states: {
             swachcomplaintType: {
@@ -1754,7 +1752,7 @@ const swach = {
               states: {
                 question: {
                   invoke: {
-                    id: "fetchCities",
+                    id: "swachFetchCities",
                     src: (context, event) => {
                       // console.log("Swach Cities and Webpage")
                       return swachService.fetchCitiesAndWebpageLink(
@@ -1830,7 +1828,7 @@ const swach = {
               states: {
                 question: {
                   invoke: {
-                    id: "fetchLocalities",
+                    id: "swachFetchLocalities",
                     src: (context) => {
                       // console.log("Swach Get Locality and Webpage")
                       return swachService.fetchLocalitiesAndWebpageLink(

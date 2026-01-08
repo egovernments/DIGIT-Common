@@ -136,7 +136,7 @@ class SessionManager {
       sevaStateMachine.withContext({
         chatInterface: this,
         user: user,
-        slots: { pgr: {}, bills: {}, receipts: {} },
+        slots: { pgr: {}, bills: {}, receipts: {}, swach: {} },
       })
     );
     service.start();

@@ -66,7 +66,7 @@ const pgr =  {
       initial: 'type',
       states: {
         type: {
-          id: 'type',
+          id: 'pgrType',
           initial: 'complaintType2Step',
           states: {
             complaintType: {
@@ -662,20 +662,21 @@ const pgr =  {
             },
             city: {
               id: 'city',
+              onEntry: assign((context, event) => {
+              }),
               initial: 'question',
               states: {
                 question: {
                   invoke: {
-                    id: 'fetchCities',
+                    id: 'pgrFetchCities',
                     src: (context, event) => pgrService.fetchCitiesAndWebpageLink(context.extraInfo.tenantId,context.extraInfo.whatsAppBusinessNumber),
                     onDone: {
                       actions: assign((context, event) => {
-                        let { cities, messageBundle, link } = event.data;
+                        let { cities, messageBundle } = event.data;
                         let preamble = dialog.get_message(messages.fileComplaint.city.question.preamble, context.user.locale);
-                        let message = preamble + '\n' + link;
-                        let grammer = dialog.constructLiteralGrammer(cities, messageBundle, context.user.locale);
+                        let {prompt, grammer} = dialog.constructListPromptAndGrammer(cities, messageBundle, context.user.locale);
                         context.grammer = grammer;
-                        dialog.sendMessage(context, message);
+                        dialog.sendMessage(context, `${preamble}${prompt}`);
                       })
                     },
                     onError: {
@@ -715,16 +716,15 @@ const pgr =  {
               states: {
                 question: {
                   invoke: {
-                    id: 'fetchLocalities',
+                    id: 'pgrFetchLocalities',
                     src: (context) => pgrService.fetchLocalitiesAndWebpageLink(context.slots.pgr.city,context.extraInfo.whatsAppBusinessNumber),
                     onDone: {
                       actions: assign((context, event) => {
-                        let { localities, messageBundle,link } = event.data;
+                        let { localities, messageBundle } = event.data;
                         let preamble = dialog.get_message(messages.fileComplaint.locality.question.preamble, context.user.locale);
-                        let message = preamble + '\n' + link;
-                        let grammer = dialog.constructLiteralGrammer(localities, messageBundle, context.user.locale);
+                        let {prompt, grammer} = dialog.constructListPromptAndGrammer(localities, messageBundle, context.user.locale);
                         context.grammer = grammer;
-                        dialog.sendMessage(context, message);
+                        dialog.sendMessage(context, `${preamble}${prompt}`);
                       })
                     },
                     onError: {
@@ -1024,16 +1024,16 @@ let messages = {
     city: {
       question: {
         preamble: {
-          en_IN: 'Please select your city from the link given below. Tap on the link to search and select your city.',
-          hi_IN: 'कृपया नीचे दिए गए लिंक से अपने शहर का चयन करें। अपने शहर को खोजने और चुनने के लिए लिंक पर टैप करें।'
+          en_IN: 'Please type and send the number to select your city from the list below 👇\n',
+          hi_IN: 'नीचे दी गई सूची से अपने शहर का चयन करने के लिए विकल्प संख्या टाइप करें और भेजें 👇\n'
         }
       }
     }, // city
     locality: {
       question: {
         preamble: {
-          en_IN: 'Please select the locality of your complaint from the link below. Tap on the link to search and select a locality.',
-          hi_IN: 'कृपया नीचे दिए गए लिंक से अपनी शिकायत के इलाके का चयन करें। किसी इलाके को खोजने और चुनने के लिए लिंक पर टैप करें।'
+          en_IN: 'Please type and send the number to select your locality from the list below 👇\n',
+          hi_IN: 'नीचे दी गई सूची से अपने इलाके का चयन करने के लिए विकल्प संख्या टाइप करें और भेजें 👇\n'
         }
       }
     }, // locality
