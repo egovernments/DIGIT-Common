@@ -75,13 +75,17 @@ class UserService {
 
   async loginUser(mobileNumber, tenantId) {
     console.log("Into Login User mobileNumber", mobileNumber, "tenant id", tenantId);
+    
+    // Sanitize mobile number for login too
+    const cleanMobileNumber = this.sanitizeMobileNumber(mobileNumber) || mobileNumber;
+    
     let data = new URLSearchParams();
     data.append('grant_type', 'password');
     data.append('scope', 'read');
     data.append('password', config.userService.userServiceHardCodedPassword);
     data.append('userType', 'CITIZEN');
     data.append('tenantId', tenantId);
-    data.append('username', mobileNumber);
+    data.append('username', cleanMobileNumber);
 
     let headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -117,6 +121,12 @@ class UserService {
   }
 
   async createUser(mobileNumber, tenantId) {
+    // Validate mobile number format (should be 10 digits)
+    const cleanMobileNumber = this.sanitizeMobileNumber(mobileNumber);
+    if (!cleanMobileNumber) {
+      throw new Error(`Invalid mobile number format: ${mobileNumber}. Expected 10 digits.`);
+    }
+    
     let requestBody = {
       RequestInfo: {
         apiId: "Rainmaker",
@@ -132,8 +142,8 @@ class UserService {
         otpReference: config.userService.userServiceHardCodedPassword,
         permanentCity: tenantId,
         tenantId: tenantId,
-        username: mobileNumber,
-        mobileNumber: mobileNumber,
+        username: cleanMobileNumber,
+        mobileNumber: cleanMobileNumber,
         name: "Citizen",
         type: "CITIZEN"
       }
@@ -156,11 +166,30 @@ class UserService {
         return responseBody;
       } else {
         console.error(`Create User failed: ${JSON.stringify(responseBody)}`);
-        return undefined;
+        throw new Error(`User creation failed: ${JSON.stringify(responseBody)}`);
       }
     } catch (error) {
       console.error('Error in createUser:', error.message);
-      return undefined;
+      throw error;
+    }
+  }
+
+  // Helper method to sanitize mobile number
+  sanitizeMobileNumber(mobileNumber) {
+    if (!mobileNumber) return null;
+    
+    // Remove any non-digit characters
+    const digitsOnly = mobileNumber.replace(/\D/g, '');
+    
+    // Handle different formats:
+    // 918750975975 (12 digits with country code) -> 8750975975 (10 digits)
+    // 8750975975 (10 digits) -> 8750975975 (keep as is)
+    if (digitsOnly.length === 12 && digitsOnly.startsWith('91')) {
+      return digitsOnly.substring(2); // Remove '91' country code
+    } else if (digitsOnly.length === 10) {
+      return digitsOnly;
+    } else {
+      return null; // Invalid format
     }
   }
 }

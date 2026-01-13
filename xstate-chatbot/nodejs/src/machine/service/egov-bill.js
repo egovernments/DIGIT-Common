@@ -184,21 +184,31 @@ class BillService {
   validateParamInput(service, searchParamOption, paramInput) {
     var state=config.rootTenantId;
     state=state.toUpperCase();
+    
+    console.log(`Validating ${searchParamOption} for service ${service}: ${paramInput}`);
 
     if(searchParamOption === 'mobile') {
       let regexp = new RegExp('^[0-9]{10}$');
-      return regexp.test(paramInput);
+      let isValid = regexp.test(paramInput);
+      console.log(`Mobile validation result: ${isValid}`);
+      return isValid;
     }
 
     if(searchParamOption === 'consumerNumber' || searchParamOption === 'propertyId' || searchParamOption === 'connectionNumber'){
-        // if(service === 'PT'){
-        //   let regexp = new RegExp(state+'-PT-\\d{4}-\\d{2}-\\d{2}-\\d+$');
-        //   return regexp.test(paramInput);
-        // }
+        if(service === 'PT'){
+          // Enable PT validation for debugging
+          let regexp = new RegExp('^' + state + '-PT-\\d{4}-\\d{2}-\\d{2}-\\d+$');
+          let isValid = regexp.test(paramInput);
+          console.log(`PT Property ID validation - Expected format: ${state}-PT-YYYY-MM-DD-XXXXXX, Got: ${paramInput}, Valid: ${isValid}`);
+          console.log(`Regex pattern: ^${state}-PT-\\d{4}-\\d{2}-\\d{2}-\\d+$`);
+          return isValid;
+        }
         if(service === 'WS'){
           //todo
           let regexp = new RegExp('^(WS|SW)/\\d{3}/\\d{4}-\\d{2}/\\d+$');
-          return regexp.test(paramInput);
+          let isValid = regexp.test(paramInput);
+          console.log(`WS Connection validation result: ${isValid}`);
+          return isValid;
         }
     }
     
@@ -217,6 +227,7 @@ class BillService {
       let regexp = new RegExp(state+'-BP-\\d{4}-\\d{2}-\\d{2}-\\d+$');
       return regexp.test(paramInput);
     }
+    console.log(`Validation defaulted to true for ${searchParamOption} in service ${service}`);
     return true;
   }
 
@@ -310,7 +321,8 @@ class BillService {
 
     let requestBody = {
       RequestInfo: {
-        authToken: user.authToken
+        authToken: user.authToken,
+        userInfo: user.userInfo || {}
       }
     };
 
@@ -342,20 +354,27 @@ class BillService {
       body: JSON.stringify(requestBody)
     }
     
+    console.log('Bill Search Request URL:', billUrl);
+    console.log('Bill Search Request Body:', JSON.stringify(requestBody, null, 2));
+    
     let response = await fetch(billUrl, options);
     let results,totalBillSize=0,pendingBillSize=0;
-
+    
+    console.log('Bill Service Response Status:', response.status);
+    
     if(response.status === 201) {
       let responseBody = await response.json();
+      console.log('Bill Service Response Body:', JSON.stringify(responseBody, null, 2));
       results = await this.prepareBillResult(responseBody, user);
       totalBillSize=responseBody.Bill.length;
       pendingBillSize=results.length;
       
-    } 
-    /*else {
-      console.error('Error in fetching the bill');
+    } else {
+      let errorBody = await response.json();
+      console.error('Error in fetching bills - Status:', response.status);
+      console.error('Error Response:', JSON.stringify(errorBody, null, 2));
       return undefined;
-    }*/
+    }
     
     if(totalBillSize==0){
       return {                        

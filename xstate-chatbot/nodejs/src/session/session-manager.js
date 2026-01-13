@@ -12,11 +12,22 @@ const config = require("../env-variables");
 class SessionManager {
   async fromUser(reformattedMessage) {
     let mobileNumber = reformattedMessage.user.mobileNumber;
-    let user = await userService.getUserForMobileNumber(
-      mobileNumber,
-      reformattedMessage.extraInfo.tenantId
-    );
-    reformattedMessage.user = user;
+    try {
+      let user = await userService.getUserForMobileNumber(
+        mobileNumber,
+        reformattedMessage.extraInfo.tenantId
+      );
+      reformattedMessage.user = user;
+    } catch (error) {
+      console.error(`Failed to get/create user for ${mobileNumber}:`, error.message);
+      // Send error message to user instead of crashing
+      channelProvider.sendMessageToUser(
+        { mobileNumber: mobileNumber },
+        [`Sorry, there was an error processing your request. Please check your mobile number format (should be 10 digits) and try again. Error: ${error.message}`],
+        reformattedMessage.extraInfo
+      );
+      return; // Exit gracefully instead of crashing
+    }
     let userId = user.userId;
 
     await chatStateRepository.updateSessionId(userId, config.avgSessionTime);
