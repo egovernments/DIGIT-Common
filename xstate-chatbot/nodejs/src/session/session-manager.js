@@ -12,8 +12,9 @@ const config = require("../env-variables");
 class SessionManager {
   async fromUser(reformattedMessage) {
     let mobileNumber = reformattedMessage.user.mobileNumber;
+    let user;
     try {
-      let user = await userService.getUserForMobileNumber(
+      user = await userService.getUserForMobileNumber(
         mobileNumber,
         reformattedMessage.extraInfo.tenantId
       );
