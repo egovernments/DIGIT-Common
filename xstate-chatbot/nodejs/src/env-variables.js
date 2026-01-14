@@ -129,13 +129,13 @@ const envVariables = {
         complaintSearchLimit: process.env.COMPLAINT_SEARCH_LIMIT || 3,
         informationImageFilestoreId: process.env.INFORMATION_IMAGE_FILESTORE_ID ||'5c3a93a0-e501-4b97-aa84-97f9b9b34517',                                            //'16dff22d-06dd-485d-a03d-6d11e8564dff',
         pgrUpdateTopic: process.env.PGR_UPDATE_TOPIC || 'update-pgr-request',
-        geoSearch: process.env.GEO_SEARCH || true
+        geoSearch: process.env.GEO_SEARCH === 'false' ? false : true
     },
 
     swachUseCase: {
         complaintSearchLimit: process.env.COMPLAINT_SEARCH_LIMIT || 3,
         informationImageFilestoreId: process.env.INFORMATION_IMAGE_FILESTORE_ID || '5c3a93a0-e501-4b97-aa84-97f9b9b34517',                   //'b7285c21-7f6e-4a71-9537-bd4d2c56b34c',
-        geoSearch: process.env.GEO_SEARCH || true
+        geoSearch: process.env.GEO_SEARCH === 'false' ? false : true
     },
 
     billsAndReceiptsUseCase: {
