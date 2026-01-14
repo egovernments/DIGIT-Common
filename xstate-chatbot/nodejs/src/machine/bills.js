@@ -528,13 +528,24 @@ const bills = {
             },
             onDone: [
               {
-                cond: (context, event) => event.data === undefined || event.data.length === 0,
+                cond: (context, event) => {
+                  console.log('Bill search result in state machine:', JSON.stringify(event.data, null, 2));
+                  // Check if no bills exist at all (Property ID not found)
+                  return event.data === undefined || (event.data.billsExist === false);
+                },
                 target: 'noRecords'
+              },
+              {
+                cond: (context, event) => {
+                  // Check if bills exist but no pending amounts (zero amount bills)
+                  return event.data.billsExist === true && (!event.data.pendingBills || event.data.pendingBills.length === 0);
+                },
+                target: 'noPendingBills'
               },
               {
                 target: 'results',
                 actions: assign((context, event) => {
-                  context.bills.searchResults = event.data;
+                  context.bills.searchResults = event.data.pendingBills;
                 })
               }
             ]
@@ -557,6 +568,26 @@ const bills = {
               await new Promise(resolve => setTimeout(resolve, 1000));
             })();
 
+          }),
+          always: '#paramInput'
+        },
+        noPendingBills: {
+          onEntry: assign((context, event) => {
+            (async() => { 
+              let { option, example } = billService.getOptionAndExampleMessageBundle(context.slots.bills.service, context.slots.bills.searchParamOption);
+              let optionMessage = dialog.get_message(option, context.user.locale);
+              
+              // Send a clear message that property exists but has no pending dues
+              let message = `The ${optionMessage}: ${context.slots.bills.paramInput} exists in our records but has no pending dues.
+
+All bills have been paid or the amount due is zero.
+
+👉 To go back to the main menu, type and send mseva.
+👉 To search for another ${optionMessage}, please enter it below.`;
+              
+              dialog.sendMessage(context, message, true);
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            })();
           }),
           always: '#paramInput'
         },

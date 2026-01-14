@@ -248,7 +248,9 @@ class BillService {
     let localisationServicePrefix = "BILLINGSERVICE_BUSINESSSERVICE_"
 
     let self = this;
+    console.log(`Processing ${results.length} bills from API response`);
     for(let result of results){
+      console.log(`Bill ${result.consumerCode}: status=${result.status}, totalAmount=${result.totalAmount}, active=${result.status=='ACTIVE'}, hasAmount=${result.totalAmount!=0}`);
       if(result.status=='ACTIVE' && result.totalAmount!=0 && count<billLimit){
         let dueDate = moment(result.billDetails[result.billDetails.length-1].expiryDate).tz(config.timeZone).format(config.dateFormat);
         let fromMonth = new Date(result.billDetails[result.billDetails.length-1].fromPeriod).toLocaleString('en-IN', { month: 'short' });
@@ -283,6 +285,8 @@ class BillService {
         count = count + 1;
       } 
     }
+    
+    console.log(`After processing: found ${Bills['Bills'].length} bills with non-zero amounts out of ${results.length} total bills`);
 
     /*if(Bills['Bills'].length>0){
       var stateLevelCode = "TENANT_TENANTS_"+config.rootTenantId.toUpperCase();
@@ -377,21 +381,27 @@ class BillService {
     }
     
     if(totalBillSize==0){
+      console.log('Returning: No bills found - Property ID does not exist');
       return {                        
-        totalBills: 0,             // mobile number not linked with any bills
-        pendingBills: undefined
+        totalBills: 0,             // Property ID not found or no bills linked
+        pendingBills: undefined,
+        billsExist: false          // NEW: Indicates no bills found at all
       }
     }
     else if(pendingBillSize==0){
+      console.log('Returning: Bills exist but no pending amounts - Property has zero/paid bills');
       return {
-        totalBills: 2,              // No pending, but previous bills do exist
-        pendingBills: undefined     // This is so that user doesn't get message saying 'your mobile number is not linked', but rather a message saying 'No pending dues'
+        totalBills: totalBillSize,  // Return actual count of bills found
+        pendingBills: undefined,    // No pending bills
+        billsExist: true           // NEW: Indicates bills exist but are paid/zero
       } 
     }
     else{
+      console.log('Returning: Pending bills found');
       return {
         pendingBills: results,      // Pending bills exist
-        totalBills: pendingBillSize
+        totalBills: pendingBillSize,
+        billsExist: true           // NEW: Bills exist with pending amounts
       }
     }
 
@@ -468,7 +478,10 @@ class BillService {
       else
         billsForUser = await this.searchBillsForUser(user);
 
-      return billsForUser.pendingBills;
+      console.log('fetchBillsForParam result:', JSON.stringify(billsForUser, null, 2));
+      
+      // Return the full object with billsExist flag for proper handling
+      return billsForUser;
   }
   
   async getShortenedURL(finalPath)
