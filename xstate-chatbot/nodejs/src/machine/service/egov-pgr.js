@@ -263,10 +263,10 @@ class PGRService {
   }
 
   async getCity(input, locale, tenantId) {
-    console.log(`🔥 [NLP-DEBUG] ===== getCity FUNCTION CALLED =====`);
-    console.log(`🔥 [NLP-DEBUG] Parameters: input="${input}", locale="${locale}", tenantId="${tenantId}"`);
-    console.log(`🔥 [NLP-DEBUG] Config host: "${config.egovServices.egovServicesHost}"`);
-    console.log(`🔥 [NLP-DEBUG] Config path: "${config.egovServices.cityFuzzySearch}"`);
+    console.log(`🔥 [PGR-NLP-DEBUG] ===== PGR getCity FUNCTION CALLED =====`);
+    console.log(`🔥 [PGR-NLP-DEBUG] Parameters: input="${input}", locale="${locale}", tenantId="${tenantId}"`);
+    console.log(`🔥 [PGR-NLP-DEBUG] Config host: "${config.egovServices.egovServicesHost}"`);
+    console.log(`🔥 [PGR-NLP-DEBUG] Config path: "${config.egovServices.cityFuzzySearch}"`);
     
     try {
     var url =
