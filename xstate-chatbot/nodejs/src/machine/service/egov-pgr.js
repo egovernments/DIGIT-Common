@@ -263,6 +263,12 @@ class PGRService {
   }
 
   async getCity(input, locale, tenantId) {
+    console.log(`🔥 [NLP-DEBUG] ===== getCity FUNCTION CALLED =====`);
+    console.log(`🔥 [NLP-DEBUG] Parameters: input="${input}", locale="${locale}", tenantId="${tenantId}"`);
+    console.log(`🔥 [NLP-DEBUG] Config host: "${config.egovServices.egovServicesHost}"`);
+    console.log(`🔥 [NLP-DEBUG] Config path: "${config.egovServices.cityFuzzySearch}"`);
+    
+    try {
     var url =
       config.egovServices.egovServicesHost +
       config.egovServices.cityFuzzySearch;
@@ -272,10 +278,15 @@ class PGRService {
       url += `?tenantId=${tenantId}`;
     }
 
+    // Fix locale format - NLP expects "en" not "en_IN"
+    const nlpLocale = locale === "en_IN" ? "en" : locale.split("_")[0];
+    
     var requestBody = {
       input_city: input,
-      input_lang: locale,
+      input_lang: nlpLocale,
     };
+    
+    console.log(`🔥 [NLP-DEBUG] Original locale: "${locale}", NLP locale: "${nlpLocale}"`);
 
     var options = {
       method: "POST",
@@ -285,12 +296,14 @@ class PGRService {
       },
     };
 
-    console.log(`[NLP-DEBUG] getCity URL: ${url}`);
-    console.log(`[NLP-DEBUG] getCity requestBody:`, JSON.stringify(requestBody));
+    console.log(`🔥 [NLP-DEBUG] Final URL: ${url}`);
+    console.log(`🔥 [NLP-DEBUG] Request body:`, JSON.stringify(requestBody));
+    console.log(`🔥 [NLP-DEBUG] Request options:`, JSON.stringify(options));
+    console.log(`🔥 [NLP-DEBUG] About to call fetch...`);
     
     let response = await fetch(url, options);
     
-    console.log(`[NLP-DEBUG] getCity response status: ${response.status}`);
+    console.log(`🔥 [NLP-DEBUG] Response received! Status: ${response.status}`);
 
     let predictedCity = null;
     let predictedCityCode = null;
@@ -321,6 +334,12 @@ class PGRService {
       console.error(`[NLP-DEBUG] getCity error body:`, errorText);
       console.error("Error in fetching the city");
       return { predictedCityCode, predictedCity, isCityDataMatch };
+    } catch (error) {
+      console.error(`🔥 [NLP-DEBUG] FETCH ERROR in getCity:`, error);
+      console.error(`🔥 [NLP-DEBUG] Error type:`, error.constructor.name);
+      console.error(`🔥 [NLP-DEBUG] Error message:`, error.message);
+      console.error(`🔥 [NLP-DEBUG] Full error:`, error);
+      return { predictedCityCode: null, predictedCity: null, isCityDataMatch: false };
     }
   }
 
