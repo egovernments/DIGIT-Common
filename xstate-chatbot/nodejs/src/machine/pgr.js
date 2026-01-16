@@ -441,7 +441,7 @@ const pgr =  {
                       try {
                         // Add null checking for event structure
                         if (event && event.message && event.message.input) {
-                          return pgrService.getCity(event.message.input, context.user.locale);
+                          return pgrService.getCity(event.message.input, context.user.locale, context.extraInfo.tenantId);
                         } else {
                           // Handle case where event.message is undefined
                           console.error("Invalid event structure for PGR city search:", event);
@@ -561,7 +561,7 @@ const pgr =  {
                       try {
                         // Add null checking for event structure
                         if (event && event.message && event.message.input) {
-                          return pgrService.getLocality(event.message.input, context.slots.pgr["city"], context.user.locale);
+                          return pgrService.getLocality(event.message.input, context.slots.pgr["city"], context.user.locale, context.extraInfo.tenantId);
                         } else {
                           // Handle case where event.message is undefined
                           console.error("Invalid event structure for PGR locality search:", event);

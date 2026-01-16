@@ -422,7 +422,8 @@ const swach = {
                 if (event && event.message && event.message.input) {
                   return swachService.getCity(
                     event.message.input,
-                    context.user.locale
+                    context.user.locale,
+                    context.extraInfo.tenantId
                   );
                 } else {
                   // Handle case where event.message is undefined
@@ -572,7 +573,8 @@ const swach = {
                   return swachService.getLocality(
                     event.message.input,
                     context.slots.attendence["city"],
-                    context.user.locale
+                    context.user.locale,
+                    context.extraInfo.tenantId
                   );
                 } else {
                   // Handle case where event.message is undefined
@@ -1447,7 +1449,8 @@ const swach = {
                         if (event && event.message && event.message.input) {
                           return swachService.getCity(
                             event.message.input,
-                            context.user.locale
+                            context.user.locale,
+                            context.extraInfo.tenantId
                           );
                         } else {
                           // Handle case where event.message is undefined
@@ -1600,7 +1603,8 @@ const swach = {
                           return swachService.getLocality(
                             event.message.input,
                             context.slots.swach["city"],
-                            context.user.locale
+                            context.user.locale,
+                            context.extraInfo.tenantId
                           );
                         } else {
                           // Handle missing event.message or event.message.input gracefully

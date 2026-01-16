@@ -350,10 +350,15 @@ class SwachService {
     return { localities, messageBundle };
   }
 
-  async getCity(input, locale) {
+  async getCity(input, locale, tenantId) {
     var url =
       config.egovServices.egovServicesHost +
       config.egovServices.cityFuzzySearch;
+    
+    // Add tenant ID to bypass gateway
+    if (tenantId) {
+      url += `?tenantId=${tenantId}`;
+    }
 
     var requestBody = {
       input_city: input,
@@ -403,10 +408,15 @@ class SwachService {
     }
   }
 
-  async getLocality(input, city, locale) {
+  async getLocality(input, city, locale, tenantId) {
     var url =
       config.egovServices.egovServicesHost +
       config.egovServices.localityFuzzySearch;
+    
+    // Add tenant ID to bypass gateway
+    if (tenantId) {
+      url += `?tenantId=${tenantId}`;
+    }
 
     var requestBody = {
       city: city,
