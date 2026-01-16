@@ -285,16 +285,24 @@ class PGRService {
       },
     };
 
+    console.log(`[NLP-DEBUG] getCity URL: ${url}`);
+    console.log(`[NLP-DEBUG] getCity requestBody:`, JSON.stringify(requestBody));
+    
     let response = await fetch(url, options);
+    
+    console.log(`[NLP-DEBUG] getCity response status: ${response.status}`);
 
     let predictedCity = null;
     let predictedCityCode = null;
     let isCityDataMatch = false;
     if (response.status === 200) {
       let responseBody = await response.json();
-      if (responseBody.match == 0)
+      console.log(`[NLP-DEBUG] getCity responseBody:`, JSON.stringify(responseBody));
+      if (responseBody.match == 0) {
+        console.log(`[NLP-DEBUG] getCity no match found`);
         return { predictedCityCode, predictedCity, isCityDataMatch };
-      else {
+      } else {
+        console.log(`[NLP-DEBUG] getCity match found, city_detected:`, responseBody.city_detected);
         predictedCityCode = responseBody.city_detected[0];
         let localisationMessages =
           await localisationService.getMessageBundleForCode(predictedCityCode);
@@ -308,6 +316,9 @@ class PGRService {
         return { predictedCityCode, predictedCity, isCityDataMatch };
       }
     } else {
+      const errorText = await response.text();
+      console.error(`[NLP-DEBUG] getCity HTTP error: ${response.status} ${response.statusText}`);
+      console.error(`[NLP-DEBUG] getCity error body:`, errorText);
       console.error("Error in fetching the city");
       return { predictedCityCode, predictedCity, isCityDataMatch };
     }
@@ -336,7 +347,12 @@ class PGRService {
       },
     };
 
+    console.log(`[NLP-DEBUG] getLocality URL: ${url}`);
+    console.log(`[NLP-DEBUG] getLocality requestBody:`, JSON.stringify(requestBody));
+    
     let response = await fetch(url, options);
+    
+    console.log(`[NLP-DEBUG] getLocality response status: ${response.status}`);
 
     let predictedLocality = null;
     let predictedLocalityCode = null;
@@ -344,6 +360,7 @@ class PGRService {
 
     if (response.status === 200) {
       let responseBody = await response.json();
+      console.log(`[NLP-DEBUG] getLocality responseBody:`, JSON.stringify(responseBody));
       if (responseBody.predictions.length == 0)
         return {
           predictedLocalityCode,
@@ -375,6 +392,9 @@ class PGRService {
         };
       }
     } else {
+      const errorText = await response.text();
+      console.error(`[NLP-DEBUG] getLocality HTTP error: ${response.status} ${response.statusText}`);
+      console.error(`[NLP-DEBUG] getLocality error body:`, errorText);
       console.error("Error in fetching the locality");
       return { predictedLocalityCode, predictedLocality, isLocalityDataMatch };
     }
