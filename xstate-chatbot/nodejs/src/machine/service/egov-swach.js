@@ -392,7 +392,6 @@ class SwachService {
     console.log(`🔥 [SWACH-NLP-DEBUG] Request body:`, JSON.stringify(requestBody));
     console.log(`🔥 [SWACH-NLP-DEBUG] About to call fetch...`);
     
-    try {
     let response = await fetch(url, options);
     
     console.log(`🔥 [SWACH-NLP-DEBUG] Response received! Status: ${response.status}`);
@@ -424,11 +423,12 @@ class SwachService {
     } else {
       console.error("Error in fetching the city");
       return { predictedCityCode, predictedCity, isCityDataMatch };
-    }}catch(error){
-      console.error("Error in fetching the city ----- ", error);
-      return { predictedCityCode: null, predictedCity: null, isCityDataMatch: false };
     }
+  } catch(error){
+    console.error("Error in fetching the city ----- ", error);
+    return { predictedCityCode: null, predictedCity: null, isCityDataMatch: false };
   }
+}
 
   async getLocality(input, city, locale, tenantId) {
     var url =
