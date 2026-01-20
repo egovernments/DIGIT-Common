@@ -8,11 +8,11 @@ const envVariables = {
     contextPath : process.env.CONTEXT_PATH || '/xstate-chatbot',
 
    //whatsAppProvider: process.env.WHATSAPP_PROVIDER || 'ValueFirst',
-   whatsAppProvider: process.env.WHATSAPP_PROVIDER || 'Twilio',
+   whatsAppProvider: process.env.WHATSAPP_PROVIDER || 'Console',
 
     serviceProvider: process.env.SERVICE_PROVIDER || 'eGov',
 
-    repoProvider: process.env.REPO_PROVIDER || 'PostgreSQL',
+    repoProvider: process.env.REPO_PROVIDER || 'InMemory',
 
     whatsAppBusinessNumber : process.env.WHATSAPP_BUSINESS_NUMBER || '918750975975',
 
@@ -32,9 +32,9 @@ const envVariables = {
     postgresConfig: {
         dbHost: process.env.DB_HOST || 'localhost',
         dbPort: process.env.DB_PORT || '5432',
-        dbName: process.env.DB_NAME || 'chat',
+        dbName: process.env.DB_NAME || 'postgres4',
         dbUsername: process.env.DB_USER || 'postgres',
-        dbPassword: process.env.DB_PASSWORD || 'postgres',
+        dbPassword: process.env.DB_PASSWORD || '1234',
         dbSSL: process.env.DB_SSL === 'true'
     },
 
@@ -107,6 +107,7 @@ const envVariables = {
         pgrv1SearchEndpoint: process.env.PGR_SEARCH_ENDPOINT || 'rainmaker-pgr/v1/requests/_search',
         waterConnectionSearch: process.env.WATER_CONNECTION_SEARCH || 'ws-services/wc/_search?searchType=CONNECTION',
         sewerageConnectionSearch: process.env.SEWERAGE_CONNECTION_SEARCH || 'sw-services/swc/_search?searchType=CONNECTION',
+        nlpEngineHost: process.env.NLP_ENGINE_HOST || process.env.EGOV_SERVICES_HOST || 'https://unified-demo.digit.org/',
         cityFuzzySearch: process.env.CITY_FUZZY_SEARCH || 'nlp-engine/fuzzy/city',
         localityFuzzySearch: process.env.LOCALITY_FUZZY_SEARCH || 'nlp-engine/fuzzy/locality',
 

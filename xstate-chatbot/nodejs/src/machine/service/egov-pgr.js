@@ -266,11 +266,12 @@ class PGRService {
     console.log(`🔥 [PGR-NLP-DEBUG] ===== PGR getCity FUNCTION CALLED =====`);
     console.log(`🔥 [PGR-NLP-DEBUG] Parameters: input="${input}", locale="${locale}", tenantId="${tenantId}"`);
     console.log(`🔥 [PGR-NLP-DEBUG] Config host: "${config.egovServices.egovServicesHost}"`);
+    console.log(`🔥 [PGR-NLP-DEBUG] NLP host: "${config.egovServices.nlpEngineHost}"`);
     console.log(`🔥 [PGR-NLP-DEBUG] Config path: "${config.egovServices.cityFuzzySearch}"`);
     
     try {
     var url =
-      config.egovServices.egovServicesHost +
+      config.egovServices.nlpEngineHost +
       config.egovServices.cityFuzzySearch;
     
     // Add tenant ID to bypass gateway
@@ -346,7 +347,7 @@ class PGRService {
 
   async getLocality(input, city, locale, tenantId) {
     var url =
-      config.egovServices.egovServicesHost +
+      config.egovServices.nlpEngineHost +
       config.egovServices.localityFuzzySearch;
     
     // Add tenant ID to bypass gateway
