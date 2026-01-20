@@ -438,17 +438,23 @@ const pgr =  {
                   invoke: {
                     id: 'cityFuzzySearch',
                     src: (context, event) => {
+                      console.log(`🚨 [PGR-MACHINE] ===== CITY SEARCH INVOKE CALLED =====`);
+                      console.log(`🚨 [PGR-MACHINE] Event:`, JSON.stringify(event, null, 2));
+                      console.log(`🚨 [PGR-MACHINE] Context user:`, JSON.stringify(context.user, null, 2));
+                      console.log(`🚨 [PGR-MACHINE] Context extraInfo:`, JSON.stringify(context.extraInfo, null, 2));
+                      
                       try {
                         // Add null checking for event structure
                         if (event && event.message && event.message.input) {
+                          console.log(`🚨 [PGR-MACHINE] About to call pgrService.getCity with: input="${event.message.input}", locale="${context.user.locale}", tenantId="${context.extraInfo.tenantId}"`);
                           return pgrService.getCity(event.message.input, context.user.locale, context.extraInfo.tenantId);
                         } else {
                           // Handle case where event.message is undefined
-                          console.error("Invalid event structure for PGR city search:", event);
+                          console.error("🚨 [PGR-MACHINE] Invalid event structure for PGR city search:", event);
                           return Promise.resolve(null);
                         }
                       } catch (error) {
-                        console.error("Error in PGR city search:", error);
+                        console.error("🚨 [PGR-MACHINE] Error in PGR city search:", error);
                         return Promise.resolve(null);
                       }
                     },

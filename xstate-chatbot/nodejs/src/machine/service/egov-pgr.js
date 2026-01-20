@@ -334,13 +334,14 @@ class PGRService {
       console.error(`[NLP-DEBUG] getCity error body:`, errorText);
       console.error("Error in fetching the city");
       return { predictedCityCode, predictedCity, isCityDataMatch };
-    } catch (error) {
-      console.error(`🔥 [NLP-DEBUG] FETCH ERROR in getCity:`, error);
-      console.error(`🔥 [NLP-DEBUG] Error type:`, error.constructor.name);
-      console.error(`🔥 [NLP-DEBUG] Error message:`, error.message);
-      console.error(`🔥 [NLP-DEBUG] Full error:`, error);
-      return { predictedCityCode: null, predictedCity: null, isCityDataMatch: false };
     }
+  } catch (error) {
+    console.error(`🔥 [NLP-DEBUG] FETCH ERROR in getCity:`, error);
+    console.error(`🔥 [NLP-DEBUG] Error type:`, error.constructor.name);
+    console.error(`🔥 [NLP-DEBUG] Error message:`, error.message);
+    console.error(`🔥 [NLP-DEBUG] Full error:`, error);
+    return { predictedCityCode: null, predictedCity: null, isCityDataMatch: false };
+  }
   }
 
   async getLocality(input, city, locale, tenantId) {
