@@ -483,21 +483,51 @@ class PGRService {
     requestBody["service"]["accountId"] = userId;
     requestBody["RequestInfo"]["userInfo"] = userInfo;
 
+    // Handle location coordinates (geocode)
     if (slots.geocode) {
       let latlng = slots.geocode.substring(1, slots.geocode.length - 1);
       latlng = latlng.split(",");
       requestBody["service"]["address"]["geoLocation"]["latitude"] = latlng[0];
       requestBody["service"]["address"]["geoLocation"]["longitude"] = latlng[1];
+      console.log(`🔥 [PGR-DEBUG] Added geocode: lat=${latlng[0]}, lng=${latlng[1]}`);
     }
 
+    // Handle image upload from slots.image (existing flow)
     if (slots.image) {
-      let filestoreId = await this.getFileForFileStoreId(slots.image, city);
-      var content = {
-        documentType: "PHOTO",
-        filestoreId: filestoreId,
-      };
-      requestBody["workflow"]["verificationDocuments"].push(content);
+      try {
+        console.log(`🔥 [PGR-DEBUG] Processing image upload from slots.image:`, slots.image);
+        let filestoreId = await this.getFileForFileStoreId(slots.image, city);
+        var content = {
+          documentType: "PHOTO",
+          filestoreId: filestoreId,
+        };
+        requestBody["workflow"]["verificationDocuments"].push(content);
+        console.log(`🔥 [PGR-DEBUG] Successfully processed slots.image, filestoreId:`, filestoreId);
+      } catch (error) {
+        console.error(`🔥 [PGR-DEBUG] Error processing slots.image:`, error.message);
+        console.log(`🔥 [PGR-DEBUG] Continuing complaint creation without image attachment`);
+      }
     }
+
+    // Handle image upload from extraInfo.fileStoreId (new flow)
+    if (extraInfo && extraInfo.fileStoreId) {
+      try {
+        console.log(`🔥 [PGR-DEBUG] Processing image upload from extraInfo.fileStoreId:`, extraInfo.fileStoreId);
+        let filestoreId = await this.getFileForFileStoreId(extraInfo.fileStoreId, city);
+        var content = {
+          documentType: "PHOTO",
+          filestoreId: filestoreId,
+        };
+        requestBody["workflow"]["verificationDocuments"].push(content);
+        console.log(`🔥 [PGR-DEBUG] Successfully processed extraInfo.fileStoreId, filestoreId:`, filestoreId);
+      } catch (error) {
+        console.error(`🔥 [PGR-DEBUG] Error processing extraInfo.fileStoreId:`, error.message);
+        console.log(`🔥 [PGR-DEBUG] Continuing complaint creation without image attachment`);
+      }
+    }
+
+    // Log final request for debugging
+    console.log(`🔥 [PGR-DEBUG] Final complaint request has ${requestBody["workflow"]["verificationDocuments"].length} documents attached`);
 
     var url =
       config.egovServices.egovServicesHost +
@@ -515,13 +545,14 @@ class PGRService {
 
     let response = await fetch(url, options);
 
-
     let results;
     if (response.status === 200) {
       let responseBody = await response.json();
       results = await this.preparePGRResult(responseBody, user.locale);
     } else {
-      console.error("Error in fetching the complaints");
+      console.error("Error in creating the complaint, status:", response.status);
+      const errorText = await response.text();
+      console.error("Error response body:", errorText);
       return undefined;
     }
     return results[0];
@@ -663,17 +694,56 @@ class PGRService {
 
     let response = await fetch(url, options);
     response = await response.json();
-    var fileURL = response["fileStoreIds"][0]["url"].split(",");
+    
+    console.log(`🔥 [FILESTORE-DEBUG] Response:`, JSON.stringify(response, null, 2));
+    
+    // Handle the correct response structure based on actual API response
+    if (!response) {
+      console.error("🔥 [FILESTORE-DEBUG] No response received from filestore");
+      throw new Error("No response received from filestore");
+    }
+    
+    // Check for both possible response structures
+    let fileData;
+    if (response.fileStoreIds && response.fileStoreIds.length > 0 && response.fileStoreIds[0].url) {
+      // Old structure
+      fileData = response.fileStoreIds[0];
+    } else if (response.files && response.files.length > 0) {
+      // New structure - need to make another call to get URL
+      console.log("🔥 [FILESTORE-DEBUG] Files structure detected, need to get URL separately");
+      
+      // For now, construct the URL directly since the response only has fileStoreId and tenantId
+      // This is a common pattern in DIGIT filestore services
+      let directUrl = config.egovServices.egovServicesHost + 
+                     "filestore/v1/files/id?fileStoreId=" + filestoreId + 
+                     "&tenantId=" + tenantId;
+      
+      fileData = {
+        fileStoreId: filestoreId,
+        tenantId: tenantId,
+        url: directUrl
+      };
+    } else {
+      console.error("🔥 [FILESTORE-DEBUG] Invalid filestore response structure");
+      throw new Error("Invalid filestore response structure");
+    }
+    
+    if (!fileData.url) {
+      console.error("🔥 [FILESTORE-DEBUG] No URL found in filestore response");
+      throw new Error("No URL found in filestore response");
+    }
+    
+    var fileURL = fileData.url.split(",");
     var fileName = geturl.parse(fileURL[0]);
     fileName = path.basename(fileName.pathname);
     fileName = fileName.substring(13);
     await this.downloadImage(fileURL[0].toString(), fileName);
     let imageInBase64String = fs.readFileSync(fileName, "base64");
     imageInBase64String = imageInBase64String.replace(/ /g, "+");
-    let fileData = Buffer.from(imageInBase64String, "base64");
-    var filestoreId = await this.fileStoreAPICall(fileName, fileData, tenantId);
+    let fileDataBuffer = Buffer.from(imageInBase64String, "base64");
+    var newFilestoreId = await this.fileStoreAPICall(fileName, fileDataBuffer, tenantId);
     fs.unlinkSync(fileName);
-    return filestoreId;
+    return newFilestoreId;
   }
 }
 
