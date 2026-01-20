@@ -107,7 +107,7 @@ const envVariables = {
         pgrv1SearchEndpoint: process.env.PGR_SEARCH_ENDPOINT || 'rainmaker-pgr/v1/requests/_search',
         waterConnectionSearch: process.env.WATER_CONNECTION_SEARCH || 'ws-services/wc/_search?searchType=CONNECTION',
         sewerageConnectionSearch: process.env.SEWERAGE_CONNECTION_SEARCH || 'sw-services/swc/_search?searchType=CONNECTION',
-        nlpEngineHost: process.env.NLP_ENGINE_HOST || process.env.EGOV_SERVICES_HOST || 'https://unified-demo.digit.org/',
+        nlpEngineHost: process.env.NLP_ENGINE_HOST || 'https://unified-demo.digit.org/',
         cityFuzzySearch: process.env.CITY_FUZZY_SEARCH || 'nlp-engine/fuzzy/city',
         localityFuzzySearch: process.env.LOCALITY_FUZZY_SEARCH || 'nlp-engine/fuzzy/locality',
 
