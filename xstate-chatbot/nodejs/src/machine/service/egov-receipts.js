@@ -517,7 +517,7 @@ class ReceiptService {
         }
       };
   
-      let locationUrl = config.egovServices.searcherHost + 'egov-searcher/locality/'+businessService+'/_get';
+      let locationUrl = config.egovServices.searcherHost + 'egov-searcher/locality/'+businessService+'/_get?tenantId=' + config.rootTenantId;
   
       let options = {
         method: 'POST',
