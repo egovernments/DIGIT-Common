@@ -351,24 +351,14 @@ class SwachService {
   }
 
   async getCity(input, locale, tenantId) {
-    console.log(`🔥 [SWACH-NLP-DEBUG] ===== SWACH getCity FUNCTION CALLED =====`);
-    console.log(`🔥 [SWACH-NLP-DEBUG] Parameters: input="${input}", locale="${locale}", tenantId="${tenantId}"`);
-    console.log(`🔥 [SWACH-NLP-DEBUG] Config host: "${config.egovServices.egovServicesHost}"`);
-    console.log(`🔥 [SWACH-NLP-DEBUG] Config path: "${config.egovServices.cityFuzzySearch}"`);
-    
     try {
     var url =
       config.egovServices.egovServicesHost +
       config.egovServices.cityFuzzySearch;
     
-    console.log(`🔥 [SWACH-NLP-DEBUG] URL before tenantId: "${url}"`);
-    
     // Add tenant ID to bypass gateway
     if (tenantId) {
       url += `?tenantId=${tenantId}`;
-      console.log(`🔥 [SWACH-NLP-DEBUG] Final URL with tenantId: "${url}"`);
-    } else {
-      console.log(`🔥 [SWACH-NLP-DEBUG] WARNING: No tenantId provided!`);
     }
 
     // Fix locale format - NLP expects "en" not "en_IN"
@@ -379,8 +369,6 @@ class SwachService {
       input_lang: nlpLocale,
     };
     
-    console.log(`🔥 [SWACH-NLP-DEBUG] Original locale: "${locale}", NLP locale: "${nlpLocale}"`);
-
     var options = {
       method: "POST",
       body: JSON.stringify(requestBody),
@@ -389,12 +377,7 @@ class SwachService {
       },
     };
 
-    console.log(`🔥 [SWACH-NLP-DEBUG] Request body:`, JSON.stringify(requestBody));
-    console.log(`🔥 [SWACH-NLP-DEBUG] About to call fetch...`);
-    
     let response = await fetch(url, options);
-    
-    console.log(`🔥 [SWACH-NLP-DEBUG] Response received! Status: ${response.status}`);
     // console.log("Get City Response ----- ", response);
 
     let predictedCity = null;

@@ -55,7 +55,6 @@ class UserService {
         'Content-Type': 'application/json'
       }
     };
-    console.log("User Enrich URL", url);
 
     try {
       let response = await fetch(url, options);

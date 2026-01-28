@@ -263,11 +263,6 @@ class PGRService {
   }
 
   async getCity(input, locale, tenantId) {
-    console.log(`🔥 [PGR-NLP-DEBUG] ===== PGR getCity FUNCTION CALLED =====`);
-    console.log(`🔥 [PGR-NLP-DEBUG] Parameters: input="${input}", locale="${locale}", tenantId="${tenantId}"`);
-    console.log(`🔥 [PGR-NLP-DEBUG] Config host: "${config.egovServices.egovServicesHost}"`);
-    console.log(`🔥 [PGR-NLP-DEBUG] NLP host: "${config.egovServices.nlpEngineHost}"`);
-    console.log(`🔥 [PGR-NLP-DEBUG] Config path: "${config.egovServices.cityFuzzySearch}"`);
     
     try {
     var url =
@@ -287,8 +282,6 @@ class PGRService {
       input_lang: nlpLocale,
     };
     
-    console.log(`🔥 [NLP-DEBUG] Original locale: "${locale}", NLP locale: "${nlpLocale}"`);
-
     var options = {
       method: "POST",
       body: JSON.stringify(requestBody),
@@ -297,26 +290,17 @@ class PGRService {
       },
     };
 
-    console.log(`🔥 [NLP-DEBUG] Final URL: ${url}`);
-    console.log(`🔥 [NLP-DEBUG] Request body:`, JSON.stringify(requestBody));
-    console.log(`🔥 [NLP-DEBUG] Request options:`, JSON.stringify(options));
-    console.log(`🔥 [NLP-DEBUG] About to call fetch...`);
     
     let response = await fetch(url, options);
     
-    console.log(`🔥 [NLP-DEBUG] Response received! Status: ${response.status}`);
-
     let predictedCity = null;
     let predictedCityCode = null;
     let isCityDataMatch = false;
     if (response.status === 200) {
       let responseBody = await response.json();
-      console.log(`[NLP-DEBUG] getCity responseBody:`, JSON.stringify(responseBody));
       if (responseBody.match == 0) {
-        console.log(`[NLP-DEBUG] getCity no match found`);
         return { predictedCityCode, predictedCity, isCityDataMatch };
       } else {
-        console.log(`[NLP-DEBUG] getCity match found, city_detected:`, responseBody.city_detected);
         predictedCityCode = responseBody.city_detected[0];
         let localisationMessages =
           await localisationService.getMessageBundleForCode(predictedCityCode);
@@ -331,16 +315,11 @@ class PGRService {
       }
     } else {
       const errorText = await response.text();
-      console.error(`[NLP-DEBUG] getCity HTTP error: ${response.status} ${response.statusText}`);
-      console.error(`[NLP-DEBUG] getCity error body:`, errorText);
       console.error("Error in fetching the city");
       return { predictedCityCode, predictedCity, isCityDataMatch };
     }
   } catch (error) {
-    console.error(`🔥 [NLP-DEBUG] FETCH ERROR in getCity:`, error);
-    console.error(`🔥 [NLP-DEBUG] Error type:`, error.constructor.name);
-    console.error(`🔥 [NLP-DEBUG] Error message:`, error.message);
-    console.error(`🔥 [NLP-DEBUG] Full error:`, error);
+    console.error("Error in getCity:", error);
     return { predictedCityCode: null, predictedCity: null, isCityDataMatch: false };
   }
   }
@@ -368,20 +347,14 @@ class PGRService {
       },
     };
 
-    console.log(`[NLP-DEBUG] getLocality URL: ${url}`);
-    console.log(`[NLP-DEBUG] getLocality requestBody:`, JSON.stringify(requestBody));
-    
     let response = await fetch(url, options);
     
-    console.log(`[NLP-DEBUG] getLocality response status: ${response.status}`);
-
     let predictedLocality = null;
     let predictedLocalityCode = null;
     let isLocalityDataMatch = false;
 
     if (response.status === 200) {
       let responseBody = await response.json();
-      console.log(`[NLP-DEBUG] getLocality responseBody:`, JSON.stringify(responseBody));
       if (responseBody.predictions.length == 0)
         return {
           predictedLocalityCode,
@@ -414,8 +387,6 @@ class PGRService {
       }
     } else {
       const errorText = await response.text();
-      console.error(`[NLP-DEBUG] getLocality HTTP error: ${response.status} ${response.statusText}`);
-      console.error(`[NLP-DEBUG] getLocality error body:`, errorText);
       console.error("Error in fetching the locality");
       return { predictedLocalityCode, predictedLocality, isLocalityDataMatch };
     }
@@ -489,45 +460,35 @@ class PGRService {
       latlng = latlng.split(",");
       requestBody["service"]["address"]["geoLocation"]["latitude"] = latlng[0];
       requestBody["service"]["address"]["geoLocation"]["longitude"] = latlng[1];
-      console.log(`🔥 [PGR-DEBUG] Added geocode: lat=${latlng[0]}, lng=${latlng[1]}`);
     }
 
     // Handle image upload from slots.image (existing flow)
     if (slots.image) {
       try {
-        console.log(`🔥 [PGR-DEBUG] Processing image upload from slots.image:`, slots.image);
         let filestoreId = await this.getFileForFileStoreId(slots.image, city);
         var content = {
           documentType: "PHOTO",
           filestoreId: filestoreId,
         };
         requestBody["workflow"]["verificationDocuments"].push(content);
-        console.log(`🔥 [PGR-DEBUG] Successfully processed slots.image, filestoreId:`, filestoreId);
       } catch (error) {
-        console.error(`🔥 [PGR-DEBUG] Error processing slots.image:`, error.message);
-        console.log(`🔥 [PGR-DEBUG] Continuing complaint creation without image attachment`);
       }
     }
 
     // Handle image upload from extraInfo.fileStoreId (new flow)
     if (extraInfo && extraInfo.fileStoreId) {
       try {
-        console.log(`🔥 [PGR-DEBUG] Processing image upload from extraInfo.fileStoreId:`, extraInfo.fileStoreId);
         let filestoreId = await this.getFileForFileStoreId(extraInfo.fileStoreId, city);
         var content = {
           documentType: "PHOTO",
           filestoreId: filestoreId,
         };
         requestBody["workflow"]["verificationDocuments"].push(content);
-        console.log(`🔥 [PGR-DEBUG] Successfully processed extraInfo.fileStoreId, filestoreId:`, filestoreId);
       } catch (error) {
-        console.error(`🔥 [PGR-DEBUG] Error processing extraInfo.fileStoreId:`, error.message);
-        console.log(`🔥 [PGR-DEBUG] Continuing complaint creation without image attachment`);
       }
     }
 
     // Log final request for debugging
-    console.log(`🔥 [PGR-DEBUG] Final complaint request has ${requestBody["workflow"]["verificationDocuments"].length} documents attached`);
 
     var url =
       config.egovServices.egovServicesHost +
@@ -695,11 +656,8 @@ class PGRService {
     let response = await fetch(url, options);
     response = await response.json();
     
-    console.log(`🔥 [FILESTORE-DEBUG] Response:`, JSON.stringify(response, null, 2));
-    
     // Handle the correct response structure based on actual API response
     if (!response) {
-      console.error("🔥 [FILESTORE-DEBUG] No response received from filestore");
       throw new Error("No response received from filestore");
     }
     
@@ -710,7 +668,6 @@ class PGRService {
       fileData = response.fileStoreIds[0];
     } else if (response.files && response.files.length > 0) {
       // New structure - need to make another call to get URL
-      console.log("🔥 [FILESTORE-DEBUG] Files structure detected, need to get URL separately");
       
       // For now, construct the URL directly since the response only has fileStoreId and tenantId
       // This is a common pattern in DIGIT filestore services
@@ -724,12 +681,10 @@ class PGRService {
         url: directUrl
       };
     } else {
-      console.error("🔥 [FILESTORE-DEBUG] Invalid filestore response structure");
       throw new Error("Invalid filestore response structure");
     }
     
     if (!fileData.url) {
-      console.error("🔥 [FILESTORE-DEBUG] No URL found in filestore response");
       throw new Error("No URL found in filestore response");
     }
     

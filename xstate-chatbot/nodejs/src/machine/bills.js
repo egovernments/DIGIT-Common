@@ -529,7 +529,6 @@ const bills = {
             onDone: [
               {
                 cond: (context, event) => {
-                  console.log('Bill search result in state machine:', JSON.stringify(event.data, null, 2));
                   // Check if no bills exist at all (Property ID not found)
                   return event.data === undefined || (event.data.billsExist === false);
                 },
