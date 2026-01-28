@@ -124,8 +124,8 @@ class ReceiptService {
           hi_IN: 'कनेक्शन नंबर'
         };
         example = {
-          en_IN: '(Connection No must be in format\nWS/XXX/XX-XX/XXXXX)',
-          hi_IN: '(कनेक्शन नंबर WS/XXX/XX-XX/XXXXX प्रारूप में होना चाहिए)'
+          en_IN: '(Connection No must be in format\nWS_AP/XXXX/YYYY-YY/XXXXXX)',
+          hi_IN: '(कनेक्शन नंबर WS_AP/XXXX/YYYY-YY/XXXXXX प्रारूप में होना चाहिए)'
         }
       }
   

@@ -127,8 +127,8 @@ class BillService {
         hi_IN: 'कनेक्शन नंबर'
       };
       example = {
-       en_IN: '(Connection Number must be in format\nXXXXXXXXXX OR WS/XXX/XX-XX/XXXXX)',
-       hi_IN: '(कनेक्शन नंबर nXXXXXXXXXX OR WS/XXX/XX-XX/XXXXX प्रारूप में होना चाहिए)'
+       en_IN: '(Connection Number must be in format\nXXXXXXXXXX OR WS_AP/XXXX/YYYY-YY/XXXXXX)',
+       hi_IN: '(कनेक्शन नंबर nXXXXXXXXXX OR WS_AP/XXXX/YYYY-YY/XXXXXX प्रारूप में होना चाहिए)'
       }
     }
 
