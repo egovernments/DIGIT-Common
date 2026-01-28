@@ -1058,7 +1058,7 @@ let messages = {
       question: {
         en_IN: "Enter the name of your city.\n\n(For example - CityA)",
         hi_IN: "अपने शहर का नाम दर्ज करें। (उदाहरण के लिए - CityA)",
-        pa_IN: "ਆਪਣੇ ਸ਼ਹਿਰ ਦਾ ਨਾਮ ਦਰਜ ਕਰੋ. (ਉਦਾਹਰਣ ਵਜੋਂ - CityA"
+        pa_IN: "ਆਪਣੇ ਸ਼ਹਿਰ ਦਾ ਨਾਮ ਦਰਜ ਕਰੋ. (ਉਦਾਹਰਣ ਵਜੋਂ - CityA)"
       },
       confirmation: {
         en_IN: "Did you mean *“{{city}}”* ?\n\n👉  Type and send *1* to confirm.\n\n👉  Type and send *2* to write again.",
