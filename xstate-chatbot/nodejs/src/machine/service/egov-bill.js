@@ -127,8 +127,8 @@ class BillService {
         hi_IN: 'कनेक्शन नंबर'
       };
       example = {
-       en_IN: '(Connection Number must be in format\nXXXXXXXXXX OR WS_AP/XXXX/YYYY-YY/XXXXXX)',
-       hi_IN: '(कनेक्शन नंबर nXXXXXXXXXX OR WS_AP/XXXX/YYYY-YY/XXXXXX प्रारूप में होना चाहिए)'
+       en_IN: '(Connection Number must be in format\nXXXXXXXXXX OR WS/XXXX/YYYY-YY/XXXXXX)',
+       hi_IN: '(कनेक्शन नंबर nXXXXXXXXXX OR WS/XXXX/YYYY-YY/XXXXXX प्रारूप में होना चाहिए)'
       }
     }
 
@@ -204,7 +204,7 @@ class BillService {
         }
         if(service === 'WS'){
           //todo
-          let regexp = new RegExp('^WS_AP/\\d{4}/\\d{4}-\\d{2}/\\d+$');
+          let regexp = new RegExp('^WS/\\d{4}/\\d{4}-\\d{2}/\\d+$');
           let isValid = regexp.test(paramInput);
           console.log(`WS Connection validation result: ${isValid}`);
           return isValid;

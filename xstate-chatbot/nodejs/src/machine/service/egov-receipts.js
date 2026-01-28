@@ -124,8 +124,8 @@ class ReceiptService {
           hi_IN: 'कनेक्शन नंबर'
         };
         example = {
-          en_IN: '(Connection No must be in format\nWS_AP/XXXX/YYYY-YY/XXXXXX)',
-          hi_IN: '(कनेक्शन नंबर WS_AP/XXXX/YYYY-YY/XXXXXX प्रारूप में होना चाहिए)'
+          en_IN: '(Connection No must be in format\nWS/XXXX/YYYY-YY/XXXXXX)',
+          hi_IN: '(कनेक्शन नंबर WS/XXXX/YYYY-YY/XXXXXX प्रारूप में होना चाहिए)'
         }
       }
   
@@ -194,7 +194,7 @@ class ReceiptService {
         }
         if(service === 'WS'){
           //todo
-          let regexp = new RegExp('^WS_AP/\\d{4}/\\d{4}-\\d{2}/\\d+$');
+          let regexp = new RegExp('^WS/\\d{4}/\\d{4}-\\d{2}/\\d+$');
           return regexp.test(paramInput);
         }
       }
