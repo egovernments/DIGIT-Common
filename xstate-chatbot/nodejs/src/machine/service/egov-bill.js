@@ -199,7 +199,6 @@ class BillService {
           // Enable PT validation for debugging
           let regexp = new RegExp('^' + state + '-PT-\\d{4}-\\d{2}-\\d{2}-\\d+$');
           let isValid = regexp.test(paramInput);
-          console.log(`PT Property ID validation - Expected format: ${state}-PT-YYYY-MM-DD-XXXXXX, Got: ${paramInput}, Valid: ${isValid}`);
           console.log(`Regex pattern: ^${state}-PT-\\d{4}-\\d{2}-\\d{2}-\\d+$`);
           return isValid;
         }
@@ -248,9 +247,7 @@ class BillService {
     let localisationServicePrefix = "BILLINGSERVICE_BUSINESSSERVICE_"
 
     let self = this;
-    console.log(`Processing ${results.length} bills from API response`);
     for(let result of results){
-      console.log(`Bill ${result.consumerCode}: status=${result.status}, totalAmount=${result.totalAmount}, active=${result.status=='ACTIVE'}, hasAmount=${result.totalAmount!=0}`);
       if(result.status=='ACTIVE' && result.totalAmount!=0 && count<billLimit){
         let dueDate = moment(result.billDetails[result.billDetails.length-1].expiryDate).tz(config.timeZone).format(config.dateFormat);
         let fromMonth = new Date(result.billDetails[result.billDetails.length-1].fromPeriod).toLocaleString('en-IN', { month: 'short' });
@@ -286,7 +283,6 @@ class BillService {
       } 
     }
     
-    console.log(`After processing: found ${Bills['Bills'].length} bills with non-zero amounts out of ${results.length} total bills`);
 
     /*if(Bills['Bills'].length>0){
       var stateLevelCode = "TENANT_TENANTS_"+config.rootTenantId.toUpperCase();
@@ -358,17 +354,11 @@ class BillService {
       body: JSON.stringify(requestBody)
     }
     
-    console.log('Bill Search Request URL:', billUrl);
-    console.log('Bill Search Request Body:', JSON.stringify(requestBody, null, 2));
-    
     let response = await fetch(billUrl, options);
     let results,totalBillSize=0,pendingBillSize=0;
     
-    console.log('Bill Service Response Status:', response.status);
-    
     if(response.status === 201) {
       let responseBody = await response.json();
-      console.log('Bill Service Response Body:', JSON.stringify(responseBody, null, 2));
       results = await this.prepareBillResult(responseBody, user);
       totalBillSize=responseBody.Bill.length;
       pendingBillSize=results.length;
@@ -376,12 +366,10 @@ class BillService {
     } else {
       let errorBody = await response.json();
       console.error('Error in fetching bills - Status:', response.status);
-      console.error('Error Response:', JSON.stringify(errorBody, null, 2));
       return undefined;
     }
     
     if(totalBillSize==0){
-      console.log('Returning: No bills found - Property ID does not exist');
       return {                        
         totalBills: 0,             // Property ID not found or no bills linked
         pendingBills: undefined,
@@ -389,7 +377,6 @@ class BillService {
       }
     }
     else if(pendingBillSize==0){
-      console.log('Returning: Bills exist but no pending amounts - Property has zero/paid bills');
       return {
         totalBills: totalBillSize,  // Return actual count of bills found
         pendingBills: undefined,    // No pending bills
@@ -397,7 +384,6 @@ class BillService {
       } 
     }
     else{
-      console.log('Returning: Pending bills found');
       return {
         pendingBills: results,      // Pending bills exist
         totalBills: pendingBillSize,
@@ -478,7 +464,6 @@ class BillService {
       else
         billsForUser = await this.searchBillsForUser(user);
 
-      console.log('fetchBillsForParam result:', JSON.stringify(billsForUser, null, 2));
       
       // Return the full object with billsExist flag for proper handling
       return billsForUser;
