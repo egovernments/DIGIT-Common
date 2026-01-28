@@ -447,7 +447,7 @@ const pgr =  {
                           return Promise.resolve(null);
                         }
                       } catch (error) {
-                        console.error("🚨 [PGR-MACHINE] Error in PGR city search:", error);
+                        console.error("Error in PGR city search:", error);
                         return Promise.resolve(null);
                       }
                     },
