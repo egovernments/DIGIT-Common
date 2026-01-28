@@ -2526,8 +2526,8 @@ let messages = {
     swachNlpLocalitySearch: {
       question: {
         en_IN: "Enter the name of your locality.",
-        hi_IN: "अपने इलाके का नाम दर्ज करें। (उदाहरण के लिए - अजीत नगर)",
-        pa_IN: "ਆਪਣੇ ਸਥਾਨ ਦਾ ਨਾਮ ਦਰਜ ਕਰੋ. (ਉਦਾਹਰਣ ਵਜੋਂ - ਅਜੀਤ ਨਗਰ)",
+        hi_IN: "अपने इलाके का नाम दर्ज करें। (उदाहरण के लिए - Evergreen Park)",
+        pa_IN: "ਆਪਣੇ ਸਥਾਨ ਦਾ ਨਾਮ ਦਰਜ ਕਰੋ. (ਉਦਾਹਰਣ ਵਜੋਂ - Evergreen Park)",
       },
       confirmation: {
         en_IN:
