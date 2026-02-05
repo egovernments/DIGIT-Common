@@ -1,6 +1,9 @@
 # Build stage
 FROM golang:1.23-alpine AS builder
 
+# Build argument for working directory
+ARG WORK_DIR=.
+
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates tzdata
 
@@ -8,10 +11,10 @@ RUN apk add --no-cache git ca-certificates tzdata
 WORKDIR /app
 
 # Copy go mod files first
-COPY go.mod ./
+COPY ${WORK_DIR}/go.mod ./
 
 # Copy source code
-COPY . .
+COPY ${WORK_DIR}/ .
 
 # Download dependencies and generate go.sum
 RUN go mod tidy
@@ -37,9 +40,6 @@ WORKDIR /app
 
 # Copy binary from builder
 COPY --from=builder /app/server .
-
-# Copy migrations
-COPY --from=builder /app/db/migrations ./db/migrations
 
 # Change ownership
 RUN chown -R appuser:appgroup /app
