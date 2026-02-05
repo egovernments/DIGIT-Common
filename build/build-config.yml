@@ -70,3 +70,9 @@ config:
         dockerfile: "build/maven/Dockerfile"
       - work-dir: "egov-document-uploader/src/main/resources/db"
         image-name: "egov-document-uploader-db"
+
+  - name: "builds/digit-common/digit-user-preferences-service"
+    build:
+      - work-dir: "whatsapp-services/digit-user-preferences-service"
+        image-name: "digit-user-preferences-service"
+        dockerfile: "whatsapp-services/digit-user-preferences-service/Dockerfile"
