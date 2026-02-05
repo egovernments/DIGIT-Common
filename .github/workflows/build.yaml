@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - common-services
+          - whatsapp-services
         default: common-services
       service:
         description: 'Name of the service to build and deploy'
@@ -18,6 +19,7 @@ on:
           - "egov-document-uploader"
           - "egov-hrms"
           - "egov-bndry-mgmnt"
+          - "digit-user-preferences-service"
         default: "egov-hrms"
 
 env:
