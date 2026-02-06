@@ -1,8 +1,9 @@
 # Build stage
 FROM golang:1.23-alpine AS builder
 
-# Build argument for working directory
+# Build arguments
 ARG WORK_DIR=.
+ARG TARGETARCH
 
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates tzdata
@@ -19,8 +20,8 @@ COPY ${WORK_DIR}/ .
 # Download dependencies and generate go.sum
 RUN go mod tidy
 
-# Build the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+# Build the binary for target architecture
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build \
     -ldflags="-w -s" \
     -o /app/server \
     ./cmd/server
