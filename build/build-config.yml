@@ -103,4 +103,4 @@ config:
     build:
       - work-dir: "whatsapp-services/digit-config-service"
         image-name: "digit-config-service"
-        dockerfile: "build/maven/Dockerfile"
+        dockerfile: "whatsapp-services/digit-config-service/Dockerfile"
