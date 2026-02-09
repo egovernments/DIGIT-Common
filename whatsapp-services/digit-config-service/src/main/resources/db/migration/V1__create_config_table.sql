@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS eg_config (
     status          VARCHAR(32)   NOT NULL,
     environment     VARCHAR(32),
     description     VARCHAR(1024),
-    content         CLOB,
+    content         TEXT,
     created_by      VARCHAR(64),
     created_time    BIGINT,
     last_modified_by VARCHAR(64),

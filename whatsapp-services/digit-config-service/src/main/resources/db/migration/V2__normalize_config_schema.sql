@@ -63,7 +63,7 @@ CREATE TABLE eg_config_version (
     id                  VARCHAR(64)   PRIMARY KEY,
     config_id           VARCHAR(64)   NOT NULL,
     version             VARCHAR(64)   NOT NULL,
-    content             CLOB,
+    content             TEXT,
     schema_ref          VARCHAR(256),
     status              VARCHAR(32)   NOT NULL DEFAULT 'ACTIVE',
     created_by          VARCHAR(64),
