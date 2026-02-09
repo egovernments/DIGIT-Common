@@ -18,8 +18,7 @@ WORKDIR /opt/egov
 
 COPY --from=build /app/target/*.jar /opt/egov/
 
-RUN groupadd -g 1000 egov && \
-    useradd -u 1000 -g egov -s /bin/sh egov && \
+RUN useradd -r -s /bin/sh egov && \
     chown -R egov:egov /opt/egov
 
 USER egov
