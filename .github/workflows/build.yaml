@@ -20,6 +20,7 @@ on:
           - "egov-hrms"
           - "egov-bndry-mgmnt"
           - "digit-user-preferences-service"
+          - "digit-config-service"
         default: "egov-hrms"
 
 env:

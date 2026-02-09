@@ -98,3 +98,9 @@ config:
       - work-dir: "whatsapp-services/digit-user-preferences-service/db"
         image-name: "digit-user-preferences-service-db"
         dockerfile: "whatsapp-services/digit-user-preferences-service/db/Dockerfile"
+
+  - name: "builds/digit-common/digit-config-service"
+    build:
+      - work-dir: "whatsapp-services/digit-config-service"
+        image-name: "digit-config-service"
+        dockerfile: "build/maven/Dockerfile"
