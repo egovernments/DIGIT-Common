@@ -199,7 +199,7 @@ class TwilioWhatsAppProvider {
     async sendTextMessage(to, body) {
         const params = new URLSearchParams();
         params.append('To', `whatsapp:+91${to}`);
-        params.append('From', `whatsapp:+${this.whatsappNumber}`);
+        params.append('From', `whatsapp:${this.whatsappNumber.startsWith('+') ? this.whatsappNumber : '+' + this.whatsappNumber}`);
         params.append('Body', body);
 
         return this.sendTwilioRequest(params);
@@ -208,7 +208,7 @@ class TwilioWhatsAppProvider {
     async sendMediaMessage(to, mediaUrl, caption = '') {
         const params = new URLSearchParams();
         params.append('To', `whatsapp:+91${to}`);
-        params.append('From', `whatsapp:+${this.whatsappNumber}`);
+        params.append('From', `whatsapp:${this.whatsappNumber.startsWith('+') ? this.whatsappNumber : '+' + this.whatsappNumber}`);
         params.append('MediaUrl', mediaUrl);
         if (caption) {
             params.append('Body', caption);
@@ -220,7 +220,7 @@ class TwilioWhatsAppProvider {
     async sendTemplateMessage(to, contentSid, contentVariables = {}) {
         const params = new URLSearchParams();
         params.append('To', `whatsapp:+91${to}`);
-        params.append('From', `whatsapp:+${this.whatsappNumber}`);
+        params.append('From', `whatsapp:${this.whatsappNumber.startsWith('+') ? this.whatsappNumber : '+' + this.whatsappNumber}`);
         params.append('ContentSid', contentSid);
         if (Object.keys(contentVariables).length > 0) {
             params.append('ContentVariables', JSON.stringify(contentVariables));
