@@ -55,7 +55,7 @@ const envVariables = {
     twilio: {
         accountSid: process.env.TWILIO_ACCOUNT_SID || '',
         authToken: process.env.TWILIO_AUTH_TOKEN || '',
-        whatsappNumber: process.env.TWILLIO_WHATSAPP_NUMBER || '',
+        whatsappNumber: process.env.TWILIO_WHATSAPP_NUMBER || '',
     },
    
     valueFirstWhatsAppProvider: {
