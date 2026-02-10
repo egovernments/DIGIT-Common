@@ -164,7 +164,7 @@ let grammer = {
   reset: [
     {
       intention: "reset",
-      recognize: ["Hello", "hello", "Hi", "hi", "mseva", "seva", "सेवा"],
+      recognize: ["Hello", "hello", "Hi", "hi", "egov", "seva", "सेवा"],
     },
     {
       intention: "swachreset",

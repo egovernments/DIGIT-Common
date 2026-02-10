@@ -991,7 +991,7 @@ const receipts = {
           },
           process: {
             onEntry: assign((context, event) => {
-              var isValid = event.message.input.trim().toLowerCase() == 'mseva'
+              var isValid = event.message.input.trim().toLowerCase() == 'egov'
               context.receipts.slots.validInput = isValid;
 
             }),
@@ -1104,8 +1104,8 @@ let messages = {
       pa_IN: 'ਕਿਰਪਾ ਕਰਕੇ *{{option}}* ਦਾਖਲ ਕਰੋ\n\n{{example}}'
     },
     re_enter: {
-      en_IN: 'The entered {{option}} is not found in our records.\n\nPlease check the entered details and try again.\n\n👉 To go back to the main menu, type and send mseva.',
-      hi_IN: 'क्षमा करें, आपके द्वारा प्रदान किया गया मान गलत है। \n कृपया फिर से बिल प्राप्त करने के लिए {{option}} फिर से दर्ज करें।\n\nऔर टाइप करें "mseva" और मुख्य मेनू पर वापस जाएं।'
+      en_IN: 'The entered {{option}} is not found in our records.\n\nPlease check the entered details and try again.\n\n👉 To go back to the main menu, type and send egov.',
+      hi_IN: 'क्षमा करें, आपके द्वारा प्रदान किया गया मान गलत है। \n कृपया फिर से बिल प्राप्त करने के लिए {{option}} फिर से दर्ज करें।\n\nऔर टाइप करें "egov" और मुख्य मेनू पर वापस जाएं।'
     }
   },
   receiptSearchResults:{
@@ -1139,8 +1139,8 @@ let messages = {
       pa_IN: 'ਕਿਰਪਾ ਕਰਕੇ ਜਾਰੀ ਕਰਨ ਲਈ ਆਪਣੀ ਚੋਣ ਟਾਈਪ ਕਰੋ ਅਤੇ ਭੇਜੋ \n\n*1*. ਰਸੀਦਾਂ ਵੇਖੋ \n*2*. ਮੁੱਖ ਮੇਨੂ'
     },
     question: {
-      en_IN: '👉 To view last payment receipt, type and send *1*\n\n👉 To go back to the main menu, type and send *mseva*.',
-      hi_IN: '👉 अंतिम भुगतान रसीद देखने के लिए, टाइप करें और भेजें *1* \n\n👉 मुख्य मेनू पर वापस जाने के लिए, *mseva* टाइप करें और भेजें।'
+      en_IN: '👉 To view last payment receipt, type and send *1*\n\n👉 To go back to the main menu, type and send *egov*.',
+      hi_IN: '👉 अंतिम भुगतान रसीद देखने के लिए, टाइप करें और भेजें *1* \n\n👉 मुख्य मेनू पर वापस जाने के लिए, *egov* टाइप करें और भेजें।'
     },
     error:{
       en_IN: 'Selected option seems to be invalid 😐\n\nPlease select the valid option to proceed further.',
@@ -1210,8 +1210,8 @@ let messages = {
     }
   },
   lastState:{
-    en_IN: '👉 To go back to the main menu, type and send *mseva*.',
-    hi_IN: '👉 मुख्य मेनू पर वापस जाने के लिए, टाइप करें और *mseva* भेजें।',
+    en_IN: '👉 To go back to the main menu, type and send *egov*.',
+    hi_IN: '👉 मुख्य मेनू पर वापस जाने के लिए, टाइप करें और *egov* भेजें।',
     template: {
       en_IN: '*Consumer Number*\n{{id}}\n*Amount Paid*   {{amount}}\n*Paid On*   {{date}}',
       hi_IN: '*Consumer Number*\n{{id}}\n*Amount Paid*   {{amount}}\n*Paid On*   {{date}}'
