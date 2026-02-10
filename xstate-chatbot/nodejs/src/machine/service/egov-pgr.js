@@ -578,11 +578,8 @@ class PGRService {
     let encodedPath = urlencode(serviceRequestId, "utf8");
     let url =
       config.egovServices.externalHost +
-      "citizen/otpLogin?mobileNo=" +
-      mobileNumber +
-      "&redirectTo=digit-ui/citizen/pgr/complaints/" +
-      encodedPath +
-      "&channel=whatsapp&tag=complaintTrack";
+      "digit-ui/citizen/pgr/complaints/" +
+      encodedPath;
     let shortURL = await this.getShortenedURL(url);
     return shortURL;
   }

@@ -62,14 +62,42 @@ class TwilioWhatsAppProvider {
         url = url + '&';
         url = url + 'fileStoreIds=' + filestoreId;
 
+        console.log("Twilio - Fetching filestore URL:", url);
+
         var options = {
             method: "GET",
             origin: '*'
         }
-        let response = await fetch(url, options);
-        response = await (response).json();
-        var fileURL = response['fileStoreIds'][0]['url'].split(",");
-        return fileURL[0].toString();
+        
+        try {
+            let response = await fetch(url, options);
+            
+            if (!response.ok) {
+                console.error("Twilio - Filestore API error:", response.status, response.statusText);
+                throw new Error(`Filestore API returned ${response.status}: ${response.statusText}`);
+            }
+            
+            let responseData = await response.json();
+            console.log("Twilio - Filestore API response:", JSON.stringify(responseData, null, 2));
+            
+            if (!responseData || !responseData.fileStoreIds || !Array.isArray(responseData.fileStoreIds) || responseData.fileStoreIds.length === 0) {
+                console.error("Twilio - Invalid filestore response structure:", responseData);
+                throw new Error("Invalid filestore response: missing fileStoreIds array");
+            }
+            
+            if (!responseData.fileStoreIds[0] || !responseData.fileStoreIds[0].url) {
+                console.error("Twilio - Missing URL in filestore response:", responseData.fileStoreIds[0]);
+                throw new Error("Invalid filestore response: missing url property");
+            }
+            
+            var fileURL = responseData.fileStoreIds[0].url.split(",");
+            console.log("Twilio - Successfully extracted file URL:", fileURL[0]);
+            return fileURL[0].toString();
+            
+        } catch (error) {
+            console.error("Twilio - Error in getFileForFileStoreId:", error);
+            throw error;
+        }
     }
 
     async isValid(requestBody) {
@@ -295,10 +323,18 @@ class TwilioWhatsAppProvider {
                 }
                 else if (type === 'image' || type === 'pdf') {
                     // For media messages, get the file URL
-                    let fileStoreId = content;
-                    let fileURL = await this.getFileForFileStoreId(fileStoreId);
-                    let caption = extraInfo && extraInfo.fileName ? extraInfo.fileName : '';
-                    await this.sendMediaMessage(userMobile, fileURL, caption);
+                    try {
+                        let fileStoreId = content;
+                        console.log("Twilio - Attempting to fetch filestore ID:", fileStoreId);
+                        let fileURL = await this.getFileForFileStoreId(fileStoreId);
+                        let caption = extraInfo && extraInfo.fileName ? extraInfo.fileName : '';
+                        await this.sendMediaMessage(userMobile, fileURL, caption);
+                    } catch (fileError) {
+                        console.error("Twilio - Failed to send media message:", fileError.message);
+                        // Send a fallback text message instead
+                        let fallbackMessage = "Sorry, we couldn't load the instructional image. Please proceed with location sharing or type *1* to continue without sharing location.";
+                        await this.sendTextMessage(userMobile, fallbackMessage);
+                    }
                 }
                 else {
                     // Default to text message
