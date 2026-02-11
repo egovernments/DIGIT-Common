@@ -134,13 +134,19 @@ const receipts = {
                 },
                 {
                   cond: (context, event) => {
-                    return ( event .data && event.data.length==1);
+                    return ( event .data && event.data.length==1 && !event.data[0].connectionExistsNoPayments);
                   },
                   actions: assign((context, event) => {
                     context.receipts.slots.searchresults = event.data;
                     context.receipts.slots.receiptNumber = 1;
                   }),
                   target: '#multipleRecordReceipt',
+                },
+                {
+                  cond: (context, event) => {
+                    return ( event .data && event.data.length==1 && event.data[0] && event.data[0].connectionExistsNoPayments);
+                  },
+                  target:'#wsConnectionExistsNoPayments'
                 },
                 {
                   target:'#noReceipts'
@@ -218,6 +224,25 @@ const receipts = {
           dialog.sendMessage(context, message, true);
         }),
         always:'#paramReceiptInput'
+      },
+
+      wsConnectionExistsNoPayments:{
+        id:'wsConnectionExistsNoPayments',
+        onEntry: assign((context, event) => {
+          let { services, messageBundle } = receiptService.getSupportedServicesAndMessageBundle();
+          let businessService = context.receipts.slots.service;
+          let receiptServiceName = dialog.get_message(messageBundle[businessService],context.user.locale);
+          
+          // Get connection number from the special result
+          let connectionNumber = event.data[0].connectionNumber;
+
+          let message = dialog.get_message(messages.receiptSlip.connection_exists_no_payments, context.user.locale);
+          message = message.replace('{{connectionNumber}}', connectionNumber);
+          message = message.replace('{{service}}', receiptServiceName.toLowerCase());
+
+          dialog.sendMessage(context, message, true);
+        }),
+        always:'#services'
       },
 
       openSearchInititate: {
@@ -504,13 +529,19 @@ const receipts = {
               },
               onDone:[
                 {
-                  target: 'results',
                   cond:(context,event)=>{
-                    return event.data.length>0
+                    return event.data && Array.isArray(event.data) && event.data.length > 0 && !(event.data[0] && event.data[0].connectionExistsNoPayments);
                   },
                   actions: assign((context, event) => {
                     context.receipts.slots.searchresults = event.data;
                   }),
+                  target: 'results',
+                },
+                {
+                  cond:(context,event)=>{
+                    return event.data && Array.isArray(event.data) && event.data.length === 1 && event.data[0] && event.data[0].connectionExistsNoPayments;
+                  },
+                  target:'#wsConnectionExistsNoPayments'
                 },
                 {
                   target:'norecords'
@@ -1041,6 +1072,10 @@ let messages = {
     error:{
       en_IN:'Sorry. Some error occurred on server.',
       hi_IN: 'माफ़ करना। सर्वर पर कुछ त्रुटि हुई!'
+    },
+    connection_exists_no_payments:{
+      en_IN: '✅ Connection Number *{{connectionNumber}}* is valid and exists in our system.\n\nHowever, no payment history was found for this {{service}} connection.\n\nThis could mean:\n• No bills have been paid yet for this connection\n• Bills were paid through other channels\n• Payment records are not yet updated in the system\n\n👉 To go back to the main menu, type and send *egov*.',
+      hi_IN: '✅ कनेक्शन नंबर *{{connectionNumber}}* वैध है और हमारी प्रणाली में मौजूद है।\n\nहालांकि, इस {{service}} कनेक्शन के लिए कोई भुगतान इतिहास नहीं मिला।\n\nइसका मतलब हो सकता है:\n• इस कनेक्शन के लिए अभी तक कोई बिल का भुगतान नहीं किया गया है\n• बिल अन्य चैनलों के माध्यम से भुगतान किए गए हैं\n• भुगतान रिकॉर्ड अभी तक सिस्टम में अपडेट नहीं हुए हैं\n\n👉 मुख्य मेनू पर वापस जाने के लिए, *egov* टाइप करें और भेजें।'
     },
     listofreceipts:{
       singleRecord: {

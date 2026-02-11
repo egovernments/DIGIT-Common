@@ -360,7 +360,6 @@ class ReceiptService {
     }
 
     async findreceipts(user,service){
-
       if(service === 'WS'){
         let businessService = ['WS','SW'];
         return await this.findReceiptsForMutipleBusinsessService(user,businessService,user.locale);
@@ -372,18 +371,86 @@ class ReceiptService {
 
       else
           return await this.findreceiptsList(user,service,user.locale);
-
-
     }
 
     async findReceiptsForMutipleBusinsessService(user,businessService,locale){
+      // For WS service with connectionNumber search, first verify connection exists
+      let connectionExists = false;
+      if (user.paramOption === 'connectionNumber' && businessService.includes('WS')) {
+        connectionExists = await this.verifyWSConnectionExists(user.paramInput, user.authToken);
+        
+        if (!connectionExists) {
+          return [];
+        }
+      }
+      
       let receiptResults=[];
       for(let service of businessService){
         let results = await this.findreceiptsList(user,service,locale);
         if(results && results.length>0)
           receiptResults = receiptResults.concat(results);
       }
+      
+      // If connection exists but no payment records found, return special indicator
+      if (connectionExists && receiptResults.length === 0) {
+        return [{ connectionExistsNoPayments: true, connectionNumber: user.paramInput }];
+      }
+      
       return receiptResults;
+    }
+
+    async verifyWSConnectionExists(connectionNumber, authToken) {
+      let requestBody = {
+        RequestInfo: {
+          authToken: authToken
+        }
+      };
+      
+      let options = {
+        method: 'POST',
+        origin: '*',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      };
+      
+      try {
+        // First try with 'pg' tenant ID
+        let wsUrl = config.egovServices.externalHost + config.egovServices.waterConnectionSearch;
+        wsUrl = wsUrl + '&tenantId=' + config.rootTenantId;
+        wsUrl = wsUrl + '&connectionNumber=' + connectionNumber;
+        
+        let response = await fetch(wsUrl, options);
+        
+        if (response.status === 200) {
+          let responseBody = await response.json();
+          
+          if (responseBody.WaterConnection && responseBody.WaterConnection.length > 0) {
+            return true;
+          } else {
+            // Try with 'pg.citya' tenant ID
+            let wsUrlCitya = config.egovServices.externalHost + config.egovServices.waterConnectionSearch;
+            wsUrlCitya = wsUrlCitya + '&tenantId=pg.citya';
+            wsUrlCitya = wsUrlCitya + '&connectionNumber=' + connectionNumber;
+            
+            let responseCitya = await fetch(wsUrlCitya, options);
+            
+            if (responseCitya.status === 200) {
+              let responseBodyCitya = await responseCitya.json();
+              
+              if (responseBodyCitya.WaterConnection && responseBodyCitya.WaterConnection.length > 0) {
+                return true;
+              }
+            }
+          }
+        }
+        
+        return false;
+      } catch (error) {
+        console.error('Error checking WS connection:', error);
+        return false;
+      }
     }
 
     async fetchReceiptsForParam(user, service, searchParamOption, paraminput) {
@@ -392,7 +459,7 @@ class ReceiptService {
         if(paraminput)  
           user.paramInput=paraminput;
         if(service === 'WS' || service === 'BPA'){
-          return await this.findreceipts(user,service)
+          return await this.findreceipts(user,service);
         }
         else
           return await this.findreceiptsList(user,service,user.locale);

@@ -123,6 +123,7 @@ const envVariables = {
     userService: {
         userServiceHardCodedPassword: process.env.USER_SERVICE_HARDCODED_PASSWORD || '123456',
         userLoginAuthorizationHeader: process.env.USER_LOGIN_AUTHORIZATION_HEADER || 'Basic ZWdvdi11c2VyLWNsaWVudDo=',
+        systemUserMobile: process.env.SYSTEM_USER_MOBILE || '9999999999',
     },
 
     pgrUseCase: {

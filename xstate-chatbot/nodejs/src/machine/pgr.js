@@ -892,7 +892,7 @@ const pgr =  {
           {
             target: '#endstate',
             cond: (context, event) => {
-              return event.data.length>0;
+              return event.data && Array.isArray(event.data) && event.data.length > 0;
             },
             actions: assign((context, event) => {
               (async() => {   

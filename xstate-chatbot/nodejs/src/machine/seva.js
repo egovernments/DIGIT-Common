@@ -753,7 +753,7 @@ let messages = {
   onboarding: {
     onboardingWelcome: {
       en_IN:
-        "Dear Citizen,\n\nWelcome to eGov Punjab 🙏\n\nNow you can file/ track your complaints and pay your bills via WhatsApp.",
+        "Dear Citizen,\n\nWelcome to the eGov Whatsapp Chatbot experience 🙏\n\nNow you can file/ track your complaints and pay your bills via WhatsApp.",
       hi_IN:
         "प्रिय नागरिक,\n\neGov पंजाब में आपका स्वागत है 🙏\n\nअब आप व्हाट्सएप के माध्यम से अपनी शिकायतें दर्ज/ट्रैक कर सकते हैं और अपने बिलों का भुगतान कर सकते हैं।",
       pa_IN:
@@ -832,7 +832,7 @@ let messages = {
   },
   welcome: {
     en_IN:
-      "Dear {{name}},\n\nWelcome to eGov Punjab 🙏.\n\nNow you can file/ track your complaints and pay your bills via WhatsApp.\n",
+      "Dear {{name}},\n\nWelcome to eGov WhatsApp chatbot 🙏.\n\nNow you can file/ track your complaints and pay your bills via WhatsApp.\n",
     hi_IN:
       "नमस्ते {{name}},\n\neGov पंजाब में आपका स्वागत है 🙏।\n\nअब आप WhatsApp द्वारा कई सुविधाओं का लाभ ले सकते है जैसे शिकायत दर्ज करना, बिल का भुगतान करना।",
   },

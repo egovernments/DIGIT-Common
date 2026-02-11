@@ -2272,7 +2272,7 @@ const swach = {
         },
         onDone: [
           {
-            cond: (_, event) => event.data.complaints.length > 0,
+            cond: (_, event) => event.data && event.data.complaints && Array.isArray(event.data.complaints) && event.data.complaints.length > 0,
             target: "#swachWelcome",
           },
           {

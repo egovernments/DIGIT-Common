@@ -284,7 +284,7 @@ class BillService {
     }
     
 
-    /*if(Bills['Bills'].length>0){
+    if(Bills['Bills'].length>0){
       var stateLevelCode = "TENANT_TENANTS_"+config.rootTenantId.toUpperCase();
       var businessService = Bills['Bills'][0].businessService;
       tenantIdList.push(stateLevelCode);
@@ -292,10 +292,10 @@ class BillService {
       let cosumerCodeToLocalityMap;
     
       if(businessServiceList.includes(businessService))
-        cosumerCodeToLocalityMap = await this.getApplicationNumber(Bills['Bills'], businessService, authToken, locale);
+        cosumerCodeToLocalityMap = await this.getApplicationNumber(Bills['Bills'], businessService, user.authToken, locale, user);
     
       else
-        cosumerCodeToLocalityMap = await this.getLocality(consumerCodeList, authToken, businessService, locale);
+        cosumerCodeToLocalityMap = await this.getLocality(consumerCodeList, user.authToken, businessService, locale, user);
     
       let localisedMessages = await localisationService.getMessagesForCodesAndTenantId(tenantIdList, config.rootTenantId);
 
@@ -312,17 +312,50 @@ class BillService {
         }
       }
 
-    }*/
+    }
     
     return Bills['Bills'];  
   }
 
   async searchBillsForUser(user) {
+    // Try with user auth token first, fallback to system auth if needed
+    let authToken = user.authToken;
+    let userInfo = user.userInfo;
+    
+    // If no valid user auth, try to create a system user auth token
+    if (!authToken || !userInfo) {
+      console.log("User auth not available, attempting system authentication for bill search");
+      try {
+        const systemAuth = await this.getSystemAuthToken();
+        if (systemAuth) {
+          authToken = systemAuth.authToken;
+          userInfo = systemAuth.userInfo;
+          console.log("Using system authentication for bill search");
+        }
+      } catch (error) {
+        console.log("System auth failed, using fallback userInfo:", error.message);
+      }
+    }
 
     let requestBody = {
       RequestInfo: {
-        authToken: user.authToken,
-        userInfo: user.userInfo || {}
+        authToken: authToken,
+        userInfo: userInfo || {
+          id: 1,
+          uuid: "dummy-uuid",
+          userName: user.mobileNumber,
+          name: user.name || "Anonymous",
+          mobileNumber: user.mobileNumber,
+          emailId: "",
+          locale: user.locale || "en_IN",
+          type: "CITIZEN",
+          roles: [{
+            code: "CITIZEN",
+            name: "Citizen"
+          }],
+          active: true,
+          tenantId: config.rootTenantId
+        }
       }
     };
 
@@ -499,12 +532,12 @@ class BillService {
     paymentPath = paymentPath.replace(/\$mobileNumber/g,user.mobileNumber);
 
     // Use OTP login flow for proper authentication like PGR service
-    var finalPath = UIHost + "citizen/otpLogin?mobileNo=" + user.mobileNumber + "&redirectTo=" + paymentPath;
+    var finalPath = UIHost + "citizen/otpLogin?mobileNo=" + user.mobileNumber + "&redirectTo=" + encodeURIComponent(paymentPath);
     var link = await this.getShortenedURL(finalPath);
     return link;
   }
 
-  async getLocality(consumerCodes, authToken, businessService, locale){
+  async getLocality(consumerCodes, authToken, businessService, locale, user){
 
     let supportedService = JSON.parse(supportedServiceForLocality);
     businessService = supportedService[businessService];
@@ -515,7 +548,18 @@ class BillService {
 
     let requestBody = {
       RequestInfo: {
-        authToken: authToken
+        apiId: "Rainmaker",
+        ver: "1.0", 
+        ts: Date.now(),
+        action: "_search",
+        authToken: authToken,
+        userInfo: {
+          id: user.userInfo?.id || 1,
+          uuid: user.userInfo?.uuid || "dummy-uuid", 
+          type: "CITIZEN",
+          mobileNumber: user.mobileNumber,
+          name: user.name
+        }
       },
       searchCriteria: {
         referenceNumber: consumerCodes,
@@ -569,11 +613,22 @@ class BillService {
 
   }
 
-  async getApplicationNumber(Bills, businessService, authToken, locale){
+  async getApplicationNumber(Bills, businessService, authToken, locale, user){
 
     let requestBody = {
       RequestInfo: {
-        authToken: authToken
+        apiId: "Rainmaker",
+        ver: "1.0",
+        ts: Date.now(),
+        action: "_search",
+        authToken: authToken,
+        userInfo: {
+          id: user.userInfo?.id || 1,
+          uuid: user.userInfo?.uuid || "dummy-uuid",
+          type: "CITIZEN",
+          mobileNumber: user.mobileNumber,
+          name: user.name
+        }
       }
     };
 
@@ -619,7 +674,7 @@ class BillService {
       }
     }
 
-    let cosumerCodeToLocalityMap = await this.getLocality(applicationNumbersList, authToken, businessService,locale);
+    let cosumerCodeToLocalityMap = await this.getLocality(applicationNumbersList, authToken, businessService, locale, user);
 
     let messageBundle = {};
     for(var i=0;i<applicationNumbersList.length;i++){
@@ -646,6 +701,47 @@ class BillService {
     var finalPath = UIHost + paymentPath;
     var link =  await this.getShortenedURL(finalPath);
     return link;
+  }
+
+  async getSystemAuthToken() {
+    // Create a system user token for bill searching when user auth is not available
+    const userService = require('../../session/user-service');
+    
+    try {
+      // Use configured system mobile number
+      const systemMobileNumber = config.userService.systemUserMobile;
+      console.log(`Attempting system auth with mobile: ${systemMobileNumber}`);
+      
+      const systemAuth = await userService.loginUser(systemMobileNumber, config.rootTenantId);
+      
+      if (systemAuth && systemAuth.authToken) {
+        console.log("System authentication successful");
+        return systemAuth;
+      }
+      
+      // If system user doesn't exist, try to create it
+      console.log("System user not found, attempting to create");
+      const createResult = await userService.createUser(systemMobileNumber, config.rootTenantId);
+      
+      if (createResult) {
+        // Small delay for user creation to complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Retry login after creation
+        const retryAuth = await userService.loginUser(systemMobileNumber, config.rootTenantId);
+        if (retryAuth && retryAuth.authToken) {
+          console.log("System authentication successful after user creation");
+          return retryAuth;
+        }
+      }
+      
+      console.log("System authentication failed - no valid token obtained");
+      return null;
+      
+    } catch (error) {
+      console.log("System authentication error:", error.message);
+      return null;
+    }
   }
 
 }
