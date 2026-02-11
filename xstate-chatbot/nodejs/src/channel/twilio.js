@@ -66,7 +66,11 @@ class TwilioWhatsAppProvider {
 
         var options = {
             method: "GET",
-            origin: '*'
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
         }
         
         try {

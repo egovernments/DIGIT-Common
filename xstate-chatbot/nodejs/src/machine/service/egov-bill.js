@@ -498,7 +498,8 @@ class BillService {
     paymentPath = paymentPath.replace(/\$name/g,user.name);
     paymentPath = paymentPath.replace(/\$mobileNumber/g,user.mobileNumber);
 
-    var finalPath = UIHost + paymentPath;
+    // Use OTP login flow for proper authentication like PGR service
+    var finalPath = UIHost + "citizen/otpLogin?mobileNo=" + user.mobileNumber + "&redirectTo=" + encodeURIComponent(paymentPath);
     var link = await this.getShortenedURL(finalPath);
     return link;
   }
