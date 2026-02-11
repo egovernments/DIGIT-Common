@@ -606,9 +606,16 @@ class ReceiptService {
       }
   
       let localities = [];
-      for(let result of localitySearchResults.Localities){
-        if(!localities.includes(result.locality))
-          localities.push(result.locality);
+      
+      // Handle case where Localities array doesn't exist or is empty
+      if(localitySearchResults.Localities && localitySearchResults.Localities.length > 0) {
+        for(let result of localitySearchResults.Localities){
+          if(!localities.includes(result.locality))
+            localities.push(result.locality);
+        }
+      } else {
+        console.log('No localities found for consumer codes - returning empty mapping');
+        return {};
       }
   
       let localitiesLocalisationCodes = [];
