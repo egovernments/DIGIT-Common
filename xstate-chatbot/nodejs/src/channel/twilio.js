@@ -69,7 +69,18 @@ class TwilioWhatsAppProvider {
             headers: {
                 'Accept': 'application/json, text/plain, */*',
                 'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache'
+                'Cache-Control': 'no-cache',
+                'authority': 'unified-demo.digit.org',
+                'accept-language': 'en-GB,en;q=0.9',
+                'pragma': 'no-cache',
+                'referer': 'https://unified-demo.digit.org/digit-ui/employee/dss/dashboard/fsm',
+                'sec-ch-ua': '"Google Chrome";v="107", "Chromium";v="107", "Not=A?Brand";v="24"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'same-origin',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
             }
         }
         
