@@ -575,6 +575,10 @@ class ReceiptService {
   
       let requestBody = {
         RequestInfo: {
+          apiId: "Rainmaker",
+          ver: "1.0", 
+          ts: Date.now(),
+          action: "_search",
           authToken: authToken
         },
         searchCriteria: {
