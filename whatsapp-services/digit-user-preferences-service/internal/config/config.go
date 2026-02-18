@@ -41,7 +41,7 @@ func Load() *Config {
 	return &Config{
 		Server: ServerConfig{
 			Port:            getEnv("SERVER_PORT", "8080"),
-			ContextPath:     getEnv("SERVER_CONTEXT_PATH", "/user-preference"),
+			ContextPath:     getEnv("SERVER_CONTEXT_PATH", "/user-preferences"),
 			ReadTimeout:     getDurationEnv("SERVER_READ_TIMEOUT", 15*time.Second),
 			WriteTimeout:    getDurationEnv("SERVER_WRITE_TIMEOUT", 15*time.Second),
 			ShutdownTimeout: getDurationEnv("SERVER_SHUTDOWN_TIMEOUT", 30*time.Second),

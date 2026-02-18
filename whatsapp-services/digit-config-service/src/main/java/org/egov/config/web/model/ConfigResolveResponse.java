@@ -1,8 +1,6 @@
 package org.egov.config.web.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,24 +13,34 @@ import lombok.NoArgsConstructor;
 public class ConfigResolveResponse {
 
     @JsonProperty("ResponseInfo")
-    @Valid
     private ResponseInfo responseInfo;
 
-    @JsonProperty("tenantId")
-    private String tenantId;
+    @JsonProperty("resolved")
+    private ResolvedEntry resolved;
 
-    @JsonProperty("namespace")
-    private String namespace;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ResolvedEntry {
 
-    @JsonProperty("configCode")
-    private String configCode;
+        @JsonProperty("entry")
+        private ConfigEntry entry;
 
-    @JsonProperty("version")
-    private String version;
+        @JsonProperty("resolutionMeta")
+        private ResolutionMeta resolutionMeta;
+    }
 
-    @JsonProperty("content")
-    private JsonNode content;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ResolutionMeta {
 
-    @JsonProperty("resolvedFrom")
-    private String resolvedFrom;
+        @JsonProperty("matchedTenant")
+        private String matchedTenant;
+
+        @JsonProperty("matchedLocale")
+        private String matchedLocale;
+    }
 }

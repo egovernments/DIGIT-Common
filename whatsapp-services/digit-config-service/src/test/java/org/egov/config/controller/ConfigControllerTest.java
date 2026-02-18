@@ -1,6 +1,5 @@
 package org.egov.config.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.egov.config.web.model.*;
@@ -10,9 +9,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -35,369 +31,318 @@ class ConfigControllerTest {
                 .build();
     }
 
-    // ==================== ConfigSet Tests ====================
+    // ==================== Create Tests ====================
 
     @Test
-    void configSet_createAndSearch() throws Exception {
-        ConfigSetRequest req = ConfigSetRequest.builder()
+    void create_success() throws Exception {
+        ObjectNode value = objectMapper.createObjectNode();
+        value.put("templateId", "bill_tpl_001");
+        value.put("workflowId", "whatsapp-bill");
+
+        ConfigEntryCreateRequest req = ConfigEntryCreateRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .configSet(ConfigSet.builder()
-                        .tenantId("tenant.cs1").name("Test Set").code("TEST_SET_1")
-                        .description("Test config set").build())
+                .entry(ConfigEntry.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("billing")
+                        .eventType("BILL_GENERATED")
+                        .channel("WHATSAPP")
+                        .tenantId("pb.amritsar")
+                        .locale("en_IN")
+                        .value(value)
+                        .build())
                 .build();
 
-        mockMvc.perform(post("/config-set/v1/_create")
+        mockMvc.perform(post("/config/v1/entry/_create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.configSets[0].id", notNullValue()))
-                .andExpect(jsonPath("$.configSets[0].code", is("TEST_SET_1")));
-
-        ConfigSetSearchRequest searchReq = ConfigSetSearchRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .criteria(ConfigSetSearchCriteria.builder().tenantId("tenant.cs1").build())
-                .build();
-
-        mockMvc.perform(post("/config-set/v1/_search")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(searchReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.configSets", hasSize(greaterThanOrEqualTo(1))));
+                .andExpect(jsonPath("$.entry.id", notNullValue()))
+                .andExpect(jsonPath("$.entry.configCode", is("NOTIF_TEMPLATE_MAP")))
+                .andExpect(jsonPath("$.entry.eventType", is("BILL_GENERATED")))
+                .andExpect(jsonPath("$.entry.channel", is("WHATSAPP")))
+                .andExpect(jsonPath("$.entry.revision", is(1)));
     }
 
     @Test
-    void configSet_duplicateReturns400() throws Exception {
-        ConfigSetRequest req = ConfigSetRequest.builder()
+    void create_missingConfigCode_returns400() throws Exception {
+        ObjectNode value = objectMapper.createObjectNode();
+        value.put("result", "data");
+
+        ConfigEntryCreateRequest req = ConfigEntryCreateRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .configSet(ConfigSet.builder()
-                        .tenantId("tenant.dup").name("Dup Set").code("DUP_SET").build())
+                .entry(ConfigEntry.builder()
+                        .tenantId("pb")
+                        .value(value)
+                        .build())
                 .build();
 
-        mockMvc.perform(post("/config-set/v1/_create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)));
-
-        mockMvc.perform(post("/config-set/v1/_create")
+        mockMvc.perform(post("/config/v1/entry/_create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.Errors[0].code", is("DUPLICATE_CONFIG_SET")));
+                .andExpect(jsonPath("$.Errors[0].code", is("INVALID_CONFIG_CODE")));
     }
 
-    @Test
-    void configSet_activateDeactivatesPrevious() throws Exception {
-        // Create two sets
-        for (String code : List.of("SET_A", "SET_B")) {
-            ConfigSetRequest req = ConfigSetRequest.builder()
-                    .requestInfo(buildRequestInfo())
-                    .configSet(ConfigSet.builder()
-                            .tenantId("tenant.act").name(code).code(code).build())
-                    .build();
-            mockMvc.perform(post("/config-set/v1/_create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(req)));
-        }
-
-        // Search to get IDs
-        ConfigSetSearchRequest search = ConfigSetSearchRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .criteria(ConfigSetSearchCriteria.builder().tenantId("tenant.act").code("SET_A").build())
-                .build();
-        String resp = mockMvc.perform(post("/config-set/v1/_search")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(search)))
-                .andReturn().getResponse().getContentAsString();
-        String setAId = objectMapper.readTree(resp).at("/configSets/0/id").asText();
-
-        // Activate SET_A
-        ConfigSetActivateRequest activateReq = ConfigSetActivateRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .tenantId("tenant.act").configSetId(setAId)
-                .build();
-
-        mockMvc.perform(post("/config-set/v1/_activate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(activateReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("ACTIVE")));
-    }
-
-    // ==================== Config Catalog Tests ====================
+    // ==================== Search Tests ====================
 
     @Test
-    void config_createWithVersion() throws Exception {
-        ObjectNode content = objectMapper.createObjectNode();
-        content.put("key1", "value1");
+    void search_byConfigCodeAndTenant() throws Exception {
+        ObjectNode value = objectMapper.createObjectNode();
+        value.put("template", "payment_tpl");
 
-        ConfigRequest req = ConfigRequest.builder()
+        ConfigEntryCreateRequest createReq = ConfigEntryCreateRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .config(Config.builder()
-                        .tenantId("tenant.cfg1").namespace("runtime").configName("Test Config")
-                        .configCode("CFG_001").status("ACTIVE").environment("dev")
-                        .versions(List.of(ConfigVersion.builder()
-                                .version("v1").content(content).build()))
+                .entry(ConfigEntry.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("payments")
+                        .eventType("PAYMENT_DONE")
+                        .channel("WHATSAPP")
+                        .tenantId("pb.jalandhar")
+                        .locale("en_IN")
+                        .value(value)
                         .build())
                 .build();
 
-        mockMvc.perform(post("/v1/_create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.configs[0].id", notNullValue()))
-                .andExpect(jsonPath("$.configs[0].versions[0].version", is("v1")));
-    }
-
-    @Test
-    void config_searchWithVersions() throws Exception {
-        ObjectNode content = objectMapper.createObjectNode();
-        content.put("data", "searchable");
-
-        ConfigRequest createReq = ConfigRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .config(Config.builder()
-                        .tenantId("tenant.srch").namespace("search-ns").configName("Search Config")
-                        .configCode("SRCH_001").status("ACTIVE")
-                        .versions(List.of(ConfigVersion.builder()
-                                .version("v1").content(content).build()))
-                        .build())
-                .build();
-
-        mockMvc.perform(post("/v1/_create")
+        mockMvc.perform(post("/config/v1/entry/_create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createReq)));
 
-        ConfigSearchRequest searchReq = ConfigSearchRequest.builder()
+        ConfigEntrySearchRequest searchReq = ConfigEntrySearchRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .criteria(ConfigSearchCriteria.builder()
-                        .tenantId("tenant.srch").namespace("search-ns").build())
-                .build();
-
-        mockMvc.perform(post("/v1/_search")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(searchReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.configs", hasSize(1)))
-                .andExpect(jsonPath("$.configs[0].versions", hasSize(1)))
-                .andExpect(jsonPath("$.pagination.totalCount", is(1)));
-    }
-
-    @Test
-    void config_updateAddsNewVersion() throws Exception {
-        ObjectNode v1Content = objectMapper.createObjectNode();
-        v1Content.put("val", "original");
-
-        ConfigRequest createReq = ConfigRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .config(Config.builder()
-                        .tenantId("tenant.upd").namespace("update-ns").configName("Update Config")
-                        .configCode("UPD_001").status("ACTIVE")
-                        .versions(List.of(ConfigVersion.builder()
-                                .version("v1").content(v1Content).build()))
+                .criteria(ConfigEntrySearchCriteria.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .tenantId("pb.jalandhar")
                         .build())
                 .build();
 
-        String createResp = mockMvc.perform(post("/v1/_create")
+        mockMvc.perform(post("/config/v1/entry/_search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.entries", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$.pagination.totalCount", greaterThanOrEqualTo(1)));
+    }
+
+    @Test
+    void search_byEventTypeAndChannel() throws Exception {
+        ObjectNode value = objectMapper.createObjectNode();
+        value.put("template", "sms_water");
+
+        ConfigEntryCreateRequest createReq = ConfigEntryCreateRequest.builder()
+                .requestInfo(buildRequestInfo())
+                .entry(ConfigEntry.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("ws")
+                        .eventType("WATER_BILL")
+                        .channel("SMS")
+                        .tenantId("pb.mohali")
+                        .value(value)
+                        .build())
+                .build();
+
+        mockMvc.perform(post("/config/v1/entry/_create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createReq)));
+
+        ConfigEntrySearchRequest searchReq = ConfigEntrySearchRequest.builder()
+                .requestInfo(buildRequestInfo())
+                .criteria(ConfigEntrySearchCriteria.builder()
+                        .eventType("WATER_BILL")
+                        .channel("SMS")
+                        .build())
+                .build();
+
+        mockMvc.perform(post("/config/v1/entry/_search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(searchReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.entries", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$.entries[0].eventType", is("WATER_BILL")))
+                .andExpect(jsonPath("$.entries[0].channel", is("SMS")));
+    }
+
+    // ==================== Update Tests ====================
+
+    @Test
+    void update_changesValueAndIncrementsRevision() throws Exception {
+        ObjectNode originalValue = objectMapper.createObjectNode();
+        originalValue.put("template", "licence_v1");
+
+        ConfigEntryCreateRequest createReq = ConfigEntryCreateRequest.builder()
+                .requestInfo(buildRequestInfo())
+                .entry(ConfigEntry.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("tl")
+                        .eventType("LICENCE_ISSUED")
+                        .channel("WHATSAPP")
+                        .tenantId("pb.ludhiana")
+                        .value(originalValue)
+                        .build())
+                .build();
+
+        String createResp = mockMvc.perform(post("/config/v1/entry/_create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createReq)))
                 .andReturn().getResponse().getContentAsString();
 
-        JsonNode node = objectMapper.readTree(createResp);
-        String configId = node.at("/configs/0/id").asText();
+        String entryId = objectMapper.readTree(createResp).at("/entry/id").asText();
 
-        ObjectNode v2Content = objectMapper.createObjectNode();
-        v2Content.put("val", "updated");
+        ObjectNode updatedValue = objectMapper.createObjectNode();
+        updatedValue.put("template", "licence_v2");
 
-        ConfigRequest updateReq = ConfigRequest.builder()
+        ConfigEntryUpdateRequest updateReq = ConfigEntryUpdateRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .config(Config.builder()
-                        .id(configId).tenantId("tenant.upd").namespace("update-ns")
-                        .configName("Update Config").configCode("UPD_001").status("ACTIVE")
-                        .versions(List.of(ConfigVersion.builder()
-                                .version("v2").content(v2Content).build()))
-                        .auditDetails(AuditDetails.builder().createdBy("test-user").createdTime(System.currentTimeMillis()).build())
+                .entry(ConfigEntry.builder()
+                        .id(entryId)
+                        .revision(1)
+                        .value(updatedValue)
                         .build())
                 .build();
 
-        mockMvc.perform(post("/v1/_update")
+        mockMvc.perform(post("/config/v1/entry/_update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateReq)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.configs[0].versions[0].version", is("v2")));
+                .andExpect(jsonPath("$.entry.revision", is(2)))
+                .andExpect(jsonPath("$.entry.value.template", is("licence_v2")));
+    }
+
+    @Test
+    void update_revisionMismatch_returns400() throws Exception {
+        ObjectNode value = objectMapper.createObjectNode();
+        value.put("template", "pt_v1");
+
+        ConfigEntryCreateRequest createReq = ConfigEntryCreateRequest.builder()
+                .requestInfo(buildRequestInfo())
+                .entry(ConfigEntry.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("pt")
+                        .eventType("PT_ASSESSMENT")
+                        .channel("WHATSAPP")
+                        .tenantId("pb.bathinda")
+                        .value(value)
+                        .build())
+                .build();
+
+        String createResp = mockMvc.perform(post("/config/v1/entry/_create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createReq)))
+                .andReturn().getResponse().getContentAsString();
+
+        String entryId = objectMapper.readTree(createResp).at("/entry/id").asText();
+
+        ConfigEntryUpdateRequest updateReq = ConfigEntryUpdateRequest.builder()
+                .requestInfo(buildRequestInfo())
+                .entry(ConfigEntry.builder()
+                        .id(entryId)
+                        .revision(99)
+                        .value(value)
+                        .build())
+                .build();
+
+        mockMvc.perform(post("/config/v1/entry/_update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateReq)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.Errors[0].code", is("REVISION_MISMATCH")));
     }
 
     // ==================== Resolve Tests ====================
 
     @Test
-    void resolve_returnsActiveConfig() throws Exception {
-        ObjectNode content = objectMapper.createObjectNode();
-        content.put("setting", "resolved_value");
+    void resolve_exactTenantMatch() throws Exception {
+        ObjectNode value = objectMapper.createObjectNode();
+        value.put("template", "ws_bill_tpl");
 
-        ConfigRequest createReq = ConfigRequest.builder()
+        ConfigEntryCreateRequest createReq = ConfigEntryCreateRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .config(Config.builder()
-                        .tenantId("tenant.resolve").namespace("resolve-ns").configName("Resolve Config")
-                        .configCode("RESOLVE_001").status("ACTIVE").environment("prod")
-                        .versions(List.of(ConfigVersion.builder()
-                                .version("v1").content(content).build()))
+                .entry(ConfigEntry.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("ws")
+                        .eventType("WS_BILL")
+                        .channel("WHATSAPP")
+                        .tenantId("pb.patiala")
+                        .locale("en_IN")
+                        .value(value)
                         .build())
                 .build();
 
-        mockMvc.perform(post("/v1/_create")
+        mockMvc.perform(post("/config/v1/entry/_create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createReq)));
 
         ConfigResolveRequest resolveReq = ConfigResolveRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .tenantId("tenant.resolve")
-                .namespace("resolve-ns")
-                .configCode("RESOLVE_001")
+                .resolveRequest(ConfigResolveRequest.ResolveParams.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("ws")
+                        .tenantId("pb.patiala")
+                        .locale("en_IN")
+                        .build())
                 .build();
 
-        mockMvc.perform(post("/v1/_resolve")
+        mockMvc.perform(post("/config/v1/entry/_resolve")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(resolveReq)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.setting", is("resolved_value")))
-                .andExpect(jsonPath("$.version", is("v1")))
-                .andExpect(jsonPath("$.resolvedFrom", is("tenant.resolve")));
+                .andExpect(jsonPath("$.resolved.entry.value.template", is("ws_bill_tpl")))
+                .andExpect(jsonPath("$.resolved.resolutionMeta.matchedTenant", is("pb.patiala")));
     }
 
     @Test
     void resolve_tenantFallback() throws Exception {
-        ObjectNode content = objectMapper.createObjectNode();
-        content.put("level", "parent");
+        ObjectNode value = objectMapper.createObjectNode();
+        value.put("template", "state_tl_tpl");
 
-        ConfigRequest createReq = ConfigRequest.builder()
+        ConfigEntryCreateRequest createReq = ConfigEntryCreateRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .config(Config.builder()
-                        .tenantId("state").namespace("fallback-ns").configName("Fallback Config")
-                        .configCode("FB_001").status("ACTIVE")
-                        .versions(List.of(ConfigVersion.builder()
-                                .version("v1").content(content).build()))
+                .entry(ConfigEntry.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("tl")
+                        .eventType("TL_RENEWAL")
+                        .channel("WHATSAPP")
+                        .tenantId("hr")
+                        .locale("*")
+                        .value(value)
                         .build())
                 .build();
 
-        mockMvc.perform(post("/v1/_create")
+        mockMvc.perform(post("/config/v1/entry/_create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createReq)));
 
         ConfigResolveRequest resolveReq = ConfigResolveRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .tenantId("state.city.ward")
-                .namespace("fallback-ns")
-                .configCode("FB_001")
+                .resolveRequest(ConfigResolveRequest.ResolveParams.builder()
+                        .configCode("NOTIF_TEMPLATE_MAP")
+                        .module("tl")
+                        .tenantId("hr.gurugram")
+                        .locale("hi_IN")
+                        .build())
                 .build();
 
-        mockMvc.perform(post("/v1/_resolve")
+        mockMvc.perform(post("/config/v1/entry/_resolve")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(resolveReq)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resolvedFrom", is("state")))
-                .andExpect(jsonPath("$.content.level", is("parent")));
+                .andExpect(jsonPath("$.resolved.resolutionMeta.matchedTenant", is("hr")))
+                .andExpect(jsonPath("$.resolved.entry.value.template", is("state_tl_tpl")));
     }
 
     @Test
-    void resolve_notFoundReturns400() throws Exception {
+    void resolve_notFound_returns400() throws Exception {
         ConfigResolveRequest resolveReq = ConfigResolveRequest.builder()
                 .requestInfo(buildRequestInfo())
-                .tenantId("nonexistent")
-                .namespace("nope")
-                .configCode("MISSING")
+                .resolveRequest(ConfigResolveRequest.ResolveParams.builder()
+                        .configCode("NONEXISTENT_CODE")
+                        .tenantId("unknown")
+                        .build())
                 .build();
 
-        mockMvc.perform(post("/v1/_resolve")
+        mockMvc.perform(post("/config/v1/entry/_resolve")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(resolveReq)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.Errors[0].code", is("CONFIG_NOT_RESOLVED")));
-    }
-
-    // ==================== Template Preview Tests ====================
-
-    @Test
-    void templatePreview_rendersPlaceholders() throws Exception {
-        ObjectNode templateContent = objectMapper.createObjectNode();
-        templateContent.put("template", "Hello {{name}}, your bill is Rs. {{amount}}.");
-
-        ConfigRequest createReq = ConfigRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .config(Config.builder()
-                        .tenantId("tenant.tpl").namespace("templates").configName("Bill Template")
-                        .configCode("BILL_TPL").status("ACTIVE")
-                        .versions(List.of(ConfigVersion.builder()
-                                .version("v1").content(templateContent).build()))
-                        .build())
-                .build();
-
-        mockMvc.perform(post("/v1/_create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createReq)));
-
-        TemplatePreviewRequest previewReq = TemplatePreviewRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .tenantId("tenant.tpl")
-                .template(TemplateRef.builder()
-                        .namespace("templates").configName("Bill Template").configCode("BILL_TPL").build())
-                .locale("en_IN")
-                .data(Map.of("name", "Lokendra", "amount", "500"))
-                .build();
-
-        mockMvc.perform(post("/v1/template/_preview")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(previewReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.rendered", is("Hello Lokendra, your bill is Rs. 500.")))
-                .andExpect(jsonPath("$.locale", is("en_IN")));
-    }
-
-    // ==================== Seed Data Tests ====================
-
-    @Test
-    void seedData_ootbTemplatesLoadedAndSearchable() throws Exception {
-        ConfigSearchRequest searchReq = ConfigSearchRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .criteria(ConfigSearchCriteria.builder()
-                        .tenantId("default").namespace("OOTB_TEMPLATES").build())
-                .build();
-
-        mockMvc.perform(post("/v1/_search")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(searchReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.configs", hasSize(4)))
-                .andExpect(jsonPath("$.configs[*].namespace", everyItem(is("OOTB_TEMPLATES"))));
-    }
-
-    @Test
-    void seedData_featureFlagsLoaded() throws Exception {
-        ConfigSearchRequest searchReq = ConfigSearchRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .criteria(ConfigSearchCriteria.builder()
-                        .tenantId("default").namespace("FEATURE_FLAGS").build())
-                .build();
-
-        mockMvc.perform(post("/v1/_search")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(searchReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.configs", hasSize(1)))
-                .andExpect(jsonPath("$.configs[0].versions[0].content.flags.whatsapp_bidirectional_enabled", is(true)));
-    }
-
-    @Test
-    void seedData_resolveOotbTemplate() throws Exception {
-        ConfigResolveRequest resolveReq = ConfigResolveRequest.builder()
-                .requestInfo(buildRequestInfo())
-                .tenantId("default")
-                .namespace("OOTB_TEMPLATES")
-                .configCode("WELCOME_MSG")
-                .build();
-
-        mockMvc.perform(post("/v1/_resolve")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(resolveReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.template", containsString("{{name}}")))
-                .andExpect(jsonPath("$.version", is("v1")));
     }
 }

@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.TimeZone;
 
@@ -27,5 +29,10 @@ public class ApplicationConfig {
     @PostConstruct
     public void initialize() {
         TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

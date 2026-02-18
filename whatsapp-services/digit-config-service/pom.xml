@@ -67,6 +67,13 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- JSON Schema Validation (same as MDMS v2) -->
+        <dependency>
+            <groupId>org.everit.json</groupId>
+            <artifactId>org.everit.json.schema</artifactId>
+            <version>1.5.1</version>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

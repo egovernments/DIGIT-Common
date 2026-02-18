@@ -20,27 +20,20 @@ public class ResponseUtil {
                 .build();
     }
 
-    public static ConfigResponse getConfigResponse(RequestInfo requestInfo, List<Config> configs, Pagination pagination) {
-        return ConfigResponse.builder()
+    public static ConfigEntryResponse getEntryResponse(RequestInfo requestInfo, ConfigEntry entry) {
+        return ConfigEntryResponse.builder()
                 .responseInfo(createResponseInfo(requestInfo, true))
-                .configs(configs)
+                .entry(entry)
+                .build();
+    }
+
+    public static ConfigEntrySearchResponse getSearchResponse(RequestInfo requestInfo,
+                                                               List<ConfigEntry> entries,
+                                                               Pagination pagination) {
+        return ConfigEntrySearchResponse.builder()
+                .responseInfo(createResponseInfo(requestInfo, true))
+                .entries(entries)
                 .pagination(pagination)
-                .build();
-    }
-
-    public static ConfigSetActivateResponse getActivateResponse(RequestInfo requestInfo, String configSetId, String status) {
-        return ConfigSetActivateResponse.builder()
-                .responseInfo(createResponseInfo(requestInfo, true))
-                .configSetId(configSetId)
-                .status(status)
-                .build();
-    }
-
-    public static TemplatePreviewResponse getTemplatePreviewResponse(RequestInfo requestInfo, String rendered, String locale) {
-        return TemplatePreviewResponse.builder()
-                .responseInfo(createResponseInfo(requestInfo, true))
-                .rendered(rendered)
-                .locale(locale)
                 .build();
     }
 }

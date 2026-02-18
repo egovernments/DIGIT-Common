@@ -1,15 +1,13 @@
 package org.egov.config.web.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -18,28 +16,39 @@ import java.util.Map;
 public class ConfigResolveRequest {
 
     @JsonProperty("RequestInfo")
+    @NotNull
     @Valid
     private RequestInfo requestInfo;
 
-    @JsonProperty("tenantId")
+    @JsonProperty("resolveRequest")
     @NotNull
-    @Size(min = 2, max = 64)
-    private String tenantId;
+    @Valid
+    private ResolveParams resolveRequest;
 
-    @JsonProperty("namespace")
-    @NotNull
-    @Size(min = 2, max = 128)
-    private String namespace;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ResolveParams {
 
-    @JsonProperty("configCode")
-    @NotNull
-    @Size(min = 2, max = 128)
-    private String configCode;
+        @JsonProperty("configCode")
+        @NotNull
+        private String configCode;
 
-    @JsonProperty("context")
-    private Map<String, String> context;
+        @JsonProperty("module")
+        private String module;
 
-    @JsonProperty("environment")
-    @Size(min = 2, max = 32)
-    private String environment;
+        @JsonProperty("tenantId")
+        @NotNull
+        private String tenantId;
+
+        @JsonProperty("locale")
+        private String locale;
+
+        @JsonProperty("selectors")
+        private JsonNode selectors;
+
+        @JsonProperty("decryptSensitive")
+        private Boolean decryptSensitive;
+    }
 }
