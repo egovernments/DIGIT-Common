@@ -1,6 +1,7 @@
 package org.egov.hrms.repository;
 
 import org.apache.commons.lang3.StringUtils;
+import org.egov.common.utils.MultiStateInstanceUtil;
 import org.egov.hrms.config.PropertiesManager;
 import org.egov.hrms.web.contract.EmployeeSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class EmployeeQueryBuilder {
 
 	@Autowired
 	private PropertiesManager properties;
+
+	@Autowired
+	private MultiStateInstanceUtil centralInstanceUtil;
 	
 	/**
 	 * Returns query for searching employees
@@ -36,7 +40,7 @@ public class EmployeeQueryBuilder {
 
 	public String getEmployeeCountQuery(String tenantId, List <Object> preparedStmtList ) {
 		StringBuilder builder = new StringBuilder(EmployeeQueries.HRMS_COUNT_EMP_QUERY);
-		if(tenantId.equalsIgnoreCase(properties.stateLevelTenantId)){
+		if(centralInstanceUtil.isTenantIdStateLevel(tenantId)){
 			builder.append("LIKE ? ");
 			preparedStmtList.add(tenantId+"%");
 		}
