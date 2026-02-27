@@ -209,7 +209,7 @@ public class EmployeeService {
 		if(!CollectionUtils.isEmpty(uuids)){
             Map<String, Object> userSearchCriteria = new HashMap<>();
             userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_UUID,uuids);
-			userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_TENANTID, criteria.getTenantId());
+			userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_TENANTID, stateLevelTenantId);
 			log.info("uuid is available {}", userSearchCriteria);
             if(mapOfUsers.isEmpty()){
 				log.info("searching in user service");
@@ -267,6 +267,10 @@ public class EmployeeService {
 	 * @param employee
 	 */
 	private void enrichUser(Employee employee) {
+		if(StringUtils.isEmpty(employee.getCode())) {
+			throw new CustomException("ERR_HRMS_NULL_EMPLOYEE_CODE",
+					"Employee code is null after ID generation. Check IDGen service configuration for the tenant.");
+		}
 		if (propertiesManager.isDevMode()) {
 			employee.getUser().setPassword(propertiesManager.getDefaultPassword());
 		} else if (propertiesManager.isAutoGeneratePassword()) {

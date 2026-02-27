@@ -226,6 +226,16 @@ public class EmployeeValidator {
 	 */
 	private void validateExistingDuplicates(EmployeeRequest request, Map<String, String> errorMap) {
 		List<Employee> employees = request.getEmployees();
+		for(Employee employee : employees) {
+			if(employee.getUser() == null) {
+				errorMap.put("ERR_HRMS_NULL_USER", "User object is required for employee creation.");
+				return;
+			}
+			if(StringUtils.isEmpty(employee.getUser().getMobileNumber())) {
+				errorMap.put("ERR_HRMS_NULL_MOBILE", "Mobile number is required for employee creation.");
+				return;
+			}
+		}
 		validateDataUniqueness(employees,errorMap);
         validateUserMobile(employees,errorMap,request.getRequestInfo());
         validateUserName(employees,errorMap,request.getRequestInfo());
