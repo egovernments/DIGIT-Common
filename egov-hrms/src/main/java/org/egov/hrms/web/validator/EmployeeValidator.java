@@ -273,6 +273,7 @@ public class EmployeeValidator {
 		validateConsistencyServiceHistory(existingEmp, employee, errorMap);
 		validateConsistencyEmployeeDocument(existingEmp, employee, errorMap);
 		validateConsistencyDeactivationDetails(existingEmp, employee, errorMap);
+		validateConsistencyReactivationDetails(existingEmp, employee, errorMap);
 		if(!employee.getIsActive())
 			validateDeactivationDetails(existingEmp, employee, errorMap, mdmsData);
 		if(employee.getIsActive() && employee.getReActivateEmployee())
@@ -772,6 +773,29 @@ public class EmployeeValidator {
 									.collect(Collectors.toList()));
 			if (!check) {
 				errorMap.put(ErrorConstants.HRMS_UPDATE_DEACT_DETAILS_INCOSISTENT_CODE, ErrorConstants.HRMS_UPDATE_DEACT_DETAILS_INCOSISTENT_MSG);
+			}
+		}
+
+	}
+
+	/**
+	 * Reactivation Details once created in the system cannot be deleted, they can however be changed. Validates that condition
+	 * 
+	 * @param existingEmp
+	 * @param updatedEmployeeData
+	 * @param errorMap
+	 */
+	private void validateConsistencyReactivationDetails(Employee existingEmp, Employee updatedEmployeeData, Map<String, String> errorMap){
+		if(!CollectionUtils.isEmpty(updatedEmployeeData.getReactivationDetails())){
+			boolean check =
+					updatedEmployeeData.getReactivationDetails().stream()
+							.map(reactivationDetails -> reactivationDetails.getId())
+							.collect(Collectors.toList())
+							.containsAll(existingEmp.getReactivationDetails().stream()
+									.map(reactivationDetails -> reactivationDetails.getId())
+									.collect(Collectors.toList()));
+			if (!check) {
+				errorMap.put(ErrorConstants.HRMS_UPDATE_REACT_DETAILS_INCOSISTENT_CODE, ErrorConstants.HRMS_UPDATE_REACT_DETAILS_INCOSISTENT_MSG);
 			}
 		}
 

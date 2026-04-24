@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EmployeeDocumentReferenceType {
 	HEADER("HEADER"), ASSIGNMENT("ASSIGNMENT"), JURISDICTION("JURISDICTION"), SERVICE("SERVICE"), 
-	EDUCATION("EDUCATION"), TEST("TEST"), DEACTIVATION("DEACTIVATION");
+	EDUCATION("EDUCATION"), TEST("TEST"), DEACTIVATION("DEACTIVATION"), ACTIVATION("ACTIVATION");
 
 	private String value;
 
