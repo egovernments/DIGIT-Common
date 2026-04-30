@@ -343,6 +343,7 @@ public class EmployeeService {
 	 * Service method to update user. Performs the following:
 	 * 1. Enriches the employee object with required parameters.
 	 * 2. Updates user by making call to the user service.
+	 * 3. Returns the complete enriched employee data with all nested objects.
 	 * 
 	 * @param employeeRequest
 	 * @return
@@ -364,6 +365,8 @@ public class EmployeeService {
 		String hrmsUpdateTopic = propertiesManager.getUpdateEmployeeTopic();
 		hrmsProducer.push(tenantId, hrmsUpdateTopic, employeeRequest);
 		//notificationService.sendReactivationNotification(employeeRequest);
+		
+		// Return the complete enriched employee data with all nested objects
 		return generateResponse(employeeRequest);
 	}
 	
@@ -410,31 +413,19 @@ public class EmployeeService {
 			if(null == jurisdiction.getIsActive())
 				jurisdiction.setIsActive(true);
 			if(jurisdiction.getId()==null) {
+				// New jurisdiction - generate ID and set audit details
 				jurisdiction.setId(UUID.randomUUID().toString());
 				jurisdiction.setAuditDetails(auditDetails);
-			}else{
-				if(!existingEmpData.getJurisdictions().stream()
-						.filter(jurisdictionData ->jurisdictionData.getId().equals(jurisdiction.getId() ))
-						.findFirst().orElse(null)
-						.equals(jurisdiction)){
-					jurisdiction.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
-					jurisdiction.getAuditDetails().setLastModifiedDate(new Date().getTime());
-				}
 			}
+			// Existing jurisdiction - keep as sent by frontend
 		});
 		employee.getAssignments().stream().forEach(assignment -> {
 			if(assignment.getId()==null) {
+				// New assignment - generate ID and set audit details
 				assignment.setId(UUID.randomUUID().toString());
 				assignment.setAuditDetails(auditDetails);
-			}else {
-				if(!existingEmpData.getAssignments().stream()
-						.filter(assignmentData -> assignmentData.getId().equals(assignment.getId()))
-						.findFirst().orElse(null)
-						.equals(assignment)){
-					assignment.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
-					assignment.getAuditDetails().setLastModifiedDate(new Date().getTime());
-				}
 			}
+			// Existing assignment - keep as sent by frontend
 		});
 
 		if(employee.getServiceHistory()!=null){
@@ -442,17 +433,11 @@ public class EmployeeService {
 				if(null == serviceHistory.getIsCurrentPosition())
 					serviceHistory.setIsCurrentPosition(false);
 				if(serviceHistory.getId()==null) {
+					// New service history - generate ID and set audit details
 					serviceHistory.setId(UUID.randomUUID().toString());
 					serviceHistory.setAuditDetails(auditDetails);
-				}else {
-					if(!existingEmpData.getServiceHistory().stream()
-							.filter(serviceHistoryData -> serviceHistoryData.getId().equals(serviceHistory.getId()))
-							.findFirst().orElse(null)
-							.equals(serviceHistory)){
-						serviceHistory.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
-						serviceHistory.getAuditDetails().setLastModifiedDate(new Date().getTime());
-					}
 				}
+				// Existing service history - keep as sent by frontend
 			});
 
 		}
@@ -462,18 +447,11 @@ public class EmployeeService {
 				if(null == educationalQualification.getIsActive())
 					educationalQualification.setIsActive(true);
 				if(educationalQualification.getId()==null) {
+					// New education - generate ID and set audit details
 					educationalQualification.setId(UUID.randomUUID().toString());
 					educationalQualification.setAuditDetails(auditDetails);
-				}else {
-
-					if(!existingEmpData.getEducation().stream()
-							.filter(educationalQualificationData -> educationalQualificationData.getId().equals(educationalQualification.getId()))
-							.findFirst().orElse(null)
-							.equals(educationalQualification)){
-						educationalQualification.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
-						educationalQualification.getAuditDetails().setLastModifiedDate(new Date().getTime());
-					}
 				}
+				// Existing education - keep as sent by frontend
 			});
 
 		}
@@ -499,62 +477,66 @@ public class EmployeeService {
 
 		}
 
-		if(employee.getDocuments() != null){
-			employee.getDocuments().stream().forEach(document -> {
-				if(document.getId()==null) {
-					document.setId(UUID.randomUUID().toString());
-					document.setAuditDetails(auditDetails);
-				}else {
-					if(!existingEmpData.getDocuments().stream()
-							.filter(documentData -> documentData.getId().equals(document.getId()))
-							.findFirst().orElse(null)
-							.equals(document)){
-						document.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
-						document.getAuditDetails().setLastModifiedDate(new Date().getTime());
-					}
-				}
-			});
-
-		}
-
+		// Process deactivation details BEFORE documents so we can assign referenceId to new documents
 		if(employee.getDeactivationDetails() != null){
 			employee.getDeactivationDetails().stream().forEach(deactivationDetails -> {
 				if(deactivationDetails.getId()==null) {
-					deactivationDetails.setId(UUID.randomUUID().toString());
+					// New deactivation detail - generate ID and set audit details
+					String newDeactivationId = UUID.randomUUID().toString();
+					deactivationDetails.setId(newDeactivationId);
 					deactivationDetails.setAuditDetails(auditDetails);
-					employee.getDocuments().forEach(employeeDocument -> {
-						employeeDocument.setReferenceId( deactivationDetails.getId());
-					});
-				}else {
-					if(!existingEmpData.getDeactivationDetails().stream()
-							.filter(deactivationDetailsData -> deactivationDetailsData.getId().equals(deactivationDetails.getId()))
-							.findFirst().orElse(null)
-							.equals(deactivationDetails)){
-						deactivationDetails.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
-						deactivationDetails.getAuditDetails().setLastModifiedDate(new Date().getTime());
+					// Set referenceId for new documents with DEACTIVATION referenceType
+					if(employee.getDocuments() != null) {
+						employee.getDocuments().stream()
+							.filter(doc -> doc.getId() == null && 
+								doc.getReferenceType() != null && 
+								doc.getReferenceType().equals(org.egov.hrms.model.enums.EmployeeDocumentReferenceType.DEACTIVATION))
+							.forEach(employeeDocument -> {
+								employeeDocument.setReferenceId(newDeactivationId);
+							});
 					}
 				}
+				// Existing deactivation detail - audit details are already present from frontend/database
+				// No need to modify them unless frontend explicitly changed them
 			});
 
 		}
+		
+		// Process reactivation details BEFORE documents so we can assign referenceId to new documents
 		if(employee.getReactivationDetails() != null){
 			employee.getReactivationDetails().stream().forEach(reactivationDetails -> {
 				if(reactivationDetails.getId() == null){
-					reactivationDetails.setId(UUID.randomUUID().toString());
+					// New reactivation detail - generate ID and set audit details
+					String newReactivationId = UUID.randomUUID().toString();
+					reactivationDetails.setId(newReactivationId);
 					reactivationDetails.setAuditDetails(auditDetails);
-					employee.getDocuments().forEach(employeeDocument -> {
-						employeeDocument.setReferenceId(reactivationDetails.getId());
-					});
-				}
-				else{
-					if(!existingEmpData.getReactivationDetails().stream()
-							.filter(reactivationDetails1 -> reactivationDetails1.getId().equals(reactivationDetails.getId()))
-							.findFirst().orElse(null)
-							.equals(reactivationDetails)){
-						reactivationDetails.getAuditDetails().setLastModifiedBy(requestInfo.getUserInfo().getUserName());
-						reactivationDetails.getAuditDetails().setLastModifiedDate(new Date().getTime());
+					// Set referenceId for new documents with REACTIVATION referenceType
+					if(employee.getDocuments() != null) {
+						employee.getDocuments().stream()
+							.filter(doc -> doc.getId() == null && 
+								doc.getReferenceType() != null && 
+								doc.getReferenceType().equals(org.egov.hrms.model.enums.EmployeeDocumentReferenceType.ACTIVATION))
+							.forEach(employeeDocument -> {
+								employeeDocument.setReferenceId(newReactivationId);
+							});
 					}
 				}
+				// Existing reactivation detail - audit details are already present from frontend/database
+				// No need to modify them unless frontend explicitly changed them
+			});
+
+		}
+
+		// Process documents AFTER deactivation/reactivation details so referenceId is already set
+		if(employee.getDocuments() != null){
+			employee.getDocuments().stream().forEach(document -> {
+				if(document.getId()==null) {
+					// New document - generate ID and set audit details
+					document.setId(UUID.randomUUID().toString());
+					document.setAuditDetails(auditDetails);
+				}
+				// Existing document - audit details are already present from frontend/database
+				// No need to modify them unless frontend explicitly changed them
 			});
 
 		}

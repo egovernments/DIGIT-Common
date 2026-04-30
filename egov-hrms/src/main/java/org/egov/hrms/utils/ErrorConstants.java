@@ -129,6 +129,9 @@ public class ErrorConstants {
 	public static final String HRMS_UPDATE_DEACT_DETAILS_INCOSISTENT_CODE = "ERR_HRMS_UPDATE_DEACT_DETAILS_INCOSISTENT";
 	public static final String HRMS_UPDATE_DEACT_DETAILS_INCOSISTENT_MSG = "Employee deactivation data in an update request should contain all previously entered data.";
 	
+	public static final String HRMS_UPDATE_REACT_DETAILS_INCOSISTENT_CODE = "ERR_HRMS_UPDATE_REACT_DETAILS_INCOSISTENT";
+	public static final String HRMS_UPDATE_REACT_DETAILS_INCOSISTENT_MSG = "Employee reactivation data in an update request should contain all previously entered data.";
+	
 	public static final String HRMS_UPDATE_NULL_ID_CODE = "ERR_HRMS_UPDATE_NULL_ID";
 	public static final String HRMS_UPDATE_NULL_ID_MSG = "Employee ID in an update request should not be null.";
 	
