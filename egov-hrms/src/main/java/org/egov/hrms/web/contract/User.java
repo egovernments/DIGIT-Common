@@ -72,6 +72,10 @@ public class User {
     @JsonProperty("mobileNumber")
     private String mobileNumber;
 
+    @Size(max=10)
+    @JsonProperty("countryCode")
+    private String countryCode;
+
     @Size(max=128)
     @JsonProperty("emailId")
     private String emailId;
