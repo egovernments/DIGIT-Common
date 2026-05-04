@@ -68,9 +68,12 @@ public class User {
     private String gender;
 
     @NotNull
-    @Pattern(regexp = "^[0-9]{10}$", message = "MobileNumber should be 10 digit number")
     @JsonProperty("mobileNumber")
     private String mobileNumber;
+
+    @Size(max=10)
+    @JsonProperty("countryCode")
+    private String countryCode;
 
     @Size(max=128)
     @JsonProperty("emailId")
