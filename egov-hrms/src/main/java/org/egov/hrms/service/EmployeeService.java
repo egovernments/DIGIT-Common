@@ -40,6 +40,7 @@
 
 package org.egov.hrms.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,7 @@ import org.egov.hrms.utils.ResponseInfoFactory;
 import org.egov.hrms.web.contract.*;
 import org.egov.tracer.kafka.LogAwareKafkaTemplate;
 import org.egov.tracer.model.CustomException;
+import org.egov.tracer.model.ServiceCallException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -244,9 +246,24 @@ public class EmployeeService {
 			employee.getUser().setId(user.getId());
 			employee.getUser().setUuid(user.getUuid());
 			employee.getUser().setUserServiceUuid(user.getUserServiceUuid());
-		}catch(Exception e) {
-			log.error("Exception while creating user: ",e);
-			log.error("request: "+request);
+		} catch (ServiceCallException e) {
+			log.error("Exception while creating user: ", e);
+			log.error("request: " + request);
+			try {
+				JsonNode root = objectMapper.readTree(e.getError());
+				JsonNode errors = root.has("Errors") ? root.get("Errors") : root.get("errors");
+				if (errors != null && errors.isArray() && errors.size() > 0) {
+					String code = errors.get(0).path("code").asText(ErrorConstants.HRMS_USER_CREATION_FAILED_CODE);
+					String message = errors.get(0).path("message").asText(e.getError());
+					throw new CustomException(code, message);
+				}
+			} catch (CustomException ce) {
+				throw ce;
+			} catch (Exception ignored) {}
+			throw new CustomException(ErrorConstants.HRMS_USER_CREATION_FAILED_CODE, e.getError());
+		} catch (Exception e) {
+			log.error("Exception while creating user: ", e);
+			log.error("request: " + request);
 			throw new CustomException(ErrorConstants.HRMS_USER_CREATION_FAILED_CODE, ErrorConstants.HRMS_USER_CREATION_FAILED_MSG);
 		}
 
