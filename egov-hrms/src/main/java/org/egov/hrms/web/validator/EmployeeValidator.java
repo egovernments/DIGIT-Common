@@ -547,6 +547,10 @@ public class EmployeeValidator {
 		if(CollectionUtils.isEmpty(employee.getJurisdictions().stream().filter(jurisdiction -> null == jurisdiction.getIsActive() || jurisdiction.getIsActive() &&  jurisdiction.getIsActive() ).collect(Collectors.toList()))){
 			errorMap.put(ErrorConstants.HRMS_INVALID_JURISDICTION_ACTIIEV_NULL_CODE,ErrorConstants.HRMS_INVALID_JURISDICTION_ACTIIEV_NULL_MSG);
 		}
+		if(CollectionUtils.isEmpty(boundaryMap) || !boundaryMap.containsKey(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE)) {
+			log.warn("HRMS: No TenantBoundary data in MDMS — skipping boundary validation");
+			return;
+		}
 		for(Jurisdiction jurisdiction: employee.getJurisdictions()) {
 				String hierarchy_type_path = String.format(HRMSConstants.HRMS_TENANTBOUNDARY_HIERARCHY_JSONPATH,jurisdiction.getBoundary());
 				String boundary_type_path = String.format(HRMSConstants.HRMS_TENANTBOUNDARY_BOUNDARY_TYPE_JSONPATH,jurisdiction.getHierarchy(),jurisdiction.getBoundary());

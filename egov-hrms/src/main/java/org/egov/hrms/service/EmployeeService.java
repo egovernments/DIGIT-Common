@@ -132,7 +132,11 @@ public class EmployeeService {
 		});
 		String hrmsCreateTopic = propertiesManager.getSaveEmployeeTopic();
 		hrmsProducer.push(tenantId, hrmsCreateTopic, employeeRequest);
-		notificationService.sendNotification(employeeRequest, pwdMap);
+		if (propertiesManager.isDevMode()) {
+			log.info("HRMS: SMS notification skipped — dev mode with default password");
+		} else {
+			notificationService.sendNotification(employeeRequest, pwdMap);
+		}
 		return generateResponse(employeeRequest);
 	}
 	
@@ -271,15 +275,23 @@ public class EmployeeService {
 			throw new CustomException("ERR_HRMS_NULL_EMPLOYEE_CODE",
 					"Employee code is null after ID generation. Check IDGen service configuration for the tenant.");
 		}
-		if (propertiesManager.isDevMode()) {
-			employee.getUser().setPassword(propertiesManager.getDefaultPassword());
-		} else if (propertiesManager.isAutoGeneratePassword()) {
-			List<String> pwdParams = new ArrayList<>();
-			pwdParams.add(employee.getCode());
-			pwdParams.add(employee.getUser().getMobileNumber());
-			pwdParams.add(employee.getTenantId());
-			pwdParams.add(employee.getUser().getName().toUpperCase());
-			employee.getUser().setPassword(hrmsUtils.generatePassword(pwdParams));
+		// Honour an operator-supplied password (closes egovernments/CCRS#482).
+		// Previously dev-mode and auto-generate paths overwrote whatever the
+		// configurator UI sent for "Initial Password", forcing every employee
+		// to log in with the configured default. Now: only fall back to the
+		// dev/auto-generated password when the request didn't carry one.
+		String suppliedPassword = employee.getUser() != null ? employee.getUser().getPassword() : null;
+		if (StringUtils.isEmpty(suppliedPassword)) {
+			if (propertiesManager.isDevMode()) {
+				employee.getUser().setPassword(propertiesManager.getDefaultPassword());
+			} else if (propertiesManager.isAutoGeneratePassword()) {
+				List<String> pwdParams = new ArrayList<>();
+				pwdParams.add(employee.getCode());
+				pwdParams.add(employee.getUser().getMobileNumber());
+				pwdParams.add(employee.getTenantId());
+				pwdParams.add(employee.getUser().getName().toUpperCase());
+				employee.getUser().setPassword(hrmsUtils.generatePassword(pwdParams));
+			}
 		}
 		employee.getUser().setUserName(employee.getCode());
 		employee.getUser().setActive(true);
