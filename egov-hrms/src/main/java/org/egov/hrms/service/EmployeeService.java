@@ -296,6 +296,11 @@ public class EmployeeService {
 		employee.getUser().setUserName(employee.getCode());
 		employee.getUser().setActive(true);
 		employee.getUser().setType(UserType.EMPLOYEE.toString());
+		// Ensure tenantId is set on the User object — egov-user's
+		// MobileNumberValidator needs it to fetch MDMS rules.
+		if (StringUtils.isEmpty(employee.getUser().getTenantId())) {
+			employee.getUser().setTenantId(employee.getTenantId());
+		}
 	}
 
 	/**
