@@ -237,8 +237,18 @@ public class EmployeeValidator {
 			}
 		}
 		validateDataUniqueness(employees,errorMap);
-        validateUserMobile(employees,errorMap,request.getRequestInfo());
-        validateUserName(employees,errorMap,request.getRequestInfo());
+		// Skip the duplicate-mobile/duplicate-username checks for employees
+		// that explicitly link to a pre-existing eg_user via user.uuid.
+		// Without this exemption, the validator finds the linked user (which
+		// is the whole point) and falsely flags the request as a duplicate,
+		// blocking the HRMS-attach path that PGR's workflow needs.
+		List<Employee> employeesForUniqueCheck = employees.stream()
+				.filter(e -> e.getUser() == null || StringUtils.isEmpty(e.getUser().getUuid()))
+				.collect(Collectors.toList());
+		if (!employeesForUniqueCheck.isEmpty()) {
+			validateUserMobile(employeesForUniqueCheck, errorMap, request.getRequestInfo());
+			validateUserName(employeesForUniqueCheck, errorMap, request.getRequestInfo());
+		}
 	}
 
 	/**

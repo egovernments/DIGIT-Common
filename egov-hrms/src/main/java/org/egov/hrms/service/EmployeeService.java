@@ -234,11 +234,51 @@ public class EmployeeService {
 	
 	/**
 	 * Creates user by making call to egov-user.
-	 * 
+	 *
+	 * If the caller passes an existing user's uuid on `employee.getUser()`
+	 * (e.g. an already-provisioned ADMIN), we link the HRMS employee to
+	 * that user instead of forcing a fresh user-create. Without this short
+	 * circuit the create-user call trips DuplicateUserName (and clobbers
+	 * the caller's userName with the employee code), which then cascades
+	 * into PGR's DEPARTMENT_NOT_FOUND on every assign action because the
+	 * employee never got an HRMS row attached to the live user.
+	 *
 	 * @param employee
 	 * @param requestInfo
 	 */
 	private void createUser(Employee employee, RequestInfo requestInfo) {
+		String inboundUuid = employee.getUser() != null ? employee.getUser().getUuid() : null;
+		if (!StringUtils.isEmpty(inboundUuid)) {
+			// Caller supplied uuid → look up the live user and link to them.
+			Map<String, Object> userSearchCriteria = new HashMap<>();
+			userSearchCriteria.put("uuid", Collections.singletonList(inboundUuid));
+			userSearchCriteria.put("tenantId", employee.getTenantId());
+			UserResponse searchResp = userService.getUser(requestInfo, userSearchCriteria);
+			if (searchResp != null && !CollectionUtils.isEmpty(searchResp.getUser())) {
+				User existing = searchResp.getUser().get(0);
+				employee.setId(UUID.fromString(existing.getUuid()).getMostSignificantBits());
+				employee.setUuid(existing.getUuid());
+				// Preserve enough of the live user record on the employee.user
+				// payload so downstream (kafka persister, search, audit) is happy.
+				employee.getUser().setId(existing.getId());
+				employee.getUser().setUuid(existing.getUuid());
+				employee.getUser().setUserServiceUuid(existing.getUserServiceUuid());
+				if (StringUtils.isEmpty(employee.getUser().getUserName())) {
+					employee.getUser().setUserName(existing.getUserName());
+				}
+				if (StringUtils.isEmpty(employee.getUser().getMobileNumber())) {
+					employee.getUser().setMobileNumber(existing.getMobileNumber());
+				}
+				if (StringUtils.isEmpty(employee.getUser().getTenantId())) {
+					employee.getUser().setTenantId(existing.getTenantId());
+				}
+				log.info("HRMS: linking employee to existing user uuid={}", existing.getUuid());
+				return;
+			}
+			// Fall through to create when the uuid couldn't be resolved.
+			log.warn("HRMS: caller passed uuid={} but user not found; falling back to create", inboundUuid);
+		}
+
 		enrichUser(employee);
 		UserRequest request = UserRequest.builder().requestInfo(requestInfo).user(employee.getUser()).build();
 		try {
