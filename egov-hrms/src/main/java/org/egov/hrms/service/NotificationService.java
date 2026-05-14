@@ -78,7 +78,8 @@ public class NotificationService {
 		}
 		for(Employee employee: request.getEmployees()) {
 			message = buildMessage(employee, message, pwdMap);
-			SMSRequest smsRequest = SMSRequest.builder().mobileNumber(employee.getUser().getMobileNumber()).message(message).build();
+			String mobile = buildMobileWithCountryCode(employee.getUser().getMobileNumber(), employee.getUser().getCountryCode());
+			SMSRequest smsRequest = SMSRequest.builder().mobileNumber(mobile).message(message).build();
 			producer.push(tenantId, smsTopic, smsRequest);
 		}
 	}
@@ -100,7 +101,8 @@ public class NotificationService {
 				message = message.replace("{date}",(employee.getReactivationDetails().get(0).getEffectiveFrom()).toString());
 				message = message.replace("{password}",OTP).replace("{link}",link);
 
-				SMSRequest smsRequest = SMSRequest.builder().mobileNumber(employee.getUser().getMobileNumber()).message(message).build();
+				String mobile = buildMobileWithCountryCode(employee.getUser().getMobileNumber(), employee.getUser().getCountryCode());
+				SMSRequest smsRequest = SMSRequest.builder().mobileNumber(mobile).message(message).build();
 				log.info(message);
 				producer.push(tenantId, smsTopic, smsRequest);
 			}
@@ -198,6 +200,13 @@ public class NotificationService {
 		}
 		
 		return localizedMessageMap;
+	}
+
+	private String buildMobileWithCountryCode(String mobileNumber, String countryCode) {
+		if (mobileNumber == null) return null;
+		if (mobileNumber.startsWith("+")) return mobileNumber;
+		if (countryCode != null && !countryCode.isEmpty()) return countryCode + mobileNumber;
+		return mobileNumber;
 	}
 
 }
