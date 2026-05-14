@@ -2,8 +2,6 @@ package org.egov.hrms.web.validator;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import com.jayway.jsonpath.JsonPath;
@@ -525,19 +523,14 @@ public class EmployeeValidator {
 	 */
 	private void validateDeactivationDetails(Employee existingEmp, Employee updatedEmployeeData, Map<String, String> errorMap, Map<String, List<String>> mdmsData){
 		if(!CollectionUtils.isEmpty(updatedEmployeeData.getDeactivationDetails())) {
-			Date date = new Date();
-			Date  currentDateStartTime = Date.from(date.toInstant().atZone(ZoneId.systemDefault())
-					.truncatedTo(ChronoUnit.DAYS).toInstant());
 			for (DeactivationDetails deactivationDetails : updatedEmployeeData.getDeactivationDetails()) {
 				if (deactivationDetails.getId()==null) {
                     if (updatedEmployeeData.getIsActive()) {
                         errorMap.put(ErrorConstants.HRMS_INVALID_DEACT_REQUEST_CODE, ErrorConstants.HRMS_INVALID_DEACT_REQUEST_MSG);
                     }
 
-                    if (deactivationDetails.getEffectiveFrom() > new Date().getTime())
-                        errorMap.put(ErrorConstants.HRMS_UPDATE_DEACT_DETAILS_INCORRECT_EFFECTIVEFROM_CODE, ErrorConstants.HRMS_UPDATE_DEACT_DETAILS_INCORRECT_EFFECTIVEFROM_MSG);
-
-                    if (deactivationDetails.getEffectiveFrom() < currentDateStartTime.getTime())
+                    Boolean isValidEffectiveFrom = deactivationDetails.getEffectiveFrom() <= new Date().getTime();
+                    if (!isValidEffectiveFrom)
                         errorMap.put(ErrorConstants.HRMS_UPDATE_DEACT_DETAILS_INCORRECT_EFFECTIVEFROM_CODE, ErrorConstants.HRMS_UPDATE_DEACT_DETAILS_INCORRECT_EFFECTIVEFROM_MSG);
 
                     if (!mdmsData.get(HRMSConstants.HRMS_MDMS_DEACT_REASON_CODE).contains(deactivationDetails.getReasonForDeactivation()))
@@ -550,9 +543,17 @@ public class EmployeeValidator {
 
 	private void validateReactivationDetails(Employee existingEmp, Employee updatedEmployeeData, Map<String, String> errorMap, Map<String, List<String>> mdmsData){
 		if(!CollectionUtils.isEmpty(updatedEmployeeData.getReactivationDetails())) {
+			if(CollectionUtils.isEmpty(existingEmp.getDeactivationDetails())) {
+				errorMap.put(ErrorConstants.HRMS_INVALID_REACT_REQUEST_CODE, ErrorConstants.HRMS_INVALID_REACT_REQUEST_MSG);
+				return;
+			}
+			long latestDeactivationEffectiveFrom = existingEmp.getDeactivationDetails().stream()
+					.mapToLong(DeactivationDetails::getEffectiveFrom)
+					.max()
+					.getAsLong();
 			for (ReactivationDetails reactivationDetails : updatedEmployeeData.getReactivationDetails()) {
 				if (reactivationDetails.getId() == null) {
-					Boolean isValidDetails = existingEmp.getDeactivationDetails().get(0).getEffectiveFrom() <= reactivationDetails.getEffectiveFrom()
+					Boolean isValidDetails = latestDeactivationEffectiveFrom <= reactivationDetails.getEffectiveFrom()
 											 && reactivationDetails.getEffectiveFrom() <= new Date().getTime();
 					if(!isValidDetails)
 						errorMap.put(ErrorConstants.HRMS_UPDATE_REACT_DETAILS_INCORRECT_EFFECTIVEFROM_CODE, ErrorConstants.HRMS_UPDATE_REACT_DETAILS_INCORRECT_EFFECTIVEFROM_MSG);
