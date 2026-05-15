@@ -27,6 +27,9 @@ env:
   DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
+permissions:
+  contents: read
+
 jobs:
   resolve-config:
     runs-on: ubuntu-latest
