@@ -203,7 +203,17 @@ public class EmployeeService {
 			}
 		}
 
-		String stateLevelTenantId = centralInstanceUtil.getStateLevelTenant(criteria.getTenantId());
+		// Preserve the original (city-level) tenant before any mutation below.
+		// cb666091 changed the user-enrichment search to use stateLevelTenantId
+		// to fix the userChecked=true path (where criteria.getTenantId() gets
+		// nulled at line below). But for the plain _search path
+		// (userChecked=false), criteria.getTenantId() is still the original
+		// city tenant — which is what egov-user actually persists EMPLOYEE
+		// rows under (getStateLevelTenantForCitizen only strips for CITIZEN).
+		// Using stateLevelTenantId there made every WHERE clause miss → user
+		// came back as null for every employee. Refs CCRS#800.
+		String originalTenantId = criteria.getTenantId();
+		String stateLevelTenantId = centralInstanceUtil.getStateLevelTenant(originalTenantId);
 		if(userChecked)
 			criteria.setTenantId(null);
         List <Employee> employees = new ArrayList<>();
@@ -213,7 +223,7 @@ public class EmployeeService {
 		if(!CollectionUtils.isEmpty(uuids)){
             Map<String, Object> userSearchCriteria = new HashMap<>();
             userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_UUID,uuids);
-			userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_TENANTID, stateLevelTenantId);
+			userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_TENANTID, originalTenantId);
 			log.info("uuid is available {}", userSearchCriteria);
             if(mapOfUsers.isEmpty()){
 				log.info("searching in user service");
