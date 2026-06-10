@@ -55,7 +55,12 @@ public class HRMSConstants {
 
 	public static final String INTERNALMICROSERVICEUSER_USERNAME = "INTERNAL_USER";
 
-	public static final String INTERNALMICROSERVICEUSER_MOBILENO = "9999999999";
+	// Must satisfy egov-user mobile validation (configurable per tenant via
+	// MDMS common-masters.UserValidation). Kenya rule is `^0?[17][0-9]{8}$`,
+	// so the previous Indian-style 9999999999 fails on bootstrap. The number
+	// below is a placeholder for a system account that never receives SMS —
+	// it just needs to pass server-side validation.
+	public static final String INTERNALMICROSERVICEUSER_MOBILENO = "0700000000";
 
 	public static final String INTERNALMICROSERVICEUSER_TYPE = "SYSTEM";
 

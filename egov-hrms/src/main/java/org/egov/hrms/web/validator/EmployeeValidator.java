@@ -226,9 +226,29 @@ public class EmployeeValidator {
 	 */
 	private void validateExistingDuplicates(EmployeeRequest request, Map<String, String> errorMap) {
 		List<Employee> employees = request.getEmployees();
+		for(Employee employee : employees) {
+			if(employee.getUser() == null) {
+				errorMap.put("ERR_HRMS_NULL_USER", "User object is required for employee creation.");
+				return;
+			}
+			if(StringUtils.isEmpty(employee.getUser().getMobileNumber())) {
+				errorMap.put("ERR_HRMS_NULL_MOBILE", "Mobile number is required for employee creation.");
+				return;
+			}
+		}
 		validateDataUniqueness(employees,errorMap);
-        validateUserMobile(employees,errorMap,request.getRequestInfo());
-        validateUserName(employees,errorMap,request.getRequestInfo());
+		// Skip the duplicate-mobile/duplicate-username checks for employees
+		// that explicitly link to a pre-existing eg_user via user.uuid.
+		// Without this exemption, the validator finds the linked user (which
+		// is the whole point) and falsely flags the request as a duplicate,
+		// blocking the HRMS-attach path that PGR's workflow needs.
+		List<Employee> employeesForUniqueCheck = employees.stream()
+				.filter(e -> e.getUser() == null || StringUtils.isEmpty(e.getUser().getUuid()))
+				.collect(Collectors.toList());
+		if (!employeesForUniqueCheck.isEmpty()) {
+			validateUserMobile(employeesForUniqueCheck, errorMap, request.getRequestInfo());
+			validateUserName(employeesForUniqueCheck, errorMap, request.getRequestInfo());
+		}
 	}
 
 	/**
@@ -536,6 +556,10 @@ public class EmployeeValidator {
 	private void validateJurisdicton(Employee employee, Map<String, String> errorMap, Map<String, List<String>> mdmsData, Map<String, List<String>> boundaryMap) {
 		if(CollectionUtils.isEmpty(employee.getJurisdictions().stream().filter(jurisdiction -> null == jurisdiction.getIsActive() || jurisdiction.getIsActive() &&  jurisdiction.getIsActive() ).collect(Collectors.toList()))){
 			errorMap.put(ErrorConstants.HRMS_INVALID_JURISDICTION_ACTIIEV_NULL_CODE,ErrorConstants.HRMS_INVALID_JURISDICTION_ACTIIEV_NULL_MSG);
+		}
+		if(CollectionUtils.isEmpty(boundaryMap) || !boundaryMap.containsKey(HRMSConstants.HRMS_MDMS_TENANT_BOUNDARY_CODE)) {
+			log.warn("HRMS: No TenantBoundary data in MDMS — skipping boundary validation");
+			return;
 		}
 		for(Jurisdiction jurisdiction: employee.getJurisdictions()) {
 				String hierarchy_type_path = String.format(HRMSConstants.HRMS_TENANTBOUNDARY_HIERARCHY_JSONPATH,jurisdiction.getBoundary());

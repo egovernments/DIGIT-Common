@@ -46,13 +46,15 @@ public class IdGenService {
 			return;
 		IdGenerationResponse response = getId(employeeRequest.getRequestInfo(), tenantId, employeeRequest.getEmployees().size() - employeesWithCode,
 				properties.getHrmsIdGenKey(), properties.getHrmsIdGenFormat());
-		if(null != response) {
-			int i = 0;
-			for(Employee employee: employeeRequest.getEmployees()) {
-				if(StringUtils.isEmpty(employee.getCode())) {
-					employee.setCode(response.getIdResponses().get(i).getId());
-					i++;
-				}
+		if(null == response || null == response.getIdResponses() || response.getIdResponses().isEmpty()) {
+			throw new CustomException(ErrorConstants.HRMS_GENERATE_ID_ERROR_CODE,
+					"IDGen returned null or empty response. Ensure the ID format is configured for tenant: " + tenantId);
+		}
+		int i = 0;
+		for(Employee employee: employeeRequest.getEmployees()) {
+			if(StringUtils.isEmpty(employee.getCode())) {
+				employee.setCode(response.getIdResponses().get(i).getId());
+				i++;
 			}
 		}
 	}

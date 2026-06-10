@@ -132,7 +132,11 @@ public class EmployeeService {
 		});
 		String hrmsCreateTopic = propertiesManager.getSaveEmployeeTopic();
 		hrmsProducer.push(tenantId, hrmsCreateTopic, employeeRequest);
-		notificationService.sendNotification(employeeRequest, pwdMap);
+		if (propertiesManager.isDevMode()) {
+			log.info("HRMS: SMS notification skipped — dev mode with default password");
+		} else {
+			notificationService.sendNotification(employeeRequest, pwdMap);
+		}
 		return generateResponse(employeeRequest);
 	}
 	
@@ -199,7 +203,17 @@ public class EmployeeService {
 			}
 		}
 
-		String stateLevelTenantId = centralInstanceUtil.getStateLevelTenant(criteria.getTenantId());
+		// Preserve the original (city-level) tenant before any mutation below.
+		// cb666091 changed the user-enrichment search to use stateLevelTenantId
+		// to fix the userChecked=true path (where criteria.getTenantId() gets
+		// nulled at line below). But for the plain _search path
+		// (userChecked=false), criteria.getTenantId() is still the original
+		// city tenant — which is what egov-user actually persists EMPLOYEE
+		// rows under (getStateLevelTenantForCitizen only strips for CITIZEN).
+		// Using stateLevelTenantId there made every WHERE clause miss → user
+		// came back as null for every employee. Refs CCRS#800.
+		String originalTenantId = criteria.getTenantId();
+		String stateLevelTenantId = centralInstanceUtil.getStateLevelTenant(originalTenantId);
 		if(userChecked)
 			criteria.setTenantId(null);
         List <Employee> employees = new ArrayList<>();
@@ -209,7 +223,7 @@ public class EmployeeService {
 		if(!CollectionUtils.isEmpty(uuids)){
             Map<String, Object> userSearchCriteria = new HashMap<>();
             userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_UUID,uuids);
-			userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_TENANTID, criteria.getTenantId());
+			userSearchCriteria.put(HRMSConstants.HRMS_USER_SEARCH_CRITERA_TENANTID, originalTenantId);
 			log.info("uuid is available {}", userSearchCriteria);
             if(mapOfUsers.isEmpty()){
 				log.info("searching in user service");
@@ -230,11 +244,51 @@ public class EmployeeService {
 	
 	/**
 	 * Creates user by making call to egov-user.
-	 * 
+	 *
+	 * If the caller passes an existing user's uuid on `employee.getUser()`
+	 * (e.g. an already-provisioned ADMIN), we link the HRMS employee to
+	 * that user instead of forcing a fresh user-create. Without this short
+	 * circuit the create-user call trips DuplicateUserName (and clobbers
+	 * the caller's userName with the employee code), which then cascades
+	 * into PGR's DEPARTMENT_NOT_FOUND on every assign action because the
+	 * employee never got an HRMS row attached to the live user.
+	 *
 	 * @param employee
 	 * @param requestInfo
 	 */
 	private void createUser(Employee employee, RequestInfo requestInfo) {
+		String inboundUuid = employee.getUser() != null ? employee.getUser().getUuid() : null;
+		if (!StringUtils.isEmpty(inboundUuid)) {
+			// Caller supplied uuid → look up the live user and link to them.
+			Map<String, Object> userSearchCriteria = new HashMap<>();
+			userSearchCriteria.put("uuid", Collections.singletonList(inboundUuid));
+			userSearchCriteria.put("tenantId", employee.getTenantId());
+			UserResponse searchResp = userService.getUser(requestInfo, userSearchCriteria);
+			if (searchResp != null && !CollectionUtils.isEmpty(searchResp.getUser())) {
+				User existing = searchResp.getUser().get(0);
+				employee.setId(UUID.fromString(existing.getUuid()).getMostSignificantBits());
+				employee.setUuid(existing.getUuid());
+				// Preserve enough of the live user record on the employee.user
+				// payload so downstream (kafka persister, search, audit) is happy.
+				employee.getUser().setId(existing.getId());
+				employee.getUser().setUuid(existing.getUuid());
+				employee.getUser().setUserServiceUuid(existing.getUserServiceUuid());
+				if (StringUtils.isEmpty(employee.getUser().getUserName())) {
+					employee.getUser().setUserName(existing.getUserName());
+				}
+				if (StringUtils.isEmpty(employee.getUser().getMobileNumber())) {
+					employee.getUser().setMobileNumber(existing.getMobileNumber());
+				}
+				if (StringUtils.isEmpty(employee.getUser().getTenantId())) {
+					employee.getUser().setTenantId(existing.getTenantId());
+				}
+				log.info("HRMS: linking employee to existing user uuid={}", existing.getUuid());
+				return;
+			}
+			// Fall through to create when the uuid couldn't be resolved.
+			log.warn("HRMS: caller passed uuid={} but user not found; falling back to create", inboundUuid);
+		}
+
 		enrichUser(employee);
 		UserRequest request = UserRequest.builder().requestInfo(requestInfo).user(employee.getUser()).build();
 		try {
@@ -267,19 +321,36 @@ public class EmployeeService {
 	 * @param employee
 	 */
 	private void enrichUser(Employee employee) {
-		if (propertiesManager.isDevMode()) {
-			employee.getUser().setPassword(propertiesManager.getDefaultPassword());
-		} else if (propertiesManager.isAutoGeneratePassword()) {
-			List<String> pwdParams = new ArrayList<>();
-			pwdParams.add(employee.getCode());
-			pwdParams.add(employee.getUser().getMobileNumber());
-			pwdParams.add(employee.getTenantId());
-			pwdParams.add(employee.getUser().getName().toUpperCase());
-			employee.getUser().setPassword(hrmsUtils.generatePassword(pwdParams));
+		if(StringUtils.isEmpty(employee.getCode())) {
+			throw new CustomException("ERR_HRMS_NULL_EMPLOYEE_CODE",
+					"Employee code is null after ID generation. Check IDGen service configuration for the tenant.");
+		}
+		// Honour an operator-supplied password (closes egovernments/CCRS#482).
+		// Previously dev-mode and auto-generate paths overwrote whatever the
+		// configurator UI sent for "Initial Password", forcing every employee
+		// to log in with the configured default. Now: only fall back to the
+		// dev/auto-generated password when the request didn't carry one.
+		String suppliedPassword = employee.getUser() != null ? employee.getUser().getPassword() : null;
+		if (StringUtils.isEmpty(suppliedPassword)) {
+			if (propertiesManager.isDevMode()) {
+				employee.getUser().setPassword(propertiesManager.getDefaultPassword());
+			} else if (propertiesManager.isAutoGeneratePassword()) {
+				List<String> pwdParams = new ArrayList<>();
+				pwdParams.add(employee.getCode());
+				pwdParams.add(employee.getUser().getMobileNumber());
+				pwdParams.add(employee.getTenantId());
+				pwdParams.add(employee.getUser().getName().toUpperCase());
+				employee.getUser().setPassword(hrmsUtils.generatePassword(pwdParams));
+			}
 		}
 		employee.getUser().setUserName(employee.getCode());
 		employee.getUser().setActive(true);
 		employee.getUser().setType(UserType.EMPLOYEE.toString());
+		// Ensure tenantId is set on the User object — egov-user's
+		// MobileNumberValidator needs it to fetch MDMS rules.
+		if (StringUtils.isEmpty(employee.getUser().getTenantId())) {
+			employee.getUser().setTenantId(employee.getTenantId());
+		}
 	}
 
 	/**
