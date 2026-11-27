@@ -48,6 +48,7 @@ import org.egov.demand.model.TaxPeriod;
 import org.egov.demand.model.enums.PeriodCycle;
 import org.egov.demand.repository.TaxPeriodRepository;
 import org.egov.demand.web.contract.TaxPeriodCriteria;
+import org.egov.tracer.model.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -92,7 +93,7 @@ public class TaxPeriodQueryBuilder {
 
         Set<String> service = taxPeriodCriteria.getService(); 
         if (service != null &&  !service.isEmpty()) {
-            selectQuery.append(" and taxperiod.service IN " + getQueryForCollection(service));
+            selectQuery.append(" and taxperiod.service IN " + getQueryForCollection(service, preparedStatementValues));
         }
         
         PeriodCycle periodCycle = taxPeriodCriteria.getPeriodCycle();
@@ -103,27 +104,31 @@ public class TaxPeriodQueryBuilder {
         
 		if (taxPeriodCriteria.getFromDate() != null && taxPeriodCriteria.getToDate() != null) {
 			if (service != null && !service.isEmpty() && service.size() == 1 && periodCycle!=null) {
+				String servicePlaceholders = " (" + getPlaceholders(service.size()) + ")";
 				selectQuery.append(
 						" AND (fromdate >=  CASE WHEN ((SELECT fromdate FROM {schema}.egbs_taxperiod WHERE tenantId =? AND ( ? BETWEEN fromdate AND  todate)  "
-								+ " AND service IN " + getQueryForCollection(service) + " AND periodcycle=?) NOTNULL) "
+								+ " AND service IN " + servicePlaceholders + " AND periodcycle=?) NOTNULL) "
 								+ "THEN "
 								+ "( SELECT fromdate FROM {schema}.egbs_taxperiod WHERE tenantId =? AND ( ? BETWEEN fromdate AND  todate)"
-								+ " AND service IN "+ getQueryForCollection(service) + " AND periodcycle=?) "
+								+ " AND service IN "+ servicePlaceholders + " AND periodcycle=?) "
 								+ "ELSE " 
 								+ "(SELECT min(fromdate) FROM {schema}.egbs_taxperiod WHERE tenantId =?)"
 								+ " END"
 								+ " AND todate <= ( SELECT todate FROM {schema}.egbs_taxperiod WHERE tenantId = ? AND (? BETWEEN fromdate AND  todate) "
-								+ " AND service IN " + getQueryForCollection(service) + " AND periodcycle=?))");
+								+ " AND service IN " + servicePlaceholders + " AND periodcycle=?))");
 				
 				preparedStatementValues.add(tenantId);
 				preparedStatementValues.add(taxPeriodCriteria.getFromDate());
+				preparedStatementValues.addAll(service);
 				preparedStatementValues.add(periodCycle.toString());
 				preparedStatementValues.add(tenantId);
 				preparedStatementValues.add(taxPeriodCriteria.getFromDate());
+				preparedStatementValues.addAll(service);
 				preparedStatementValues.add(periodCycle.toString());
 				preparedStatementValues.add(tenantId);
 				preparedStatementValues.add(tenantId);
 				preparedStatementValues.add(taxPeriodCriteria.getToDate());
+				preparedStatementValues.addAll(service);
 				preparedStatementValues.add(periodCycle.toString());
 			} else {
 				if (taxPeriodCriteria.getFromDate() != null) {
@@ -144,7 +149,7 @@ public class TaxPeriodQueryBuilder {
 
         Set<String> ids = taxPeriodCriteria.getId();
         if (ids != null && !ids.isEmpty())
-            selectQuery.append(" and taxperiod.id IN "+getQueryForCollection(ids));
+            selectQuery.append(" and taxperiod.id IN "+getQueryForCollection(ids, preparedStatementValues));
         
         if(taxPeriodCriteria.getDate()!=null){
         	selectQuery.append(" and taxperiod.fromdate <= ? and taxperiod.todate >= ? ");
@@ -165,14 +170,14 @@ public class TaxPeriodQueryBuilder {
 			whereClause = whereClause.append(" ( ");
 		
 			if (StringUtils.isNotBlank(taxPeriod.getService()))
-				whereClause = whereClause.append(" taxperiod.service = '").append(taxPeriod.getService())
+				whereClause = whereClause.append(" taxperiod.service = '").append(escapeLiteral(taxPeriod.getService()))
 						.append("' and ");
 			if (StringUtils.isNotBlank(taxPeriod.getCode()))
-				whereClause = whereClause.append(" taxperiod.code = '").append(taxPeriod.getCode()).append("' and ");
+				whereClause = whereClause.append(" taxperiod.code = '").append(escapeLiteral(taxPeriod.getCode())).append("' and ");
 			if ("edit".equalsIgnoreCase(mode))
-				whereClause = whereClause.append(" taxperiod.id != '").append(taxPeriod.getId()).append("' and ");
+				whereClause = whereClause.append(" taxperiod.id != '").append(escapeLiteral(String.valueOf(taxPeriod.getId()))).append("' and ");
 			if (StringUtils.isNotBlank(taxPeriod.getTenantId()))
-				whereClause = whereClause.append(" taxperiod.tenantId = '").append(taxPeriod.getTenantId())
+				whereClause = whereClause.append(" taxperiod.tenantId = '").append(escapeLiteral(taxPeriod.getTenantId()))
 						.append("' and (( ");
 			// from and to dates validation
 			if (StringUtils.isNotBlank(taxPeriod.getFromDate().toString())
@@ -188,14 +193,29 @@ public class TaxPeriodQueryBuilder {
 		return baseQuery.concat(whereClause.toString()).concat(" )");
 	}
 
-    private String getQueryForCollection(Set<String> values) {
+    private String getQueryForCollection(Set<String> values, List<Object> preparedStatementValues) {
         StringBuilder query = new StringBuilder();
         if (!values.isEmpty()) {
-            String[] list = values.toArray(new String[values.size()]);
-            query.append(" ('"+list[0]+"'");
-            for (int i = 1; i < values.size(); i++)
-                query.append("," + "'"+list[i]+"'");
+            query.append(" (").append(getPlaceholders(values.size()));
+            preparedStatementValues.addAll(values);
         }
         return query.append(")").toString();
+    }
+
+    private static String getPlaceholders(int count) {
+        StringBuilder placeholders = new StringBuilder("?");
+        for (int i = 1; i < count; i++)
+            placeholders.append(",?");
+        return placeholders.toString();
+    }
+
+    /**
+     * Makes a value safe to embed in a single-quoted SQL literal. This method's
+     * signature returns only the query text, so the values cannot be bound.
+     */
+    private static String escapeLiteral(String value) {
+        if (value.indexOf('\\') >= 0 || value.indexOf('\u0000') >= 0)
+            throw new CustomException("EG_BS_INVALID_INPUT", "Backslash and null characters are not allowed in search values");
+        return value.replace("'", "''");
     }
 }

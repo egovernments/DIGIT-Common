@@ -148,8 +148,9 @@ public class DemandQueryBuilder {
 				else
 					query.append("AND");
 				
-				query.append(" dmd.businessservice='"+businessService+"' AND dmd.consumercode IN ("
+				query.append(" dmd.businessservice=? AND dmd.consumercode IN ("
 						+getIdQueryForStrings(consumerCodes)+")");
+				preparedStmtList.add(businessService);
 				addToPreparedStatement(preparedStmtList, consumerCodes);
 				orFlag=true;
 			}

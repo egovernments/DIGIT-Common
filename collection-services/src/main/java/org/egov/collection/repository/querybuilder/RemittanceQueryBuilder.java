@@ -2,7 +2,11 @@ package org.egov.collection.repository.querybuilder;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.egov.collection.web.contract.Remittance;
@@ -10,9 +14,17 @@ import org.egov.collection.web.contract.RemittanceDetail;
 import org.egov.collection.web.contract.RemittanceInstrument;
 import org.egov.collection.web.contract.RemittanceReceipt;
 import org.egov.collection.web.contract.RemittanceSearchRequest;
+import org.egov.tracer.model.CustomException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 public class RemittanceQueryBuilder {
+
+    // Columns of egcl_remittance that a search may be sorted by
+    private static final Set<String> SORTABLE_COLUMNS = new LinkedHashSet<>(Arrays.asList("id", "referencenumber",
+            "referencedate", "voucherheader", "fund", "function", "remarks", "reasonfordelay", "status", "createdby",
+            "createddate", "lastmodifiedby", "lastmodifieddate", "bankaccount", "tenantid"));
+
+    private static final Set<String> SORT_ORDERS = new LinkedHashSet<>(Arrays.asList("ASC", "DESC"));
 
     public static final String INSERT_REMITTANCE_SQL = "INSERT INTO {schema}.egcl_remittance(id, referencenumber, referencedate, voucherheader, fund, function, remarks, reasonfordelay, status, createdby, createddate, lastmodifiedby, lastmodifieddate, bankaccount, tenantid) "
             + "VALUES (:id, :referencenumber, :referencedate, :voucherheader, :fund, :function, :remarks, :reasonfordelay, :status, :createdby, :createddate, :lastmodifiedby, :lastmodifieddate, :bankaccount, :tenantid)";
@@ -226,9 +238,22 @@ public class RemittanceQueryBuilder {
 
     private static void addOrderByClause(StringBuilder selectQuery,
             RemittanceSearchRequest criteria) {
-        String sortBy = (criteria.getSortBy() == null ? "rem.referenceDate" : "rem." + criteria.getSortBy());
-        String sortOrder = (criteria.getSortOrder() == null ? "DESC" : criteria
-                .getSortOrder());
+        // ORDER BY cannot be bound as a parameter, so both values are checked against allow-lists
+        String sortBy = "rem.referenceDate";
+        if (criteria.getSortBy() != null) {
+            String requestedSortBy = criteria.getSortBy().trim().toLowerCase(Locale.ROOT);
+            if (!SORTABLE_COLUMNS.contains(requestedSortBy))
+                throw new CustomException("INVALID_SORT_BY", "sortBy must be one of " + SORTABLE_COLUMNS);
+            sortBy = "rem." + requestedSortBy;
+        }
+
+        String sortOrder = "DESC";
+        if (criteria.getSortOrder() != null) {
+            String requestedSortOrder = criteria.getSortOrder().trim().toUpperCase(Locale.ROOT);
+            if (!SORT_ORDERS.contains(requestedSortOrder))
+                throw new CustomException("INVALID_SORT_ORDER", "sortOrder must be one of " + SORT_ORDERS);
+            sortOrder = requestedSortOrder;
+        }
         selectQuery.append(" ORDER BY ").append(sortBy).append(" ").append(sortOrder);
     }
 

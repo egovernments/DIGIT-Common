@@ -10,6 +10,11 @@ export const getTableName = (tableName: string, tenantId: string): string => {
     const firstTenantPartAfterSplit = tenantId.includes(".")
       ? tenantId.split(".")[0]
       : tenantId;
+    // The schema name is taken from the request and cannot be bound as a query
+    // parameter, so only plain identifier characters are accepted.
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(firstTenantPartAfterSplit)) {
+      throwError("COMMON", 400, "VALIDATION_ERROR", "tenantId is invalid");
+    }
     return `${firstTenantPartAfterSplit}.${tableName}`;
   } else {
     return `${getDBSchemaName(config.DB_CONFIG.DB_SCHEMA)}.${tableName}`;

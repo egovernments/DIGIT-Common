@@ -41,9 +41,14 @@ package org.egov.collection.repository.querybuilder;
  */
 
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import org.egov.collection.web.contract.CollectionConfigGetRequest;
+import org.egov.tracer.model.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -53,6 +58,12 @@ public class CollectionConfigQueryBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger(CollectionConfigQueryBuilder.class);
 
+
+	// Columns and aliases of the configuration search that results may be sorted by
+	private static final Set<String> SORTABLE_COLUMNS = new LinkedHashSet<>(Arrays.asList("keyname", "key", "value",
+			"effectivefrom", "c.id", "c.keyname", "cv.value", "cv.effectivefrom", "cv.tenantid", "cv.keyid"));
+
+	private static final Set<String> SORT_ORDERS = new LinkedHashSet<>(Arrays.asList("ASC", "DESC"));
 
 	private static final String BASE_QUERY = "SELECT c.keyname as key, cv.value as value "
 			+ "FROM {schema}.egcl_configuration c JOIN {schema}.egcl_configurationvalues cv ON c.id = cv.keyid";
@@ -105,10 +116,22 @@ public class CollectionConfigQueryBuilder {
 	}
 
 	private void addOrderByClause(StringBuilder selectQuery, CollectionConfigGetRequest collectionConfigGetRequest) {
-		String sortBy = (collectionConfigGetRequest.getSortBy() == null ? "keyname"
-				: collectionConfigGetRequest.getSortBy());
-		String sortOrder = (collectionConfigGetRequest.getSortOrder() == null ? "ASC"
-				: collectionConfigGetRequest.getSortOrder());
+		// ORDER BY cannot be bound as a parameter, so both values are checked against allow-lists
+		String sortBy = "keyname";
+		if (collectionConfigGetRequest.getSortBy() != null) {
+			String requestedSortBy = collectionConfigGetRequest.getSortBy().trim().toLowerCase(Locale.ROOT);
+			if (!SORTABLE_COLUMNS.contains(requestedSortBy))
+				throw new CustomException("INVALID_SORT_BY", "sortBy must be one of " + SORTABLE_COLUMNS);
+			sortBy = requestedSortBy;
+		}
+
+		String sortOrder = "ASC";
+		if (collectionConfigGetRequest.getSortOrder() != null) {
+			String requestedSortOrder = collectionConfigGetRequest.getSortOrder().trim().toUpperCase(Locale.ROOT);
+			if (!SORT_ORDERS.contains(requestedSortOrder))
+				throw new CustomException("INVALID_SORT_ORDER", "sortOrder must be one of " + SORT_ORDERS);
+			sortOrder = requestedSortOrder;
+		}
 		selectQuery.append(" ORDER BY " + sortBy + " " + sortOrder);
 	}
 
