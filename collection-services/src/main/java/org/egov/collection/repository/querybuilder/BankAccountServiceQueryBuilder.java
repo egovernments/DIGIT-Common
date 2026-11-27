@@ -61,7 +61,7 @@ public class BankAccountServiceQueryBuilder {
 
         if (searchCriteria.getBusinessDetails() != null && !searchCriteria.getBusinessDetails().isEmpty()) {
             searchQuery.append(" and businessdetails ilike any  "
-                    + getStringAppendQuery(searchCriteria.getBusinessDetails()));
+                    + getStringAppendQuery(searchCriteria.getBusinessDetails(), paramValues));
         }
 
         if (searchCriteria.getBankAccount() != null) {
@@ -83,14 +83,15 @@ public class BankAccountServiceQueryBuilder {
         return searchQuery.toString();
     }
 
-    private static String getStringAppendQuery(List<String> receiptNumbersList) {
+    private static String getStringAppendQuery(List<String> businessDetailsList, Map<String, Object> paramValues) {
         StringBuilder query = new StringBuilder("(array [");
 
-        if (receiptNumbersList.size() >= 1) {
-            query.append("'%").append(receiptNumbersList.get(0).toString()).append("%'");
-            for (int i = 1; i < receiptNumbersList.size(); i++) {
-                query.append(", '%" + receiptNumbersList.get(i) + "%'");
-            }
+        for (int i = 0; i < businessDetailsList.size(); i++) {
+            String paramName = "businessDetails" + i;
+            if (i > 0)
+                query.append(", ");
+            query.append(":").append(paramName);
+            paramValues.put(paramName, "%" + businessDetailsList.get(i) + "%");
         }
         return query.append("])").toString();
     }

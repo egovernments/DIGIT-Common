@@ -61,9 +61,9 @@ public class TaxHeadMasterQueryBuilder {
 		}
 
 		if (searchTaxHead.getId() != null && !searchTaxHead.getId().isEmpty()) {
-			selectQuery.append(" AND taxhead.id IN (" + getIdQuery(searchTaxHead.getId()));
+			selectQuery.append(" AND taxhead.id IN (" + getIdQuery(searchTaxHead.getId(), preparedStatementValues));
 		}else if(searchTaxHead.getCode() != null && !searchTaxHead.getCode().isEmpty()) {
-			selectQuery.append(" AND taxhead.code IN ("+ getIdQuery(searchTaxHead.getCode()));
+			selectQuery.append(" AND taxhead.code IN ("+ getIdQuery(searchTaxHead.getCode(), preparedStatementValues));
 		}
 		
 		if (searchTaxHead.getCategory() != null) {
@@ -105,14 +105,14 @@ public class TaxHeadMasterQueryBuilder {
 															// pageNo * pageSize
 	}
 	
-	private static String getIdQuery(Set<String> idList) {
+	private static String getIdQuery(Set<String> idList, List<Object> preparedStatementValues) {
 
 		StringBuilder query = new StringBuilder();
 		if (!idList.isEmpty()) {
-			String[] list = idList.toArray(new String[idList.size()]);
-			query.append("'"+list[0]+"'");
+			query.append("?");
 			for (int i = 1; i < idList.size(); i++)
-				query.append("," + "'"+list[i]+"'");
+				query.append(",?");
+			preparedStatementValues.addAll(idList);
 		}
 		return query.append(")").toString();
 	}

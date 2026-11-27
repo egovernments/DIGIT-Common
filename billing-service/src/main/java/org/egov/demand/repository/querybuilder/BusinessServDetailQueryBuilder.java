@@ -43,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.egov.demand.model.BusinessServiceDetail;
 import org.egov.demand.web.contract.BusinessServiceDetailCriteria;
+import org.egov.tracer.model.CustomException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -75,10 +76,10 @@ public class BusinessServDetailQueryBuilder {
 
         if (!CollectionUtils.isEmpty(businessServiceDetailCriteria.getBusinessService()))
             selectQuery.append(" and businessservice.businessservice IN " +
-                    getQueryForCollection(businessServiceDetailCriteria.getBusinessService()));
+                    getQueryForCollection(businessServiceDetailCriteria.getBusinessService(), preparedStatementValues));
 
         if (businessServiceDetailCriteria.getId() != null && !businessServiceDetailCriteria.getId().isEmpty())
-            selectQuery.append(" and businessservice.id IN " + getQueryForCollection(businessServiceDetailCriteria.getId()));
+            selectQuery.append(" and businessservice.id IN " + getQueryForCollection(businessServiceDetailCriteria.getId(), preparedStatementValues));
 
     }
 
@@ -89,11 +90,11 @@ public class BusinessServDetailQueryBuilder {
         for (BusinessServiceDetail businessServiceDetail : businessServiceDetailList) {
             whereClause = whereClause.append(" ( ");
             if (StringUtils.isNotBlank(businessServiceDetail.getBusinessService()))
-                whereClause = whereClause.append("businessservice.businessservice = '").append(businessServiceDetail.getBusinessService()).append("' and ");
+                whereClause = whereClause.append("businessservice.businessservice = '").append(escapeLiteral(businessServiceDetail.getBusinessService())).append("' and ");
             if ("edit".equalsIgnoreCase(mode))
-                whereClause = whereClause.append(" businessservice.id != '").append(businessServiceDetail.getId()).append("' and ");
+                whereClause = whereClause.append(" businessservice.id != '").append(escapeLiteral(String.valueOf(businessServiceDetail.getId()))).append("' and ");
             if (StringUtils.isNotBlank(businessServiceDetail.getTenantId()))
-                whereClause = whereClause.append(" businessservice.tenantId = '").append(businessServiceDetail.getTenantId()).append("')");
+                whereClause = whereClause.append(" businessservice.tenantId = '").append(escapeLiteral(businessServiceDetail.getTenantId())).append("')");
 
             count++;
             if (businessServiceDetailList.size() > count)
@@ -114,14 +115,29 @@ public class BusinessServDetailQueryBuilder {
                 "WHERE tenantid = ? and id = ?;";
     }
 
-    private String getQueryForCollection(Set<String> values) {
+    private String getQueryForCollection(Set<String> values, List<Object> preparedStatementValues) {
         StringBuilder query = new StringBuilder();
         if (!values.isEmpty()) {
-            String[] list = values.toArray(new String[values.size()]);
-            query.append(" ('" + list[0] + "'");
-            for (int i = 1; i < values.size(); i++)
-                query.append("," + "'" + list[i] + "'");
+            query.append(" (").append(getPlaceholders(values.size()));
+            preparedStatementValues.addAll(values);
         }
         return query.append(")").toString();
+    }
+
+    private static String getPlaceholders(int count) {
+        StringBuilder placeholders = new StringBuilder("?");
+        for (int i = 1; i < count; i++)
+            placeholders.append(",?");
+        return placeholders.toString();
+    }
+
+    /**
+     * Makes a value safe to embed in a single-quoted SQL literal. This method's
+     * signature returns only the query text, so the values cannot be bound.
+     */
+    private static String escapeLiteral(String value) {
+        if (value.indexOf('\\') >= 0 || value.indexOf('\u0000') >= 0)
+            throw new CustomException("EG_BS_INVALID_INPUT", "Backslash and null characters are not allowed in search values");
+        return value.replace("'", "''");
     }
 }

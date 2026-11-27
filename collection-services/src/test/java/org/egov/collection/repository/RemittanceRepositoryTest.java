@@ -97,7 +97,7 @@ class RemittanceRepositoryTest {
         remittanceSearchRequest.setReasonForDelay("Just cause");
         remittanceSearchRequest.setReferenceNumbers(new ArrayList<>());
         remittanceSearchRequest.setRemarks("Remarks");
-        remittanceSearchRequest.setSortBy("Sort By");
+        remittanceSearchRequest.setSortBy("referenceNumber");
         remittanceSearchRequest.setSortOrder("asc");
         remittanceSearchRequest.setStatus("Status");
         remittanceSearchRequest.setTenantId("42");

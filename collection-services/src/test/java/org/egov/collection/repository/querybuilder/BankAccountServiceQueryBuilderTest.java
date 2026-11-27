@@ -89,7 +89,7 @@ class BankAccountServiceQueryBuilderTest {
         HashMap<String, Object> stringObjectMap = new HashMap<>();
         assertEquals(
                 "select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId and businessdetails ilike any"
-                        + "  (array ['%select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId%']) and bankaccount"
+                        + "  (array [:businessDetails0]) and bankaccount"
                         + " =:bankaccount and bank =:bank and bankBranch =:bankBranch order by businessdetails",
                 this.bankAccountServiceQueryBuilder
                         .BankAccountServiceMappingSearchQuery(bankAccountServiceMappingSearchCriteria, stringObjectMap));
@@ -98,7 +98,9 @@ class BankAccountServiceQueryBuilderTest {
         verify(bankAccountServiceMappingSearchCriteria, atLeast(1)).getBankBranch();
         verify(bankAccountServiceMappingSearchCriteria).getTenantId();
         verify(bankAccountServiceMappingSearchCriteria, atLeast(1)).getBusinessDetails();
-        assertEquals(4, stringObjectMap.size());
+        assertEquals(5, stringObjectMap.size());
+        assertEquals("%select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId%",
+                stringObjectMap.get("businessDetails0"));
     }
 
     @Test
@@ -116,8 +118,7 @@ class BankAccountServiceQueryBuilderTest {
         HashMap<String, Object> stringObjectMap = new HashMap<>();
         assertEquals(
                 "select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId and businessdetails ilike any"
-                        + "  (array ['%select * from {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId%', '%select * from"
-                        + " {schema}.egcl_bankaccountservicemapping where tenantid =:tenantId%']) and bankaccount =:bankaccount and bank"
+                        + "  (array [:businessDetails0, :businessDetails1]) and bankaccount =:bankaccount and bank"
                         + " =:bank and bankBranch =:bankBranch order by businessdetails",
                 this.bankAccountServiceQueryBuilder
                         .BankAccountServiceMappingSearchQuery(bankAccountServiceMappingSearchCriteria, stringObjectMap));
@@ -126,7 +127,7 @@ class BankAccountServiceQueryBuilderTest {
         verify(bankAccountServiceMappingSearchCriteria, atLeast(1)).getBankBranch();
         verify(bankAccountServiceMappingSearchCriteria).getTenantId();
         verify(bankAccountServiceMappingSearchCriteria, atLeast(1)).getBusinessDetails();
-        assertEquals(4, stringObjectMap.size());
+        assertEquals(6, stringObjectMap.size());
     }
 
     @Test
